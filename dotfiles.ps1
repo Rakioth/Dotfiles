@@ -1,7 +1,9 @@
 #===========================================================================
 # Tweaks
 #===========================================================================
-<#
+
+$installEverything = Read-Host -prompt "Install everything? [y/n]"
+
 # Create Restore Point
 
 Write-Host "Creating Restore Point in case something bad happens"
@@ -220,6 +222,30 @@ Write-Host "Disabling Storage Sense..."
 Remove-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Recurse -ErrorAction SilentlyContinue
 
 # Disable GameDVR
+
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+Install-Module -Name "7Zip4Powershell" -Force
+
+Start-BitsTransfer -Source "https://www.sordum.org/files/download/power-run/PowerRun.zip" -Destination "$env:TEMP\PowerRun.zip"
+Expand-7Zip -ArchiveFileName "$env:TEMP\PowerRun.zip" -TargetPath $env:TEMP
+Move-Item -Path "$env:TEMP\PowerRun\PowerRun.exe" -Destination $env:WINDIR -Force
+Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
+Remove-Item -Path "$env:TEMP\PowerRun.zip" -Force
+
+if (!(Test-Path "HKCU:\System\GameConfigStore")) {
+    New-Item -Path "HKCU:\System\GameConfigStore" -Force
+}
+Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_DXGIHonorFSEWindowsCompatible" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_HonorUserFSEBehaviorMode" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_EFSEFeatureFlags" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_Enabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\System\GameConfigStore" -Name "GameDVR_FSEBehavior" -Type DWord -Value 2
+if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Force
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
+PowerRun.exe /SW:0 Powershell.exe -command { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name "ActivationType" -Type DWord -Value 0 }
+Remove-Item -Path "$env:WINDIR\PowerRun.*" -Force
 
 # Set Services to Manual
 
@@ -491,58 +517,133 @@ $InstalledPrograms | ForEach-Object {
     }
 }
 Write-Host "Finished Removing Bloatware Programs"
-#>
+
 # Remove Cortana
 
 Write-Host "Removing Cortana..."
 Get-AppxPackage -AllUsers Microsoft.549981C3F5F10 | Remove-AppxPackage
 
+# Remove Microsoft Edge
+
+Write-Host "Removing Microsoft Edge..."
+Invoke-WebRequest -useb https://raw.githubusercontent.com/Rakioth/Dotfiles/main/assets/O%26O%20ShutUp/Edge_Removal.bat | Invoke-Expression
+
+if ($installEverything -eq "-desktop") {
+
+# Disable Hibernation
+
+Write-Host "Disabling Hibernation..."
+Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernateEnabled" -Type Dword -Value 0
+if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings")) {
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 0
+
+# Disable Power Throttling
+
+if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling") {
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -Type DWord -Value 00000001
+}
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0000000
+
+}
+elseif ($installEverything -eq "-laptop") {
+
+# Enable Power Throttling
+
+if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling") {
+    Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -Type DWord -Value 00000000
+}
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0000001
+
+}
+
+#===========================================================================
+# Configs
+#===========================================================================
+
+# All .Net Framework (2,3,4)
+
+Enable-WindowsOptionalFeature -Online -FeatureName "NetFx4-AdvSrvs" -All -NoRestart
+Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" -All -NoRestart
+
+# Windows Subsystem for Linux
+
+Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart
+Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart
+Write-Host "WSL is now Installed and Configured. Please Reboot before using."
+
+#===========================================================================
+# Updates
+#===========================================================================
+
+Write-Host "Disabling driver offering through Windows Update..."
+if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata")) {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Name "PreventDeviceMetadataFromNetwork" -Type DWord -Value 1
+if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching")) {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Force | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontPromptForWindowsUpdate" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DontSearchWindowsUpdate" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DriverSearching" -Name "DriverUpdateWizardWuSearchEnabled" -Type DWord -Value 0
+if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate")) {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1
+Write-Host "Disabling Windows Update Automatic Restart..."
+if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU")) {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Force | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "NoAutoRebootWithLoggedOnUsers" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Name "AUPowerManagement" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "BranchReadinessLevel" -Type DWord -Value 20
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 365
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferQualityUpdatesPeriodInDays " -Type DWord -Value 4
 
 #===========================================================================
 # Install
 #===========================================================================
-<#
+
 Write-Host "Installing Apps..."
 
 $apps = @(
-    @{ id = "9N69B07TNQ5C"; options = ""; type = "-laptop" }
-    @{ id = "BlenderFoundation.Blender"; options = "-v 2.83.9 ; winget install -e -h --accept-source-agreements --accept-package-agreements --id BlenderFoundation.Blender -v 2.79b"; type = "-desktop" }
-    @{ id = "Canonical.Ubuntu.2204"; options = "-l D:\WSL\Ubuntu"; type = "-both" }
-    @{ id = "Discord.Discord"; options = ""; type = "-both" }
-    @{ id = "ElectronicArts.EADesktop"; options = ""; type = "-both" }
-    @{ id = "EpicGames.EpicGamesLauncher"; options = ""; type = "-desktop" }
-    @{ id = "GOG.Galaxy"; options = ""; type = "-desktop" }
-    @{ id = "Git.Git"; options = ""; type = "-both" }
-    @{ id = "GitHub.GitHubDesktop"; options = ""; type = "-both" }
-    @{ id = "Google.AndroidStudio"; options = ""; type = "-both" }
-    @{ id = "Google.Chrome"; options = ""; type = "-both" }
-    @{ id = "JanDeDobbeleer.OhMyPosh"; options = ""; type = "-both" }
-    @{ id = "JetBrains.IntelliJIDEA.Ultimate"; options = ""; type = "-both" }
-    @{ id = "KeePassXCTeam.KeePassXC"; options = ""; type = "-both" }
-    @{ id = "Klocman.BulkCrapUninstaller"; options = "-l D:\BCUninstaller"; type = "-both" }
-    @{ id = "Logitech.GHUB"; options = ""; type = "-both" }
-    @{ id = "M2Team.NanaZip"; options = ""; type = "-both" }
-    @{ id = "Microsoft.PowerShell"; options = ""; type = "-both" }
-    @{ id = "Microsoft.PowerToys"; options = ""; type = "-both" }
-    @{ id = "Microsoft.VisualStudio.2022.Community"; options = ""; type = "-both" }
-    @{ id = "Microsoft.VisualStudioCode"; options = ""; type = "-both" }
-    @{ id = "Mp3tag.Mp3tag"; options = "-l D:\Mp3tag"; type = "-desktop" }
-    @{ id = "Neovim.Neovim"; options = ""; type = "-both" }
-    @{ id = "Notepad++.Notepad++"; options = ""; type = "-both" }
-    @{ id = "OpenJS.NodeJS"; options = ""; type = "-both" }
-    @{ id = "Oracle.VirtualBox"; options = "-l D:\VirtualBox"; type = "-both" }
-    @{ id = "Python.Python.3.10"; options = ""; type = "-both" }
-    @{ id = "ShareX.ShareX"; options = ""; type = "-both" }
-    @{ id = "SweetScape.010Editor"; options = "-l D:\010 Editor"; type = "-both" }
-    @{ id = "TechPowerUp.NVCleanstall"; options = "-l D:\NVCleanstall"; type = "-both" }
-    @{ id = "Ubisoft.Connect"; options = ""; type = "-both" }
-    @{ id = "Valve.Steam"; options = ""; type = "-both" }
-    @{ id = "chrisant996.Clink"; options = ""; type = "-both" }
-    @{ id = "qBittorrent.qBittorrent"; options = "-l D:\qBittorrent"; type = "-both" }
+@{ id = "9N69B07TNQ5C"; options = ""; type = "-laptop" }
+@{ id = "BlenderFoundation.Blender"; options = "-v 2.83.9 ; winget install -e -h --accept-source-agreements --accept-package-agreements --id BlenderFoundation.Blender -v 2.79b"; type = "-desktop" }
+@{ id = "Discord.Discord"; options = ""; type = "-both" }
+@{ id = "ElectronicArts.EADesktop"; options = ""; type = "-both" }
+@{ id = "EpicGames.EpicGamesLauncher"; options = ""; type = "-desktop" }
+@{ id = "GOG.Galaxy"; options = ""; type = "-desktop" }
+@{ id = "Git.Git"; options = ""; type = "-both" }
+@{ id = "GitHub.GitHubDesktop"; options = ""; type = "-both" }
+@{ id = "Google.AndroidStudio"; options = ""; type = "-both" }
+@{ id = "Google.Chrome"; options = ""; type = "-both" }
+@{ id = "JanDeDobbeleer.OhMyPosh"; options = ""; type = "-both" }
+@{ id = "JetBrains.IntelliJIDEA.Ultimate"; options = ""; type = "-both" }
+@{ id = "KeePassXCTeam.KeePassXC"; options = ""; type = "-both" }
+@{ id = "Klocman.BulkCrapUninstaller"; options = "-l D:\BCUninstaller"; type = "-both" }
+@{ id = "Logitech.GHUB"; options = ""; type = "-both" }
+@{ id = "M2Team.NanaZip"; options = ""; type = "-both" }
+@{ id = "Microsoft.PowerShell"; options = ""; type = "-both" }
+@{ id = "Microsoft.PowerToys"; options = ""; type = "-both" }
+@{ id = "Microsoft.VisualStudio.2022.Community"; options = ""; type = "-both" }
+@{ id = "Microsoft.VisualStudioCode"; options = ""; type = "-both" }
+@{ id = "Mp3tag.Mp3tag"; options = "-l D:\Mp3tag"; type = "-desktop" }
+@{ id = "Neovim.Neovim"; options = ""; type = "-both" }
+@{ id = "OpenJS.NodeJS"; options = ""; type = "-both" }
+@{ id = "Oracle.VirtualBox"; options = "-l D:\VirtualBox"; type = "-both" }
+@{ id = "Python.Python.3.10"; options = ""; type = "-both" }
+@{ id = "SweetScape.010Editor"; options = "-l D:\010 Editor"; type = "-both" }
+@{ id = "TechPowerUp.NVCleanstall"; options = "-l D:\NVCleanstall"; type = "-both" }
+@{ id = "Ubisoft.Connect"; options = ""; type = "-both" }
+@{ id = "Valve.Steam"; options = ""; type = "-both" }
+@{ id = "chrisant996.Clink"; options = ""; type = "-both" }
+@{ id = "qBittorrent.qBittorrent"; options = "-l D:\qBittorrent"; type = "-both" }
 )
 
 ForEach ($app in $apps) {
-    if ($args[0] -eq $app.type -or $app.type -eq "-both") {
+    if ($installEverything -eq $app.type -or $app.type -eq "-both") {
         $listApp = winget list --accept-source-agreements --exact -q $app.id
         if (![String]::Join("", $listApp).Contains($app.id)) {
             Write-Host "Installing: $( $app.id )" -ForegroundColor Green
@@ -552,12 +653,6 @@ ForEach ($app in $apps) {
             Write-Host "Skipping: $( $app.id ) (Already Installed)" -ForegroundColor Yellow
         }
     }
-}
-#>
-<#
-if (!(Get-InstalledModule -Name "7Zip4Powershell" -ErrorAction SilentlyContinue)) {
-    Install-Module -Name "7Zip4Powershell" -Confirm:$false -Force
-    #    Uninstall-Module -Name "7Zip4Powershell" -Force
 }
 
 function Install-Program {
@@ -673,6 +768,27 @@ else {
     Start-Process $source
 }
 
+# Arch WSL
+
+if (Test-Path "C:\Program Files\WindowsApps\yuk7.archwsl*") {
+    Write-Host "Skipping: Arch WSL (Already Installed)" -ForegroundColor Yellow
+}
+else {
+    $source = "yuk7/ArchWSL"
+    Write-Host "Installing: Arch WSL" -ForegroundColor Green
+    Write-Host "Select <Local Machine> and Place Certificate in <Trusted People>" -ForegroundColor Yellow
+    Install-Program -ProgramSource "Repo" -ProgramType "Executable" -Link $source -FilenamePattern "ArchWSL-AppX*.cer" -ArgumentList '/S'
+
+    $releasesUri = "https://api.github.com/repos/$source/releases/latest"
+    $downloadUri = ((Invoke-RestMethod -Method GET -Uri $releasesUri).assets | Where-Object name -like "ArchWSL-AppX*.appx").browser_download_url
+    $fileName = Split-Path -Path $downloadUri -Leaf
+    $tempPath = Join-Path -Path $env:TEMP -ChildPath $fileName
+    Start-BitsTransfer -Source $downloadUri -Destination $tempPath
+    Add-AppxPackage $tempPath
+    Remove-Item $tempPath -Force
+    Start-Process "C:\Program Files\WindowsApps\yuk7.archwsl*\Arch.exe" -Wait
+}
+
 # Battle.net
 
 if (Test-Path "C:\Program Files (x86)\Battle.net") {
@@ -684,31 +800,6 @@ else {
     Install-Program -ProgramSource "Web" -ProgramType "Executable" -Link $source -FilenamePattern "Battle.net-Setup.exe" -ArgumentList '--lang=enUS --installpath="C:\Program Files (x86)\Battle.net"'
 }
 
-# Custom Context Menu
-
-if (Test-Path "C:\Program Files (x86)\opa") {
-    Write-Host "Skipping: Custom Context Menu (Already Installed)" -ForegroundColor Yellow
-}
-else {
-    $source = "https://eu.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe&id=undefined"
-    Write-Host "Installing: Custom Context Menu" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Executable" -Link $source -FilenamePattern "Battle.net-Setup.exe" -ArgumentList '--lang=enUS --installpath="C:\Program Files (x86)\Battle.net"'
-    Remove-AppxPackage -Package "35795FlorianHeidenreich.Mp3tag.ShellExtension" -AllUsers
-}
-
-# DDU
-
-if (Test-Path "$env:USERPROFILE\Desktop\DDU") {
-    Write-Host "Skipping: DDU (Already Installed)" -ForegroundColor Yellow
-}
-else {
-    $source = "https://ftp.nluug.nl/pub/games/PC/guru3d/ddu/[Guru3D.com]-DDU.zip"
-    Write-Host "Installing: DDU" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "DDU-Setup.zip" -PathExtract "$env:USERPROFILE\Desktop\DDU" -InnerDirectory $false
-    Start-Process "$env:USERPROFILE\Desktop\DDU\*.exe" -Wait
-    Start-Process "$env:USERPROFILE\Desktop\DDU\DDU*\Display Driver Uninstaller.exe" -Wait
-}
-
 # Microsoft Office
 
 if (Test-Path "C:\Program Files\Microsoft Office") {
@@ -717,7 +808,6 @@ if (Test-Path "C:\Program Files\Microsoft Office") {
 else {
     $source = "https://fm.solewe.com/vfm-admin/vfm-downloader.php?q=0&sh=4dc91763a073efd8239ba0fa86d7a77a&share=2c37e082dc41cc59d41a43a82585beab"
     Write-Host "Installing: Microsoft Office" -ForegroundColor Green
-    Set-MpPreference -DisableRealtimeMonitoring $true
     Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "Office-Setup.zip" -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com" -InnerDirectory $false
     Start-Process "$env:USERPROFILE\Desktop\Office\OInstall.exe" -Wait
 }
@@ -730,7 +820,6 @@ if (Test-Path "C:\Program Files (x86)\Kaspersky Lab") {
 else {
     $source = "https://dl.filehorse.com/win/anti-virus/kaspersky-free/ks4.021.3.10.391en_25092.exe?st=eE1iZHloGW3QHO1bDuEWlg&e=1666638338&fn=ks4.021.3.10.391en_25092.exe"
     Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Green
-    Set-MpPreference -DisableRealtimeMonitoring $false
     Install-Program -ProgramSource "Web" -ProgramType "Executable" -Link $source -FilenamePattern "Kaspersky-Setup.exe" -ArgumentList '/S'
     Stop-Process -Name "ksde", "ksdeui" -Force
     Uninstall-Package -Name "Kaspersky VPN"
@@ -747,7 +836,7 @@ else {
     Install-Program -ProgramSource "Repo" -ProgramType "Executable" -Link $source -FilenamePattern "TinyTaskPortable*" -ArgumentList '/S /DESTINATION=D:\'
 }
 
-if ($args[0] -eq "-desktop") {
+if ($installEverything -eq "-desktop") {
 
 # ArchiSteamFarm
 
@@ -829,7 +918,7 @@ else {
 }
 
 }
-elseif ($args[0] -eq "-laptop") {
+elseif ($installEverything -eq "-laptop") {
 
 # ThrottleStop
 
@@ -845,50 +934,39 @@ else {
 
 }
 
-#>
+#===========================================================================
+# Settings
+#===========================================================================
 
+<#
 
+Write-Host "Applying Settings..."
 
-#$ProgramData = @{
-#    Aseprite = "$env:APPDATA\Aseprite"
-#    Blender = "$env:APPDATA\Blender Foundation\Blender"
-#    Clink = "$env:LOCALAPPDATA\clink"
-#    Deemix = "$env:APPDATA\deemix"
-#    ImageGlass = "$env:APPDATA\ImageGlass"
-#    NotepadPlusPlus = "$env:APPDATA\Notepad++"
-#    PowerShell = Split-Path $PROFILE
-#}
+$programData = @(
+@{ asset = "assets/Aseprite"; location = "$env:APPDATA\Aseprite"; type = "-desktop" }
+@{ asset = "assets/Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts"; type = "-desktop" }
+@{ asset = "assets/Clink"; location = "$env:LOCALAPPDATA\clink"; type = "-both" }
+@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix"; type = "-desktop" } #Open Deemix
+@{ asset = "assets/Dotfiles"; location = "D:\Dotfiles"; type = "-both" }
+@{ asset = "assets/IntelliJ"; location = "$env:APPDATA\deemix"; type = "-both" }
+@{ asset = "assets/Mp3tag"; location = "$env:APPDATA\deemix"; type = "-desktop" }
+@{ asset = "assets/Photoshop"; location = "D:\Adobe\Adobe Photoshop 2022\Required"; type = "-both" }
+@{ asset = "assets/PowerShell"; location = $PROFILE; type = "-both" }
+@{ asset = "assets/qBittorrent"; location = $PROFILE; type = "-both" }
+@{ asset = "assets/Steam"; location = $PROFILE; type = "-both" }
+@{ asset = "assets/SweetScape"; location = $PROFILE; type = "-both" }
+@{ asset = "assets/Terminal"; location = $PROFILE; type = "-both" }
+@{ asset = "assets/Visual Studio"; location = $PROFILE; type = "-both" }
+@{ asset = "assets/Wallpaper Engine"; location = $PROFILE; type = "-both" }
+)
 
-#$ProgramInstall = @{
-#ImageGlassIcons = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{15872342-C9E9-4C65-9586-35B4EFDB806B}", "InstallLocation"
-#Photoshop = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Photoshop.exe", "Path"
-#qBittorrent = "HKLM:\SOFTWARE\WOW6432Node\qBittorrent", "InstallLocation"
-#Steam = "HKLM:\SOFTWARE\WOW6432Node\Valve\Steam", "InstallPath"
-#WallpaperEngine = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\Steam App 431960", "InstallLocation"
-#WinRAR = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\WinRAR.exe", "Path"
-#}
+ForEach ($data in $programData) {
+    if ($installEverything -eq $data.type -or $data.type -eq "-both") {
+        Write-Host "Applying Settings to: $( $data.asset.Replace("assets/", ""))" -ForegroundColor Green
+        DownloadFiles-Repo -Repo "Rakioth/Dotfiles" -Path $data.asset -DestinationPath $data.location
+    }
+}
 
-#ForEach ($Program in $ProgramData.Keys) {
-#    try {
-#        $ProgramPath = Get-Item -Path $ProgramData[$Program] -ErrorAction Stop
-#        Get-ChildItem "assets\$Program" | Copy-Item -Destination $ProgramPath -Recurse -Force
-#        Write-Host "$Program settings applied"
-#    }
-#    catch {
-#        Write-Host "$Program not installed" -ForegroundColor Red
-#    }
-#}
-#
-#ForEach ($Program in $ProgramInstall.Keys) {
-#    try {
-#        $ProgramPath = Get-ItemPropertyValue -Path $ProgramInstall[$Program][0] -Name $ProgramInstall[$Program][1] -ErrorAction Stop
-#        Get-ChildItem "assets\$Program" | Copy-Item -Destination $ProgramPath -Recurse -Force
-#        Write-Host "$Program settings applied"
-#    }
-#    catch {
-#        Write-Host "$Program not installed" -ForegroundColor Red
-#    }
-#}
 
 
 ## Delete Temporary Files
@@ -899,3 +977,20 @@ else {
 ## Run Disk Cleanup
 #Write-Host "Running Disk Cleanup on Drive C:..."
 #cmd /c cleanmgr.exe /d C: /VERYLOWDISK
+
+Remove-AppxPackage -Package "35795FlorianHeidenreich.Mp3tag.ShellExtension" -AllUsers
+
+# DDU
+
+if (Test-Path "$env:USERPROFILE\Desktop\DDU") {
+Write-Host "Skipping: DDU (Already Installed)" -ForegroundColor Yellow
+}
+else {
+$source = "https://ftp.nluug.nl/pub/games/PC/guru3d/ddu/[Guru3D.com]-DDU.zip"
+Write-Host "Installing: DDU" -ForegroundColor Green
+Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "DDU-Setup.zip" -PathExtract "$env:USERPROFILE\Desktop\DDU" -InnerDirectory $false
+Start-Process "$env:USERPROFILE\Desktop\DDU\*.exe" -Wait
+Start-Process "$env:USERPROFILE\Desktop\DDU\DDU*\Display Driver Uninstaller.exe" -Wait
+}
+
+#>
