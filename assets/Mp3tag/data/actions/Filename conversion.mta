@@ -1,0 +1,5 @@
+﻿[#0]
+T=5
+1=$num(%track%,2) - %title%
+F=_FILENAME
+

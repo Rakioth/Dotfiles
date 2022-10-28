@@ -1,0 +1,1 @@
+load(io.popen('oh-my-posh init cmd --config C:/Users/Raks/Documents/PowerShell/raks.omp.json'):read("*a"))()

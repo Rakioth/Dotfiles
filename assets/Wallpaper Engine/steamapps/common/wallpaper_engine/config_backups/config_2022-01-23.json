@@ -1,0 +1,642 @@
+{
+	"?installdirectory" : "E:/SteamLibrary/steamapps/common/wallpaper_engine",
+	"danie" : 
+	{
+		"general" : 
+		{
+			"browser" : 
+			{
+				"advertiseexplore" : false,
+				"advertisesendtomobile" : true,
+				"advertiseworkshop" : false,
+				"advertiseworkshoppopup" : false,
+				"authorblacklist" : [],
+				"defaultfilterconfig" : 
+				{
+					"Anime" : true,
+					"recommendedresolution" : false,
+					"showotherresolution" : true
+				},
+				"explore" : 
+				{
+					"custom" : [],
+					"disliked" : [],
+					"favorites" : [],
+					"liked" : []
+				},
+				"filterinfo" : 
+				{
+					"installed" : 
+					{
+						"categorytags" : 
+						{
+							"Preset" : true,
+							"Wallpaper" : true
+						},
+						"descending" : false,
+						"ratingtags" : 
+						{
+							"Everyone" : true,
+							"Mature" : true,
+							"Questionable" : true
+						},
+						"resolutiontags" : 
+						{
+							"1280 x 720" : true,
+							"1366 x 768" : true,
+							"1920 x 1080" : true,
+							"2560 x 1440" : true,
+							"3840 x 2160" : true,
+							"Dual 3840 x 1080" : true,
+							"Dual 5120 x 1440" : true,
+							"Dual 7680 x 2160" : true,
+							"Dual Standard Definition" : true,
+							"Dynamic resolution" : true,
+							"Other resolution" : true,
+							"Portrait 1080 x 1920" : true,
+							"Portrait 1440 x 2560" : true,
+							"Portrait 2160 x 3840" : true,
+							"Portrait 720 x 1280" : true,
+							"Portrait Standard Definition" : true,
+							"Standard Definition" : true,
+							"Triple 11520 x 2160" : true,
+							"Triple 4096 x 768" : true,
+							"Triple 5760 x 1080" : true,
+							"Triple 7680 x 1440" : true,
+							"Triple Standard Definition" : true,
+							"Ultrawide 2560 x 1080" : true,
+							"Ultrawide 3440 x 1440" : true,
+							"Ultrawide Standard Definition" : true
+						},
+						"sort" : "name",
+						"sourcetags" : 
+						{
+							"Local" : true,
+							"Official" : true,
+							"Workshop" : true
+						},
+						"tags" : 
+						{
+							"Abstract" : true,
+							"Animal" : true,
+							"Anime" : true,
+							"CGI" : true,
+							"Cartoon" : true,
+							"Cyberpunk" : true,
+							"Fantasy" : true,
+							"Game" : true,
+							"Girls" : true,
+							"Guys" : true,
+							"Landscape" : true,
+							"MMD" : true,
+							"Medieval" : true,
+							"Memes" : true,
+							"Music" : true,
+							"Nature" : true,
+							"Pixel art" : true,
+							"Relaxing" : true,
+							"Retro" : true,
+							"Sci-Fi" : true,
+							"Sports" : true,
+							"Technology" : true,
+							"Television" : true,
+							"Unspecified" : true,
+							"Vehicle" : true
+						},
+						"type" : "",
+						"typetags" : 
+						{
+							"Application" : true,
+							"Scene" : true,
+							"Video" : true,
+							"Web" : true
+						},
+						"utilitytags" : {}
+					},
+					"workshop" : 
+					{
+						"categorytags" : 
+						{
+							"Preset" : true,
+							"Wallpaper" : true
+						},
+						"descending" : false,
+						"filterTitle" : true,
+						"ratingtags" : 
+						{
+							"Everyone" : true,
+							"Mature" : false,
+							"Questionable" : false
+						},
+						"resolutiontags" : 
+						{
+							"1280 x 720" : true,
+							"1366 x 768" : true,
+							"1920 x 1080" : true,
+							"2560 x 1440" : true,
+							"3840 x 2160" : true,
+							"Dual 3840 x 1080" : true,
+							"Dual 5120 x 1440" : true,
+							"Dual 7680 x 2160" : true,
+							"Dual Standard Definition" : true,
+							"Dynamic resolution" : true,
+							"Other resolution" : true,
+							"Portrait 1080 x 1920" : true,
+							"Portrait 1440 x 2560" : true,
+							"Portrait 2160 x 3840" : true,
+							"Portrait 720 x 1280" : true,
+							"Portrait Standard Definition" : true,
+							"Standard Definition" : true,
+							"Triple 11520 x 2160" : true,
+							"Triple 4096 x 768" : true,
+							"Triple 5760 x 1080" : true,
+							"Triple 7680 x 1440" : true,
+							"Triple Standard Definition" : true,
+							"Ultrawide 2560 x 1080" : true,
+							"Ultrawide 3440 x 1440" : true,
+							"Ultrawide Standard Definition" : true
+						},
+						"sort" : "top_rated",
+						"sourcetags" : 
+						{
+							"Local" : true,
+							"Official" : true,
+							"Workshop" : true
+						},
+						"tags" : 
+						{
+							"Abstract" : true,
+							"Animal" : true,
+							"Anime" : true,
+							"CGI" : true,
+							"Cartoon" : true,
+							"Cyberpunk" : true,
+							"Fantasy" : true,
+							"Game" : true,
+							"Girls" : true,
+							"Guys" : true,
+							"Landscape" : true,
+							"MMD" : true,
+							"Medieval" : true,
+							"Memes" : true,
+							"Music" : true,
+							"Nature" : true,
+							"Pixel art" : true,
+							"Relaxing" : true,
+							"Retro" : true,
+							"Sci-Fi" : true,
+							"Sports" : true,
+							"Technology" : true,
+							"Television" : true,
+							"Unspecified" : false,
+							"Vehicle" : true
+						},
+						"type" : "",
+						"typetags" : 
+						{
+							"Application" : false,
+							"Scene" : true,
+							"Video" : true,
+							"Web" : true
+						},
+						"utilitytags" : {}
+					}
+				},
+				"folders" : [],
+				"lastselectedmonitor" : "//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}",
+				"paireddevices" : [],
+				"pairingguid" : "BD12AE86-2669-42AA-BE70-C0D884B84F5A",
+				"resultsperpage" : 100,
+				"seasonaldialogdisabled" : true,
+				"seasonaldialogtimestamp" : 20220089,
+				"showmonitorselectiononstart" : true,
+				"viewiconsize" : "medium"
+			},
+			"editor" : 
+			{
+				"previewratio" : "free",
+				"recentfiles" : [],
+				"showgrid" : true,
+				"showonstartup" : true,
+				"showselectionbox" : true,
+				"showstats" : false
+			},
+			"user" : 
+			{
+				"adjustdwmcolor" : false,
+				"adjustdwmcolormode" : "everything",
+				"adjustdwmcolorwarning" : true,
+				"anticrash" : null,
+				"apprules" : null,
+				"audioinputdevice" : "default",
+				"audioinputthreshold" : 0,
+				"audioinputvolume" : 50,
+				"autostart" : true,
+				"autostartscheduler" : true,
+				"autostartx64" : false,
+				"bloom" : null,
+				"cefcommandline" : "",
+				"fps" : 15,
+				"hasshownhighprioritywarning" : true,
+				"hasshownwelcomedialog" : true,
+				"iconopacity" : 100,
+				"language" : "default",
+				"loglevel" : "error",
+				"monitordetection" : "devicepath",
+				"msaa" : "none",
+				"overridelockscreen" : false,
+				"overridewallpaper" : false,
+				"pausevram" : false,
+				"playbackaudio" : "run",
+				"playbackfocus" : "run",
+				"playbackfullscreen" : "pause",
+				"playbackmaximized" : "pause",
+				"playbackonbattery" : "run",
+				"playbacksleep" : "stop",
+				"plugins" : 
+				{
+					"ledextensions" : 
+					{
+						"enabled" : false
+					}
+				},
+				"postprocessing" : "enabled",
+				"preset" : "medium",
+				"processpriority" : "normal",
+				"reflection" : true,
+				"reloadaudio" : true,
+				"resolution" : "full",
+				"safemode" : true,
+				"slideshowkiller" : false,
+				"steamlanguage" : "english",
+				"uicmd" : "",
+				"uieffects" : null,
+				"uihardwareacceleration" : true,
+				"uiquality" : "high",
+				"uiskin" : "dark",
+				"uiskinseasonal" : true,
+				"unpauseaero" : true,
+				"videoaudiooutput" : true,
+				"videohardwareacceleration" : true,
+				"videoloopmode" : "default",
+				"videoreadmode" : "fromdisk",
+				"webmframework" : null,
+				"windows7mode" : "compatibility",
+				"windowupdaterate" : 1000
+			},
+			"wallpaperconfig" : 
+			{
+				"layout" : null,
+				"profile" : null,
+				"selectedwallpapers" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"file" : "E:/SteamLibrary/steamapps/common/wallpaper_engine/projects/myprojects/sagath/scene.pkg"
+					}
+				}
+			},
+			"wallpaperconfigrecent" : 
+			[
+				{
+					"config" : 
+					{
+						"profile" : null,
+						"selectedwallpapers" : 
+						{
+							"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+							{
+								"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2710630030/scene.pkg"
+							}
+						}
+					},
+					"playlist" : false,
+					"title" : "Jotaro Kujo - JoJo's Bizarre Adventure"
+				},
+				{
+					"config" : 
+					{
+						"layout" : null,
+						"profile" : null,
+						"selectedwallpapers" : 
+						{
+							"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+							{
+								"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2221882813/scene.pkg"
+							}
+						}
+					},
+					"playlist" : false,
+					"title" : "Cyberpunk Girl | Customizable | Audio Responsive | 4K"
+				},
+				{
+					"config" : 
+					{
+						"layout" : null,
+						"profile" : null,
+						"selectedwallpapers" : 
+						{
+							"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+							{
+								"file" : "E:/SteamLibrary/steamapps/common/wallpaper_engine/projects/myprojects/sagath/scene.pkg"
+							}
+						}
+					},
+					"playlist" : false,
+					"title" : "SAGATH"
+				}
+			]
+		},
+		"version" : 2,
+		"wallpaperproperties" : 
+		[
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2710630030/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"backgroundcolor" : "0.5372549019607843 0.09019607843137255 0.596078431372549",
+						"blureffect1" : true,
+						"cameraparallax" : false,
+						"shifthueeffect" : false
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1925967738/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"wec_brs" : 40,
+						"wec_e" : true,
+						"wec_hue" : 33,
+						"wec_sa" : 62
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/878654942/4K 5min, Galaxy Animation, Nebula Video Background,Milky Way, Free Video Background..mp4",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1206038439/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1851602703/wallpaper.mp4",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0",
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1417851753/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1386172233/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1103493745/index.html",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"audioprocessing" : false,
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2221882813/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"_1224hourclock" : false,
+						"audioprocessing" : false,
+						"distortioneffect" : false,
+						"eyegodraycolor" : "0.5372549019607843 0.09019607843137255 0.596078431372549",
+						"font" : "0",
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/862229700/RIOT_Dark_Star_Bkg_Video_01.webm",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1419340306/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1710617748/eternal_light_version2.mp4",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0",
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1204132490/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1135697696/Background - Your Name Tokyo Tower.mp4",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2057903944/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1628334100/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1807164997/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1819933070/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"audioprocessing" : false,
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2289168048/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0",
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1879751838/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/917043694/Apoc1.0000.mp4",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2388299037/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"audioprocessing" : false,
+						"schemecolor" : "0 0 0",
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/1363746489/wallpaper.html",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"customimage" : "D:/Modding Tools/PvZ Tools/Blank.png",
+						"schemecolor" : "0 0 0"
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2311399022/Tom-Kamin_final2.mp4",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"schemecolor" : "0 0 0",
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/workshop/content/431960/2087047235/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"audio_response" : false,
+						"audio_response_intensity_default_2_7_" : 0,
+						"audioprocessing" : false,
+						"volume" : 0
+					}
+				}
+			},
+			{
+				"file" : "E:/SteamLibrary/steamapps/common/wallpaper_engine/projects/myprojects/sagath/scene.pkg",
+				"monitors" : 
+				{
+					"//?/DISPLAY#BNQ78E4#5&7a60a94&0&UID8449#{e6f07b5f-ee97-4a90-b076-33f57bf4eaa7}" : 
+					{
+						"volume" : 0,
+						"wec_brs" : 39,
+						"wec_e" : true,
+						"wec_hue" : 31,
+						"wec_sa" : 36
+					}
+				}
+			}
+		]
+	}
+}

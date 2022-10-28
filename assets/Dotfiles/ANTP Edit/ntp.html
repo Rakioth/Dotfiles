@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html ng-app="antp" ng-csp>
+<head>
+  <!--
+    Awesome New Tab Page
+    Copyright 2011-2013 Awesome HQ, LLC & Michael Hart
+    All rights reserved.
+    http://antp.co http://awesomehq.com
+  -->
+
+  <title>New Tab</title>
+  <link rel="canonical" href="https://chrome.google.com/webstore/detail/mgmiemnjjchgkmgbeljfocdjjnpjnmcg" />
+  <link rel="shortcut icon" href="/extension/images/favicon.png?20120409" />
+
+  <link rel="stylesheet" href="/extension/colorpicker/css/colorpicker.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="/extension/css/jquery.jgrowl.css" type="text/css" media="screen" />
+  <link rel="stylesheet" href="/extension/css/jquery.qtip.min.css" type="text/css" media="screen" />
+
+  <link rel="stylesheet" href="/extension/css/style.css?nocache=14" type="text/css" media="screen" />
+
+  <meta name="google" value="notranslate" />
+  <meta name="twitter:widgets:csp" content="on">
+
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
+<link rel="stylesheet" href="styles.09e2c710755c8867a460.css"></head>
+
+<body class="bg-color">
+<!-- Fixes an issue where scrolling sometimes didn't work. -->
+<div class="scroll-helper"></div>
+
+<div id="grid-holder"></div>
+
+<div id="widget-holder" ng-controller="tileCtrl">
+
+  <!-- Widgets -->
+  <div id="{{widget.id}}" ng-repeat="widget in widgets"
+       class="widget ng-cloak search-not-active"
+       type="{{widget.type}}"
+       tile-height="{{widget.size[0]}}" tile-width="{{widget.size[1]}}"
+       tile-init-top="{{widget.where[0]}}" tile-init-left="{{widget.where[1]}}"
+       style="height: {{widget.css.height}}px; width: {{widget.css.width}}px;
+          top: {{widget.css.top}}px; left: {{widget.css.left}}px;
+          background-size: {{widget.backgroundSize}}; background-position: {{widget.backgroundPosition}}">
+    <antp-widget widget="widget" widget-data="widgetData[widget.instance_id]">
+  </div>
+
+  <!-- Installed Apps -->
+  <div id="{{app.id}}" ng-repeat="app in apps"
+       class="widget app search-not-active"
+       ng-class="{'offline-enabled': app.offlineEnabled==true}"
+       type="{{app.type}}"
+       tile-height="{{app.size[0]}}" tile-width="{{app.size[1]}}"
+       tile-init-top="{{app.where[0]}}" tile-init-left="{{app.where[1]}}"
+       style="{{app.css.bg}};
+          height: {{app.css.height}}px; width: {{app.css.width}}px;
+          top: {{app.css.top}}px; left: {{app.css.left}}px;
+          background-size: {{app.backgroundSize}}; background-position: {{app.backgroundPosition}}">
+    <div ng-switch on="app.searchEnabled" >
+      <div ng-switch-when="true">
+        <input type="text" class="search-box" name="search" value="" placeholder="Search" data-search="{{app.searchUrl}}" autocomplete="off" />
+      </div>
+    </div>
+    <div class="app-name" ng-hide="!app.name_show">{{app.name}}</div>
+    <a class="url" data-url="{{app.appLaunchUrl}}" href="{{app.appLaunchUrl}}" ng-onleftclick="{{app.onleftclick}}"></a>
+    <div>
+      <div class="iframe-mask">
+        <div id="delete" class="sprite"></div>
+        <div id="shortcut-edit" class="sprite"></div>
+        <div class="resize-tile" style="display: none; ">
+          <div class="resize-tile-top"></div>
+          <div class="resize-tile-bottom"></div>
+          <div class="resize-tile-left"></div>
+          <div class="resize-tile-right"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Shortcuts -->
+  <div id="{{shortcut.id}}" ng-repeat="shortcut in custom_shortcuts"
+       class="widget app search-not-active shortcut"
+       type="{{shortcut.type}}"
+       tile-height="{{shortcut.size[0]}}" tile-width="{{shortcut.size[1]}}"
+       tile-init-top="{{shortcut.where[0]}}" tile-init-left="{{shortcut.where[1]}}"
+       style="{{shortcut.css.bg}};
+          height: {{shortcut.css.height}}px; width: {{shortcut.css.width}}px;
+          top: {{shortcut.css.top}}px; left: {{shortcut.css.left}}px;
+          background-size: {{shortcut.backgroundSize}}; background-position: {{shortcut.backgroundPosition}}">
+    <div ng-switch on="shortcut.searchEnabled" >
+      <div ng-switch-when="true">
+        <input type="text" class="search-box" name="search" value="" placeholder="Search" data-search="{{shortcut.searchUrl}}" autocomplete="off" />
+      </div>
+    </div>
+    <div class="app-name" ng-hide="!shortcut.name_show">{{shortcut.name}}</div>
+    <a class="url" data-url="{{shortcut.appLaunchUrl}}" href="{{shortcut.appLaunchUrl}}" ng-onleftclick="{{shortcut.onleftclick}}"></a>
+    <img ng-src="chrome://favicon/{{shortcut.appLaunchUrl}}" class="app-favicon" ng-hide="!shortcut.favicon_show" />
+    <div>
+      <div class="iframe-mask">
+        <div id="delete" class="sprite"></div>
+        <div id="shortcut-edit" class="sprite"></div>
+        <div class="resize-tile" style="display: none; ">
+          <div class="resize-tile-top"></div>
+          <div class="resize-tile-bottom"></div>
+          <div class="resize-tile-left"></div>
+          <div class="resize-tile-right"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- TODO: this is still here because of functions like addWidget  -->
+<div ng-controller="windowAppsWidgetsCtrl" class="no-scroll"></div>
+
+<div id="editor" ng-controller="windowTileEditorCtrl" class="ui-2 container">
+  <div class="ui-2 header">
+    <div class="ui-2 left">
+      <div class="ui-2 logo"></div>
+      <div class="ui-2 name">
+        Awesome New Tab Page
+        <span class="ui-2 crumb sprite">&nbsp;</span>
+        <span class="ui-2 subname">
+              Tile Editor
+        </span>
+        <span class="ui-2 crumb sprite">&nbsp;</span>
+        <span class="ui-2 subname" id="editor-name">
+              {{name}}
+            </span>
+      </div>
+    </div>
+    <div class="ui-2 right">
+      <div class="ui-2 x sprite" title="close"></div>
+    </div>
+  </div>
+
+  <div class="ui-2 contents">
+    <div id="tile-editor-right">
+      <tabs>
+        <pane name="General">
+          <div class="show-if-app">
+            Not all options are available for apps. If you'd like to get more options, create a custom shortcut instead. Simply click on an empty tile with the grid unlocked.
+          </div>
+
+          <h3>Name</h3>
+          <p>What do you want to call it?</p>
+          <input type="text" ng-model="$parent.$parent.name" ng-tile-editor autocomplete="off" />
+
+          <div class="overflow-auto">
+            <div class="float-left option-container tile-edit-title-margin">
+              Show / Hide Name
+            </div>
+            <onoff ng-model="$parent.$parent.name_show" name="name_show" state="$parent.$parent.name_show" on-change="$parent.$parent.name_show = checked" ng-tile-editor>
+          </div>
+
+          <div class="overflow-auto tile-edit-title-margin">
+            <div class="float-left option-container tile-edit-title-margin">
+              Pin on left click
+            </div>
+            <onoff ng-model="$parent.$parent.shortcut_pin" name="shortcut_pin" state="$parent.$parent.shortcut_pin" on-change="$parent.$parent.shortcut_pin = checked" ng-tile-editor>
+          </div>
+
+          <div class="overflow-auto tile-edit-title-margin">
+            <div class="float-left option-container tile-edit-title-margin">
+              Open in New Tab on left click
+            </div>
+            <onoff ng-model="$parent.$parent.shortcut_newtab" name="shortcut_newtab" state="$parent.$parent.shortcut_newtab" on-change="$parent.$parent.shortcut_newtab = checked" ng-tile-editor>
+          </div>
+
+          <div class="hide-if-app">
+            <h3>URL</h3>
+            <p>Enter the URL you'd like to link to, such as http://www.google.com/</p>
+            <input ng-model="$parent.$parent.appLaunchUrl" type="text" ng-tile-editor autocomplete="off" />
+            <p class="tip">Tip: A valid URL contains a protocol - such as "http://" - before the domain. Without a valid protocol, your shortcut will not work.</p>
+
+            <div class="overflow-auto tile-edit-title-margin">
+              <div class="float-left option-container tile-edit-title-margin">
+                Show / Hide Favicon
+              </div>
+              <onoff ng-model="$parent.$parent.favicon_show" name="favicon_show" state="$parent.$parent.favicon_show" on-change="$parent.$parent.favicon_show = checked" ng-tile-editor>
+            </div>
+          </div>
+        </pane>
+
+        <pane name="Search" class="hide-if-app">
+          <div class="hide-if-app">
+            <p>Enter a search URL for this website. For example: <i>"https://www.google.com/search?q={input}"</i></p>
+            <input ng-model="$parent.$parent.searchUrl" type="text" ng-tile-editor autocomplete="off" />
+          </div>
+        </pane>
+
+        <pane name="Background">
+
+          <h3>Change Background Color</h3>
+          <div id="shortcut_colorpicker" class="bubble ilb">
+            Open Color Picker
+          </div>
+          <div id="swatches"></div>
+
+          <div class="overflow-auto tile-edit-title-margin">
+            <div class="float-left option-container tile-edit-title-margin">
+              Completely transparent background
+            </div>
+            <onoff ng-model="$parent.$parent.shortcut_background_transparent" name="shortcut_background_transparent" state="$parent.$parent.shortcut_background_transparent" on-change="$parent.$parent.shortcut_background_transparent = checked" ng-tile-editor>
+          </div>
+
+          <p class="tip">
+            Tip: If you check this box, you may also want to hide the name and favicon.
+          </p>
+          <div class="hide-if-app">
+            <p class="tip">
+              Note: This option has no effect on the Icon & Background settings.
+            </p>
+          </div>
+
+          <div class="hide-if-app">
+            <h3>Icon & Background</h3>
+            <p>Enter a URL to an image or use the browse button to use one from your computer.</p>
+            <div id="filesystem_icon_screenshot_bt" class="bubble ilb">
+              Use Screenshot
+            </div>
+            <input ng-model="$parent.$parent.img" type="text" class="ilb" ng-tile-editor autocomplete="off" />
+            <input type="file" id="filesystem_icon_input" style="width:0; height: 0; opacity: 0;">
+            <div id="filesystem_icon_ui" class="bubble ilb">
+              Browse
+            </div>
+            <p class="tip">Tip: Leave blank for no icon.</p>
+          </div>
+        </pane>
+      </tabs>
+    </div>
+
+    <div id="tile-editor-left">
+      <div id="fake-tile-wrapper">
+        <div id="fake-tile-background" class="bg-color">
+          <div class="fake-tile" id="preview-tile" style="background-image: {{backgroundimage}}; background-color: {{backgroundcolor}}; ">
+            <img id="invisible-tile-img" style="display: none;"/> <!-- this element is to just get width and height of tile icon -->
+            <div class="app-name" ng-show="name_show">{{name}}</div>
+            <img class="app-favicon" ng-show="favicon_show" ng-src="{{favicon}}"/>
+            <div class="iframe-mask" style="display: block;"></div>
+          </div>
+          <div class="fake-tile" id="ft0"></div>
+          <div class="fake-tile" id="ft1"></div>
+          <div class="fake-tile" id="ft2"></div>
+          <div class="fake-tile" id="ft3"></div>
+          <div class="fake-tile" id="ft4"></div>
+          <div class="fake-tile" id="ft5"></div>
+          <div class="fake-tile" id="ft6"></div>
+          <div class="fake-tile" id="ft7"></div>
+          <div class="fake-tile" id="ft8"></div>
+        </div>
+
+        <div id="icon-resize-scale-controls">
+          <div>
+            <span class="align-top">Zoom: </span>
+            <input id="zoom-slider" type="range" value="0" min="0" max="300" />
+          </div>
+          <div id="reset-bt" class="bubble ilb">
+            Reset
+          </div>
+          <div id="center-bt" class="bubble ilb">
+            Center
+          </div>
+          <div id="cover-bt" class="bubble ilb">
+            Cover
+          </div>
+          <div id="contain-bt" class="bubble ilb">
+            Contain
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Helps keep Chrome's Developer Tools / Elements tab pretty -->
+<div id="script_holder">
+  <script type="text/javascript" src="/extension/javascript/libs.uglified.js?nocache=14"></script>
+  <script type="text/javascript" src="/extension/javascript/penpal.min.js"></script>
+
+  <script type="text/javascript" src="/extension/javascript/angular/antp.js?nocache=13"></script>
+  <script type="text/javascript" src="/extension/javascript/common.js"></script>
+  <script type="text/javascript" src="/extension/javascript/storage.js"></script>
+  <script type="text/javascript" src="/extension/javascript/google-analytics.js"></script>
+
+  <script type="text/javascript" src="/extension/javascript/tile-editor.js"></script>
+  <script type="text/javascript" src="/extension/javascript/tilesystem.js?nocache=13"></script>
+  <script type="text/javascript" src="/extension/javascript/hscroll.js"></script>
+
+  <script type="text/javascript" src="/extension/javascript/require.js"></script>
+  <script type="text/javascript" src="/extension/javascript/delayed-loader.js"></script>
+
+  <script type="text/javascript" src="/extension/javascript/ui.js"></script>
+
+  <script type="text/javascript" src="/extension/javascript/icon-resizing.js"></script>
+</div>
+
+<app-root></app-root>
+<script src="runtime.acf0dec4155e77772545.js" defer></script><script src="polyfills.35a5ca1855eb057f016a.js" defer></script><script src="main.37c4410a9146b3b8f044.js" defer></script></body>
+</html>
