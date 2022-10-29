@@ -5,6 +5,7 @@
 # - Cool Prompt
 
 $ascii = @"
+
        ....                           s                 .          ..               .x+=:.
    .xH888888Hx.                      :8       oec :    @88>  x .d88"               z``    ^%
  .H8888888888888:           u.      .88      @88888    %8P    5888R                   .   <k
@@ -32,7 +33,7 @@ do {
 
 # - Dependencies
 
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
 Install-Module -Name "7Zip4Powershell" -Force
 
 Enable-WindowsOptionalFeature -Online -FeatureName "NetFx4-AdvSrvs" -All -NoRestart
