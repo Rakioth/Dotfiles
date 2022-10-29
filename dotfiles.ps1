@@ -1,37 +1,219 @@
 #===========================================================================
+# Initial Setup
+#===========================================================================
+
+# - Cool Prompt
+
+$ascii = @"
+       ....                           s                 .          ..               .x+=:.
+   .xH888888Hx.                      :8       oec :    @88>  x .d88"               z``    ^%
+ .H8888888888888:           u.      .88      @88888    %8P    5888R                   .   <k
+ 888*"""?""*88888X    ...ue888b    :888ooo   8"*88%     .     '888R        .u       .@8Ned8"
+'f     d8x.   ^%88k   888R Y888r -*8888888   8b.      .@88u    888R     ud8888.   .@^%8888"
+'>    <88888X   '?8   888R I888>   8888     u888888> ''888E``   888R   :888'8888. x88:  ``)8b.
+ ``:..:``888888>    8>  888R I888>   8888      8888R     888E    888R   d888 '88%" 8888N=*8888
+        ``"*88     X   888R I888>   8888      8888P     888E    888R   8888.+"     %8"    R88
+   .xHHhx.."      !  u8888cJ888   .8888Lu=   *888>     888E    888R   8888L        @8Wou 9%
+  X88888888hx. ..!    "*888*P"    ^%888*     4888      888&   .888B . '8888c. .+ .888888P``
+ !   "*888888888"       'Y"         'Y"      '888      R888"  ^*888%   "88888%   ``   ^"F
+        ^"***"``                               88R       ""      "%       "YP'
+                                              88>
+                                              48
+                                              '8
+
+"@
+Write-Host $ascii -ForegroundColor Magenta
+
+# - Mode Selection
+
+do {
+    $mode = Read-Host -Prompt "Available Options [-dt | Desktop Mode] [-lt | Laptop Mode]"
+} until ($mode -eq "-dt" -or $mode -eq "-lt")
+
+# - Dependencies
+
+Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force | Out-Null
+Install-Module -Name "7Zip4Powershell" -Force
+
+Enable-WindowsOptionalFeature -Online -FeatureName "NetFx4-AdvSrvs" -All -NoRestart
+Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" -All -NoRestart
+
+Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart
+Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart
+
+winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent"
+Start-Process "magnet:?xt=urn:btih:487dafc52e228a71b8acc6d723471b64e4625976&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202022%20RUS-ENG%20v11|%20piratbit.org"
+
+# - Functions
+
+function Download-Files {
+    param (
+        [string]$Repo,
+        [string]$Path,
+        [string]$DestinationPath
+    )
+
+    $contentsUri = "https://api.github.com/repos/$Repo/contents/$Path"
+    $objects = Invoke-RestMethod -Method GET -Uri $contentsUri
+    $files = $objects | Where-Object type -eq "file" | Select-Object -ExpandProperty download_url
+    $directories = $objects | Where-Object type -eq "dir"
+
+    $directories | ForEach-Object {
+        DownloadFiles-Repo -Repo $Repo -Path $_.path -DestinationPath "$( $DestinationPath )/$( $_.name )"
+    }
+
+    if (!(Test-Path $DestinationPath)) {
+        New-Item -Path $DestinationPath -ItemType Directory
+    }
+
+    ForEach ($file in $files) {
+        $fileName = Split-Path -Path $file -Leaf
+        $fileDestination = Join-Path -Path $DestinationPath -ChildPath $fileName
+        $outputFilename = $fileDestination.Replace("%20", " ")
+        Start-BitsTransfer -Source $file -Destination $outputFilename
+    }
+}
+
+function Download-Program {
+    param (
+        [string]$ProgramSource,
+        [string]$Link,
+        [string]$FilePattern
+    )
+
+    if ($ProgramSource -eq "Repo") {
+        $releasesUri = "https://api.github.com/repos/$Link/releases/latest"
+        $downloadUri = ((Invoke-RestMethod -Method GET -Uri $releasesUri).assets | Where-Object name -like $FilePattern).browser_download_url
+        $fileName = Split-Path -Path $downloadUri -Leaf
+        $tempPath = Join-Path -Path $env:TEMP -ChildPath $fileName
+        Start-BitsTransfer -Source $downloadUri -Destination $tempPath
+        return $tempPath
+    }
+    elseif ($ProgramSource -eq "Web") {
+        $tempPath = Join-Path -Path $env:TEMP -ChildPath $FilePattern
+        Start-BitsTransfer -Source $Link -Destination $tempPath
+        return $tempPath
+    }
+}
+
+function Install-Archive {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$PathZip,
+        [Parameter(Mandatory = $true)]
+        [string]$PathExtract,
+        [Parameter(Mandatory = $false)]
+        [string]$Password,
+        [Parameter(Mandatory = $false)]
+        [bool]$InnerDirectory = $false
+    )
+
+    if ($InnerDirectory) {
+        $tempExtract = Join-Path -Path $env:TEMP -ChildPath $( (New-Guid).Guid )
+        Expand-7Zip -ArchiveFileName $PathZip -TargetPath $tempExtract -Password $Password
+        Move-Item -Path "$tempExtract\*" -Destination $PathExtract -Force
+        Remove-Item -Path $tempExtract -Force -Recurse -ErrorAction SilentlyContinue
+    }
+    else {
+        Expand-7Zip -ArchiveFileName $PathZip -TargetPath $PathExtract -Password $Password
+    }
+    Remove-Item $PathZip -Force
+}
+
+function Install-Executable {
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$PathExe,
+        [Parameter(Mandatory = $false)]
+        [string]$ArgumentList
+    )
+
+    if ($PSBoundParameters.ContainsKey("ArgumentList")) {
+        Start-Process -FilePath $PathExe -ArgumentList $ArgumentList -Wait
+    }
+    else {
+        Start-Process -FilePath $PathExe -Wait
+    }
+    Remove-Item $PathExe -Force
+}
+
+function Create-Shortcut {
+    param (
+    [string]$SourcePath,
+    [string]$ShortcutPath
+    )
+
+    $wScriptObj = New-Object -ComObject WScript.Shell
+    $shortcut = $wScriptObj.CreateShortcut($ShortcutPath)
+    $shortcut.TargetPath = $SourcePath
+    $shortcut.Save()
+}
+
+#===========================================================================
 # Tweaks
 #===========================================================================
 
-$installEverything = Read-Host -prompt "Install everything? [y/n]"
+# - Create Restore Point
 
-# Create Restore Point
-
-Write-Host "Creating Restore Point in case something bad happens"
+Write-Host "`nCreating Restore Point in Case Something Bad Happens..."
 Enable-ComputerRestore -Drive "$env:SYSTEMDRIVE"
 Checkpoint-Computer -Description "Dotfiles" -RestorePointType "MODIFY_SETTINGS"
 
-# Run O&O Shutup
+# - System Tweaks
 
-if (!(Test-Path .\ooshutup10.cfg)) {
-    Write-Host "Running O&O Shutup with Recommended Settings"
+Write-Host "Doing System Tweaks..." -ForegroundColor Yellow
+if (!(Test-Path "$env:USERPROFILE\ooshutup10.cfg")) {
+    Write-Host "Running O&O Shutup with Recommended Settings..." -ForegroundColor Cyan
     Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/assets/O%26O%20ShutUp/ooshutup10.cfg" -Destination "$env:USERPROFILE\ooshutup10.cfg"
     Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination "$env:USERPROFILE\OOSU10.exe"
 }
 Start-Process -FilePath "$env:USERPROFILE\OOSU10.exe" -ArgumentList "$env:USERPROFILE\ooshutup10.cfg /quiet" -Wait
 
-# Disable Telemetry
+Write-Host "Restricting Windows Update P2P only to Local Network..." -ForegroundColor Cyan
+if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
 
-Write-Host "Disabling Telemetry..."
+Write-Host "Enabling F8 Boot Menu Options..." -ForegroundColor Cyan
+bcdedit /set `{current`} bootmenupolicy Legacy | Out-Null
+
+Write-Host "Removing AutoLogger File and Restricting Directory..." -ForegroundColor Cyan
+$autoLoggerDir = "$env:PROGRAMDATA\Microsoft\Diagnosis\ETLLogs\AutoLogger"
+if (Test-Path "$autoLoggerDir\AutoLogger-Diagtrack-Listener.etl") {
+    Remove-Item "$autoLoggerDir\AutoLogger-Diagtrack-Listener.etl"
+}
+icacls $autoLoggerDir /deny SYSTEM:`(OI`)`(CI`)F | Out-Null
+
+Write-Host "Showing File Operations Details..." -ForegroundColor Cyan
+if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager")) {
+    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" | Out-Null
+}
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -Type DWord -Value 1
+
+Write-Host "Stopping and Disabling Diagnostics Tracking Service..." -ForegroundColor Cyan
+Stop-Service "DiagTrack" -WarningAction SilentlyContinue
+Set-Service "DiagTrack" -StartupType Disabled
+
+Write-Host "Stopping and Disabling WAP Push Service..." -ForegroundColor Cyan
+Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
+Set-Service "dmwappushservice" -StartupType Disabled
+
+Write-Host "Stopping and Disabling Superfetch Service..." -ForegroundColor Cyan
+Stop-Service "SysMain" -WarningAction SilentlyContinue
+Set-Service "SysMain" -StartupType Disabled
+
+Write-Host "Disabling Telemetry..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry" -Type DWord -Value 0
-Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" | Out-Null
-Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\ProgramDataUpdater" | Out-Null
-Disable-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy" | Out-Null
-Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" | Out-Null
-Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" | Out-Null
-Disable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" | Out-Null
+Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser" -ErrorAction SilentlyContinue | Out-Null
+Disable-ScheduledTask -TaskName "Microsoft\Windows\Application Experience\ProgramDataUpdater" -ErrorAction SilentlyContinue | Out-Null
+Disable-ScheduledTask -TaskName "Microsoft\Windows\Autochk\Proxy" -ErrorAction SilentlyContinue | Out-Null
+Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\Consolidator" -ErrorAction SilentlyContinue | Out-Null
+Disable-ScheduledTask -TaskName "Microsoft\Windows\Customer Experience Improvement Program\UsbCeip" -ErrorAction SilentlyContinue | Out-Null
+Disable-ScheduledTask -TaskName "Microsoft\Windows\DiskDiagnostic\Microsoft-Windows-DiskDiagnosticDataCollector" -ErrorAction SilentlyContinue | Out-Null
 
-Write-Host "Disabling Application Suggestions..."
+Write-Host "Disabling Application Suggestions..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "ContentDeliveryAllowed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "OemPreInstalledAppsEnabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 0
@@ -47,7 +229,14 @@ if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableWindowsConsumerFeatures" -Type DWord -Value 1
 
-Write-Host "Disabling Feedback..."
+Write-Host "Disabling News and Interests..." -ForegroundColor Cyan
+if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
+    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" | Out-Null
+}
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
+Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
+
+Write-Host "Disabling Feedback..." -ForegroundColor Cyan
 if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules")) {
     New-Item -Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules" -Force | Out-Null
 }
@@ -56,138 +245,26 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection
 Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClient" -ErrorAction SilentlyContinue | Out-Null
 Disable-ScheduledTask -TaskName "Microsoft\Windows\Feedback\Siuf\DmClientOnScenarioDownload" -ErrorAction SilentlyContinue | Out-Null
 
-Write-Host "Disabling Tailored Experiences..."
+Write-Host "Disabling Tailored Experiences..." -ForegroundColor Cyan
 if (!(Test-Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent")) {
     New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Force | Out-Null
 }
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CloudContent" -Name "DisableTailoredExperiencesWithDiagnosticData" -Type DWord -Value 1
 
-Write-Host "Disabling Advertising ID..."
+Write-Host "Disabling Advertising ID..." -ForegroundColor Cyan
 if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo")) {
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" | Out-Null
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo" -Name "DisabledByGroupPolicy" -Type DWord -Value 1
 
-Write-Host "Disabling Error Reporting..."
+Write-Host "Disabling Error Reporting..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\Windows Error Reporting" -Name "Disabled" -Type DWord -Value 1
 Disable-ScheduledTask -TaskName "Microsoft\Windows\Windows Error Reporting\QueueReporting" | Out-Null
 
-Write-Host "Restricting Windows Update P2P only to Local Network..."
-if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config")) {
-    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" | Out-Null
-}
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DeliveryOptimization\Config" -Name "DODownloadMode" -Type DWord -Value 1
-
-Write-Host "Stopping and Disabling Diagnostics Tracking Service..."
-Stop-Service "DiagTrack" -WarningAction SilentlyContinue
-Set-Service "DiagTrack" -StartupType Disabled
-
-Write-Host "Stopping and Disabling WAP Push Service..."
-Stop-Service "dmwappushservice" -WarningAction SilentlyContinue
-Set-Service "dmwappushservice" -StartupType Disabled
-
-Write-Host "Enabling F8 Boot Menu Options..."
-bcdedit /set `{current`} bootmenupolicy Legacy | Out-Null
-
-Write-Host "Disabling Remote Assistance..."
+Write-Host "Disabling Remote Assistance..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance" -Name "fAllowToGetHelp" -Type DWord -Value 0
 
-Write-Host "Stopping and Disabling Superfetch Service..."
-Stop-Service "SysMain" -WarningAction SilentlyContinue
-Set-Service "SysMain" -StartupType Disabled
-
-Write-Host "Showing File Operations Details..."
-if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager")) {
-    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" | Out-Null
-}
-Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\OperationStatusManager" -Name "EnthusiastMode" -Type DWord -Value 1
-
-Write-Host "Hiding Task View Button..."
-Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
-
-Write-Host "Hiding People Icon..."
-if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People")) {
-    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" | Out-Null
-}
-Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
-
-Write-Host "Changing Default Explorer View to This PC..."
-Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
-
-# Enable Long Paths
-
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWORD -Value 1
-Write-Host "Hiding 3D Objects Icon from This PC..."
-Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -ErrorAction SilentlyContinue
-
-# Performance Tweaks and More Telemetry
-
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Type DWord -Value 0
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
-Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type DWord -Value 1
-Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Type DWord -Value 1
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "ClearPageFileAtShutdown" -Type DWord -Value 0
-Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverTime" -Type DWord -Value 10
-
-# Timeout Tweaks cause flickering on Windows now
-
-Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillAppTimeout" -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "HungAppTimeout" -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "WaitToKillServiceTimeout" -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "LowLevelHooksTimeout" -ErrorAction SilentlyContinue
-Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillServiceTimeout" -ErrorAction SilentlyContinue
-
-# Network Tweaks
-
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295
-
-# Gaming Tweaks
-
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High"
-
-# Group svchost.exe Processes
-
-$ram = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1kb
-Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $ram -Force
-
-Write-Host "Disable News and Interests"
-if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
-    New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" | Out-Null
-}
-Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
-
-# Remove "News and Interest" from Taskbar
-
-Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
-
-# Remove "Meet Now" Button from Taskbar
-
-if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
-    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
-}
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
-
-Write-Host "Removing AutoLogger File and Restricting Directory..."
-$autoLoggerDir = "$env:PROGRAMDATA\Microsoft\Diagnosis\ETLLogs\AutoLogger"
-if (Test-Path "$autoLoggerDir\AutoLogger-Diagtrack-Listener.etl") {
-    Remove-Item "$autoLoggerDir\AutoLogger-Diagtrack-Listener.etl"
-}
-icacls $autoLoggerDir /deny SYSTEM:`(OI`)`(CI`)F | Out-Null
-
-Write-Host "Stopping and Disabling Diagnostics Tracking Service..."
-Stop-Service "DiagTrack"
-Set-Service "DiagTrack" -StartupType Disabled
-Write-Host "Doing Security checks for Administrator Account and Group Policy"
-if (($( Get-WMIObject -class Win32_ComputerSystem | Select-Object username ).username).IndexOf('Administrator') -eq -1) {
-    net user administrator /active:no
-}
-
-# Disable Wi-Fi Sense
-
-Write-Host "Disabling Wi-Fi Sense..."
+Write-Host "Disabling Wi-Fi Sense..." -ForegroundColor Cyan
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowWiFiHotSpotReporting" -Force | Out-Null
 }
@@ -197,41 +274,31 @@ if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoCo
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WiFi\AllowAutoConnectToWiFiSenseHotspots" -Name "Value" -Type DWord -Value 0
 
-# Disable Activity History
-
-Write-Host "Disabling Activity History..."
+Write-Host "Disabling Activity History..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "EnableActivityFeed" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "PublishUserActivities" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name "UploadUserActivities" -Type DWord -Value 0
 
-# Disable Location Tracking
-
-Write-Host "Disabling Location Tracking..."
+Write-Host "Disabling Location Tracking..." -ForegroundColor Cyan
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Force | Out-Null
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location" -Name "Value" -Type String -Value "Deny"
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Sensor\Overrides\{BFA794E4-F964-4FDB-90F6-51056BFE4B44}" -Name "SensorPermissionState" -Type DWord -Value 0
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\lfsvc\Service\Configuration" -Name "Status" -Type DWord -Value 0
-Write-Host "Disabling Automatic Maps Updates..."
+
+Write-Host "Disabling Automatic Maps Updates..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKLM:\SYSTEM\Maps" -Name "AutoUpdateEnabled" -Type DWord -Value 0
 
-# Disable Storage Sense
-
-Write-Host "Disabling Storage Sense..."
+Write-Host "Disabling Storage Sense..." -ForegroundColor Cyan
 Remove-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\Parameters\StoragePolicy" -Recurse -ErrorAction SilentlyContinue
 
-# Disable GameDVR
-
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-Install-Module -Name "7Zip4Powershell" -Force
-
+Write-Host "Disabling GameDVR..." -ForegroundColor Cyan
 Start-BitsTransfer -Source "https://www.sordum.org/files/download/power-run/PowerRun.zip" -Destination "$env:TEMP\PowerRun.zip"
 Expand-7Zip -ArchiveFileName "$env:TEMP\PowerRun.zip" -TargetPath $env:TEMP
 Move-Item -Path "$env:TEMP\PowerRun\PowerRun.exe" -Destination $env:WINDIR -Force
 Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
 Remove-Item -Path "$env:TEMP\PowerRun.zip" -Force
-
 if (!(Test-Path "HKCU:\System\GameConfigStore")) {
     New-Item -Path "HKCU:\System\GameConfigStore" -Force
 }
@@ -247,16 +314,87 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name
 PowerRun.exe /SW:0 Powershell.exe -command { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name "ActivationType" -Type DWord -Value 0 }
 Remove-Item -Path "$env:WINDIR\PowerRun.*" -Force
 
-# Set Services to Manual
+Write-Host "Doing Security Checks for Administrator Account and Group Policy" -ForegroundColor Cyan
+if (($( Get-WMIObject -class Win32_ComputerSystem | Select-Object username ).username).IndexOf('Administrator') -eq -1) {
+    net user administrator /active:no
+}
+
+# - Performance Tweaks and More Telemetry
+
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\DriverSearching" -Name "SearchOrderConfig" -Type DWord -Value 0
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "SystemResponsiveness" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "MenuShowDelay" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "AutoEndTasks" -Type DWord -Value 1
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management" -Name "ClearPageFileAtShutdown" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\Control Panel\Mouse" -Name "MouseHoverTime" -Type DWord -Value 10
+
+# - Timeout Tweaks cause Flickering on Windows Now
+
+Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillAppTimeout" -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "HungAppTimeout" -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "WaitToKillServiceTimeout" -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "LowLevelHooksTimeout" -ErrorAction SilentlyContinue
+Remove-ItemProperty -Path "HKCU:\Control Panel\Desktop" -Name "WaitToKillServiceTimeout" -ErrorAction SilentlyContinue
+
+# - Network Tweaks
+
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters" -Name "IRPStackSize" -Type DWord -Value 20
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile" -Name "NetworkThrottlingIndex" -Type DWord -Value 4294967295
+
+# - Gaming Tweaks
+
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "GPU Priority" -Type DWord -Value 8
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Priority" -Type DWord -Value 6
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Multimedia\SystemProfile\Tasks\Games" -Name "Scheduling Category" -Type String -Value "High"
+
+# - Group svchost.exe Processes
+
+$ram = (Get-CimInstance -ClassName Win32_PhysicalMemory | Measure-Object -Property Capacity -Sum).Sum / 1kb
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSplitThresholdInKB" -Type DWord -Value $ram -Force
+
+# - Miscellaneous Tweaks
+
+Write-Host "Hiding Task View Button..." -ForegroundColor Cyan
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
+
+Write-Host "Hiding People Icon..." -ForegroundColor Cyan
+if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People")) {
+    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" | Out-Null
+}
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
+
+Write-Host "Hiding 3D Objects Icon from This PC..." -ForegroundColor Cyan
+Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -ErrorAction SilentlyContinue
+
+Write-Host "Changing Default Explorer View to This PC..." -ForegroundColor Cyan
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
+
+Write-Host "Enabling NumLock after Startup..." -ForegroundColor Cyan
+if (!(Test-Path "HKU:")) {
+    New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
+}
+Set-ItemProperty -Path "HKU:\.DEFAULT\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 2
+
+Write-Host "Disabling Notifications and Action Center..." -ForegroundColor Cyan
+New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows" -Name "Explorer" -Force | Out-Null
+New-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableNotificationCenter" -PropertyType "DWord" -Value 1 | Out-Null
+New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -PropertyType "DWord" -Value 0 -force | Out-Null
+
+if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
+    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force | Out-Null
+}
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
+
+Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWORD -Value 1
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1
+
+# - Set Services to Manual
 
 $services = @(
 "ALG"                                          # Application Layer Gateway Service(Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
 "AJRouter"                                     # Needed for AllJoyn Router Service
 "BcastDVRUserService_48486de"                  # GameDVR and Broadcast is used for Game Recordings and Live Broadcasts
-#"BDESVC"                                      # Bitlocker Drive Encryption Service
-#"BFE"                                         # Base Filtering Engine (Manages Firewall and Internet Protocol security)
-#"BluetoothUserService_48486de"                # Bluetooth user service supports proper functionality of Bluetooth features relevant to each user session.
-#"BrokerInfrastructure"                        # Windows Infrastructure Service (Controls which background tasks can run on the system)
 "Browser"                                      # Let users browse and locate shared resources in neighboring computers
 "BthAvctpSvc"                                  # AVCTP service (needed for Bluetooth Audio Devices or Wireless Headphones)
 "CaptureService_48486de"                       # Optional screen capture functionality for applications that call the Windows.Graphics.Capture API.
@@ -267,29 +405,21 @@ $services = @(
 "DPS"                                          # Diagnostic Policy Service (Detects and Troubleshoots Potential Problems)
 "edgeupdate"                                   # Edge Update Service
 "edgeupdatem"                                  # Another Update Service
-#"EntAppSvc"                                   # Enterprise Application Management.
 "Fax"                                          # Fax Service
 "fhsvc"                                        # Fax History
 "FontCache"                                    # Windows font cache
-#"FrameServer"                                 # Windows Camera Frame Server (Allows multiple clients to access video frames from camera devices)
 "gupdate"                                      # Google Update
 "gupdatem"                                     # Another Google Update Service
-#"iphlpsvc"                                    # ipv6(Most websites use ipv4 instead) - Needed for Xbox Live
 "lfsvc"                                        # Geolocation Service
-#"LicenseManager"                              # Disable LicenseManager (Windows Store may not work properly)
 "lmhosts"                                      # TCP/IP NetBIOS Helper
 "MapsBroker"                                   # Downloaded Maps Manager
 "MicrosoftEdgeElevationService"                # Another Edge Update Service
 "MSDTC"                                        # Distributed Transaction Coordinator
 "NahimicService"                               # Nahimic Service
-#"ndu"                                         # Windows Network Data Usage Monitor (Disabling Breaks Task Manager Per-Process Network Monitoring)
 "NetTcpPortSharing"                            # Net.Tcp Port Sharing Service
 "PcaSvc"                                       # Program Compatibility Assistant Service
 "PerfHost"                                     # Remote users and 64-bit processes to query performance.
 "PhoneSvc"                                     # Phone Service(Manages the telephony state on the device)
-#"PNRPsvc"                                     # Peer Name Resolution Protocol (Some peer-to-peer and collaborative applications, such as Remote Assistance, may not function, Discord will still work)
-#"p2psvc"                                      # Peer Name Resolution Protocol(Enables multi-party communication using Peer-to-Peer Grouping.  If disabled, some applications, such as HomeGroup, may not function. Discord will still work)iscord will still work)
-#"p2pimsvc"                                    # Peer Networking Identity Manager (Peer-to-Peer Grouping services may not function, and some applications, such as HomeGroup and Remote Assistance, may not function correctly. Discord will still work)
 "PrintNotify"                                  # Windows printer notifications and extentions
 "QWAVE"                                        # Quality Windows Audio Video Experience (audio and video might sound worse)
 "RemoteAccess"                                 # Routing and Remote Access
@@ -300,20 +430,17 @@ $services = @(
 "seclogon"                                     # Secondary Logon (Disables other credentials only password will work)
 "SEMgrSvc"                                     # Payments and NFC/SE Manager (Manages payments and Near Field Communication (NFC) based secure elements)
 "SharedAccess"                                 # Internet Connection Sharing (ICS)
-#"Spooler"                                     # Printing
 "stisvc"                                       # Windows Image Acquisition (WIA)
-#"StorSvc"                                     # StorSvc (usb external hard drive will not be reconized by windows)
 "SysMain"                                      # Analyses System Usage and Improves Performance
 "TrkWks"                                       # Distributed Link Tracking Client
-#"WbioSrvc"                                    # Windows Biometric Service (required for Fingerprint reader / facial detection)
+"WbioSrvc"                                     # Windows Biometric Service (required for Fingerprint reader / facial detection)
 "WerSvc"                                       # Windows error reporting
 "wisvc"                                        # Windows Insider program(Windows Insider will not work if Disabled)
-#"WlanSvc"                                     # WLAN AutoConfig
 "WMPNetworkSvc"                                # Windows Media Player Network Sharing Service
 "WpcMonSvc"                                    # Parental Controls
 "WPDBusEnum"                                   # Portable Device Enumerator Service
 "WpnService"                                   # WpnService (Push Notifications may not work)
-#"wscsvc"                                      # Windows Security Center Service
+"wscsvc"                                       # Windows Security Center Service
 "WSearch"                                      # Windows Search
 "XblAuthManager"                               # Xbox Live Auth Manager (Disabling Breaks Xbox Live Games)
 "XblGameSave"                                  # Xbox Live Game Save Service (Disabling Breaks Xbox Live Games)
@@ -337,31 +464,13 @@ $services = @(
 )
 
 ForEach ($service in $services) {
-    Write-Host "Setting $service StartupType to Manual"
-    Get-Service -Name $service -ErrorAction SilentlyContinue | Set-Service -StartupType Manual -ErrorAction SilentlyContinue
+    Write-Host "Setting: $service StartupType to Manual" -ForegroundColor Cyan
+    Get-Service -Name $service -ErrorAction SilentlyContinue | Set-Service -StartupType Manual -ErrorAction SilentlyContinue | Out-Null
 }
 
-# Enable NumLock on Startup
+# - Remove ALL MS Store Apps
 
-Write-Host "Enabling NumLock after Startup..."
-if (!(Test-Path "HKU:")) {
-    New-PSDrive -Name HKU -PSProvider Registry -Root HKEY_USERS | Out-Null
-}
-Set-ItemProperty -Path "HKU:\.DEFAULT\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 2
-
-# Show File Extensions
-
-Write-Host "Showing Known File Extensions..."
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
-
-# Disable Notifications
-
-Write-Host "Disabling Notifications and Action Center..."
-New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows" -Name "Explorer" -force
-New-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableNotificationCenter" -PropertyType "DWord" -Value 1
-New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -PropertyType "DWord" -Value 0 -force
-
-# Remove ALL MS Store Apps
+Write-Host "Removing Bloatware Apps..." -ForegroundColor Yellow
 
 $bloatware = @(
 "3DBuilder"
@@ -461,31 +570,50 @@ $bloatware = @(
 "HPSystemInformation"
 )
 
+ForEach ($bloat in $bloatware) {
+    Get-AppxPackage "*$Bloat*" | Remove-AppxPackage -ErrorAction SilentlyContinue
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "*$Bloat*" | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+    Write-Host "Removing $Bloat" -ForegroundColor Cyan
+}
+
+Write-Host "Removing Bloatware Programs..." -ForegroundColor Yellow
+$InstalledPrograms = Get-Package | Where-Object { $UninstallPrograms -contains $_.Name }
+
+$InstalledPrograms | ForEach-Object {
+    Write-Host -Object "Attempting to Uninstall: [$( $_.Name )]..." -ForegroundColor Yellow
+    try {
+        $Null = $_ | Uninstall-Package -AllVersions -Force -ErrorAction SilentlyContinue
+        Write-Host -Object "Successfully Uninstalled: [$( $_.Name )]" -ForegroundColor Cyan
+    }
+    catch {
+        Write-Warning -Message "Failed to Uninstall: [$( $_.Name )]"
+    }
+}
+
+Write-Host "Removing: Cortana" -ForegroundColor Cyan
+Get-AppxPackage -AllUsers Microsoft.549981C3F5F10 | Remove-AppxPackage
+
+Write-Host "Removing: Microsoft Edge" -ForegroundColor Cyan
+Invoke-WebRequest -useb https://raw.githubusercontent.com/Rakioth/Dotfiles/main/assets/O%26O%20ShutUp/Edge_Removal.bat | Invoke-Expression
+
+Write-Host "Removing: Microsoft Teams" -ForegroundColor Cyan
 function getUninstallString($match) {
     return (Get-ChildItem -Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall, HKLM:\SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall | Get-ItemProperty | Where-Object { $_.DisplayName -like "*$match*" }).UninstallString
 }
 $TeamsPath = [System.IO.Path]::Combine($env:LOCALAPPDATA, 'Microsoft', 'Teams')
 $TeamsUpdateExePath = [System.IO.Path]::Combine($TeamsPath, 'Update.exe')
-
-Write-Host "Stopping Teams Process..."
 Stop-Process -Name "*teams*" -Force -ErrorAction SilentlyContinue
 
-Write-Host "Uninstalling Teams from AppData\Microsoft\Teams"
 if ( [System.IO.File]::Exists($TeamsUpdateExePath)) {
     $proc = Start-Process $TeamsUpdateExePath "-uninstall -s" -PassThru
     $proc.WaitForExit()
 }
-
-Write-Host "Removing Teams AppxPackage..."
 Get-AppxPackage "*Teams*" | Remove-AppxPackage -ErrorAction SilentlyContinue
 Get-AppxPackage "*Teams*" -AllUsers | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
 
-Write-Host "Deleting Teams Directory"
 if ( [System.IO.Directory]::Exists($TeamsPath)) {
     Remove-Item $TeamsPath -Force -Recurse -ErrorAction SilentlyContinue
 }
-
-Write-Host "Deleting Teams Uninstall Registry Key"
 $us = getUninstallString("Teams");
 if ($us.Length -gt 0) {
     $us = ($us.Replace("/I", "/uninstall ") + " /quiet").Replace("  ", " ")
@@ -494,45 +622,11 @@ if ($us.Length -gt 0) {
     $proc = Start-Process -FilePath $FilePath -Args $ProcessArgs -PassThru
     $proc.WaitForExit()
 }
-Write-Host "Restart Computer to Complete Teams Uninstall"
 
-Write-Host "Removing Bloatware Apps..."
-ForEach ($bloat in $bloatware) {
-    Get-AppxPackage "*$Bloat*" | Remove-AppxPackage -ErrorAction SilentlyContinue
-    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "*$Bloat*" | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
-    Write-Host "Trying to remove $Bloat." -ForegroundColor Yellow
-}
-Write-Host "Finished Removing Bloatware Apps"
-
-Write-Host "Removing Bloatware Programs..."
-$InstalledPrograms = Get-Package | Where-Object { $UninstallPrograms -contains $_.Name }
-$InstalledPrograms | ForEach-Object {
-    Write-Host -Object "Attempting to Uninstall: [$( $_.Name )]..." -ForegroundColor Yellow
-    try {
-        $Null = $_ | Uninstall-Package -AllVersions -Force -ErrorAction SilentlyContinue
-        Write-Host -Object "Successfully Uninstalled: [$( $_.Name )]" -ForegroundColor Green
-    }
-    catch {
-        Write-Warning -Message "Failed to Uninstall: [$( $_.Name )]"
-    }
-}
-Write-Host "Finished Removing Bloatware Programs"
-
-# Remove Cortana
-
-Write-Host "Removing Cortana..."
-Get-AppxPackage -AllUsers Microsoft.549981C3F5F10 | Remove-AppxPackage
-
-# Remove Microsoft Edge
-
-Write-Host "Removing Microsoft Edge..."
-Invoke-WebRequest -useb https://raw.githubusercontent.com/Rakioth/Dotfiles/main/assets/O%26O%20ShutUp/Edge_Removal.bat | Invoke-Expression
-
-if ($installEverything -eq "-desktop") {
+if ($mode -eq "-dt") {
 
 # Disable Hibernation
 
-Write-Host "Disabling Hibernation..."
 Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernateEnabled" -Type Dword -Value 0
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" | Out-Null
@@ -547,7 +641,7 @@ if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling") {
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power" -Name "HiberbootEnabled" -Type DWord -Value 0000000
 
 }
-elseif ($installEverything -eq "-laptop") {
+elseif ($mode -eq "-lt") {
 
 # Enable Power Throttling
 
@@ -558,26 +652,15 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\P
 
 }
 
-#===========================================================================
-# Configs
-#===========================================================================
-
-# All .Net Framework (2,3,4)
-
-Enable-WindowsOptionalFeature -Online -FeatureName "NetFx4-AdvSrvs" -All -NoRestart
-Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" -All -NoRestart
-
-# Windows Subsystem for Linux
-
-Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart
-Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart
-Write-Host "WSL is now Installed and Configured. Please Reboot before using."
+Write-Host "`n=================================" -ForegroundColor Green
+Write-Host "---      Tweaks Applied       ---" -ForegroundColor Green
+Write-Host "=================================`n" -ForegroundColor Green
 
 #===========================================================================
 # Updates
 #===========================================================================
 
-Write-Host "Disabling driver offering through Windows Update..."
+Write-Host "Disabling Driver Offering through Windows Update..." -ForegroundColor Cyan
 if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata")) {
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata" -Force | Out-Null
 }
@@ -592,7 +675,8 @@ if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate")) {
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" | Out-Null
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -Name "ExcludeWUDriversInQualityUpdate" -Type DWord -Value 1
-Write-Host "Disabling Windows Update Automatic Restart..."
+
+Write-Host "Disabling Windows Update Automatic Restart..." -ForegroundColor Cyan
 if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU")) {
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -Force | Out-Null
 }
@@ -602,19 +686,24 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Nam
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 365
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferQualityUpdatesPeriodInDays " -Type DWord -Value 4
 
+
+Write-Host "`n=================================" -ForegroundColor Green
+Write-Host "---      Updated Scheme       ---" -ForegroundColor Green
+Write-Host "=================================`n" -ForegroundColor Green
+
 #===========================================================================
 # Install
 #===========================================================================
 
-Write-Host "Installing Apps..."
+Write-Host "Installing Apps..." -ForegroundColor Yellow
 
 $apps = @(
-@{ id = "9N69B07TNQ5C"; options = ""; type = "-laptop" }
-@{ id = "BlenderFoundation.Blender"; options = "-v 2.83.9 ; winget install -e -h --accept-source-agreements --accept-package-agreements --id BlenderFoundation.Blender -v 2.79b"; type = "-desktop" }
+@{ id = "9N69B07TNQ5C"; options = ""; type = "-lt" }
+@{ id = "BlenderFoundation.Blender"; options = "-v 2.83.9 ; winget install -e -h --accept-source-agreements --accept-package-agreements --id BlenderFoundation.Blender -v 2.79b"; type = "-dt" }
 @{ id = "Discord.Discord"; options = ""; type = "-both" }
 @{ id = "ElectronicArts.EADesktop"; options = ""; type = "-both" }
-@{ id = "EpicGames.EpicGamesLauncher"; options = ""; type = "-desktop" }
-@{ id = "GOG.Galaxy"; options = ""; type = "-desktop" }
+@{ id = "EpicGames.EpicGamesLauncher"; options = ""; type = "-dt" }
+@{ id = "GOG.Galaxy"; options = ""; type = "-dt" }
 @{ id = "Git.Git"; options = ""; type = "-both" }
 @{ id = "GitHub.GitHubDesktop"; options = ""; type = "-both" }
 @{ id = "Google.AndroidStudio"; options = ""; type = "-both" }
@@ -629,7 +718,7 @@ $apps = @(
 @{ id = "Microsoft.PowerToys"; options = ""; type = "-both" }
 @{ id = "Microsoft.VisualStudio.2022.Community"; options = ""; type = "-both" }
 @{ id = "Microsoft.VisualStudioCode"; options = ""; type = "-both" }
-@{ id = "Mp3tag.Mp3tag"; options = "-l D:\Mp3tag"; type = "-desktop" }
+@{ id = "Mp3tag.Mp3tag"; options = "-l D:\Mp3tag"; type = "-dt" }
 @{ id = "Neovim.Neovim"; options = ""; type = "-both" }
 @{ id = "OpenJS.NodeJS"; options = ""; type = "-both" }
 @{ id = "Oracle.VirtualBox"; options = "-l D:\VirtualBox"; type = "-both" }
@@ -643,117 +732,15 @@ $apps = @(
 )
 
 ForEach ($app in $apps) {
-    if ($installEverything -eq $app.type -or $app.type -eq "-both") {
+    if ($mode -eq $app.type -or $app.type -eq "-both") {
         $listApp = winget list --accept-source-agreements --exact -q $app.id
         if (![String]::Join("", $listApp).Contains($app.id)) {
-            Write-Host "Installing: $( $app.id )" -ForegroundColor Green
+            Write-Host "Installing: $( $app.id )" -ForegroundColor Cyan
             Invoke-Expression "winget install -e -h --accept-source-agreements --accept-package-agreements --id $( $app.id ) $( $app.options )"
         }
         else {
             Write-Host "Skipping: $( $app.id ) (Already Installed)" -ForegroundColor Yellow
         }
-    }
-}
-
-function Install-Program {
-    param (
-        [Parameter(Mandatory = $true)][string]$ProgramSource,
-        [Parameter(Mandatory = $true)][string]$ProgramType,
-        [Parameter(Mandatory = $false)][string]$Link,
-        [Parameter(Mandatory = $false)][string]$FilenamePattern,
-        [Parameter(Mandatory = $false)][string]$PathExtract,
-        [Parameter(Mandatory = $false)][string]$Password,
-        [Parameter(Mandatory = $false)][string]$ArgumentList,
-        [Parameter(Mandatory = $false)][bool]$InnerDirectory
-    )
-
-    if ($ProgramSource -eq "Repo") {
-        $releasesUri = "https://api.github.com/repos/$Link/releases/latest"
-        $downloadUri = ((Invoke-RestMethod -Method GET -Uri $releasesUri).assets | Where-Object name -like $FilenamePattern).browser_download_url
-        $fileName = Split-Path -Path $downloadUri -Leaf
-        $tempPath = Join-Path -Path $env:TEMP -ChildPath $fileName
-        Start-BitsTransfer -Source $downloadUri -Destination $tempPath
-    }
-    elseif ($ProgramSource -eq "Web") {
-        $tempPath = Join-Path -Path $env:TEMP -ChildPath $FilenamePattern
-        Start-BitsTransfer -Source $Link -Destination $tempPath
-    }
-
-    if ($ProgramType -eq "Archive") {
-        Install-Archive -PathZip $tempPath -PathExtract $PathExtract -Password $Password -InnerDirectory $InnerDirectory
-    }
-    elseif ($ProgramType -eq "Executable") {
-        Install-Executable -PathExe $tempPath -ArgumentList $ArgumentList
-    }
-}
-
-function Install-Archive {
-    param (
-        [string]$PathZip,
-        [string]$PathExtract,
-        [string]$Password,
-        [bool]$InnerDirectory
-    )
-
-    if ($InnerDirectory) {
-        $tempExtract = Join-Path -Path $env:TEMP -ChildPath $( (New-Guid).Guid )
-        Expand-7Zip -ArchiveFileName $PathZip -TargetPath $tempExtract -Password $Password
-        Move-Item -Path "$tempExtract\*" -Destination $PathExtract -Force
-        Remove-Item -Path $tempExtract -Force -Recurse -ErrorAction SilentlyContinue
-    }
-    else {
-        Expand-7Zip -ArchiveFileName $PathZip -TargetPath $PathExtract -Password $Password
-    }
-    Remove-Item $PathZip -Force
-}
-
-function Install-Executable {
-    param (
-        [string]$PathExe,
-        [string]$ArgumentList
-    )
-
-    Start-Process -FilePath $PathExe -ArgumentList $ArgumentList -Wait
-    Remove-Item $PathExe -Force
-}
-
-function Create-Shortcut {
-    param (
-        [string]$SourcePath,
-        [string]$ShortcutPath
-    )
-
-    $wScriptObj = New-Object -ComObject WScript.Shell
-    $shortcut = $wScriptObj.CreateShortcut($ShortcutPath)
-    $shortcut.TargetPath = $SourcePath
-    $shortcut.Save()
-}
-
-function DownloadFiles-Repo {
-    param (
-        [string]$Repo,
-        [string]$Path,
-        [string]$DestinationPath
-    )
-
-    $contentsUri = "https://api.github.com/repos/$Repo/contents/$Path"
-    $objects = Invoke-RestMethod -Method GET -Uri $contentsUri
-    $files = $objects | Where-Object type -eq "file" | Select-Object -ExpandProperty download_url
-    $directories = $objects | Where-Object type -eq "dir"
-
-    $directories | ForEach-Object {
-        DownloadFiles-Repo -Repo $Repo -Path $_.path -DestinationPath "$( $DestinationPath )/$( $_.name )"
-    }
-
-    if (!(Test-Path $DestinationPath)) {
-        New-Item -Path $DestinationPath -ItemType Directory
-    }
-
-    ForEach ($file in $files) {
-        $fileName = Split-Path -Path $file -Leaf
-        $fileDestination = Join-Path -Path $DestinationPath -ChildPath $fileName
-        $outputFilename = $fileDestination.Replace("%20", " ")
-        Start-BitsTransfer -Source $file -Destination $outputFilename
     }
 }
 
@@ -764,7 +751,7 @@ if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Photosh
 }
 else {
     $source = "magnet:?xt=urn:btih:487dafc52e228a71b8acc6d723471b64e4625976&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202022%20RUS-ENG%20v11|%20piratbit.org"
-    Write-Host "Installing: Adobe Master Collection" -ForegroundColor Green
+    Write-Host "Installing: Adobe Master Collection" -ForegroundColor Cyan
     Start-Process $source
 }
 
@@ -775,17 +762,13 @@ if (Test-Path "C:\Program Files\WindowsApps\yuk7.archwsl*") {
 }
 else {
     $source = "yuk7/ArchWSL"
-    Write-Host "Installing: Arch WSL" -ForegroundColor Green
+    Write-Host "Installing: Arch WSL" -ForegroundColor Cyan
     Write-Host "Select <Local Machine> and Place Certificate in <Trusted People>" -ForegroundColor Yellow
-    Install-Program -ProgramSource "Repo" -ProgramType "Executable" -Link $source -FilenamePattern "ArchWSL-AppX*.cer" -ArgumentList '/S'
-
-    $releasesUri = "https://api.github.com/repos/$source/releases/latest"
-    $downloadUri = ((Invoke-RestMethod -Method GET -Uri $releasesUri).assets | Where-Object name -like "ArchWSL-AppX*.appx").browser_download_url
-    $fileName = Split-Path -Path $downloadUri -Leaf
-    $tempPath = Join-Path -Path $env:TEMP -ChildPath $fileName
-    Start-BitsTransfer -Source $downloadUri -Destination $tempPath
-    Add-AppxPackage $tempPath
-    Remove-Item $tempPath -Force
+    $certificatePath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "ArchWSL-AppX*.cer"
+    Install-Executable -PathExe $certificatePath
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "ArchWSL-AppX*.appx"
+    Add-AppxPackage $programPath
+    Remove-Item $programPath -Force
     Start-Process "C:\Program Files\WindowsApps\yuk7.archwsl*\Arch.exe" -Wait
 }
 
@@ -796,8 +779,9 @@ if (Test-Path "C:\Program Files (x86)\Battle.net") {
 }
 else {
     $source = "https://eu.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe&id=undefined"
-    Write-Host "Installing: Battle.net" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Executable" -Link $source -FilenamePattern "Battle.net-Setup.exe" -ArgumentList '--lang=enUS --installpath="C:\Program Files (x86)\Battle.net"'
+    Write-Host "Installing: Battle.net" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Battle.net-Setup.exe"
+    Install-Executable -PathExe $programPath -ArgumentList '--lang=enUS --installpath="C:\Program Files (x86)\Battle.net"'
 }
 
 # Microsoft Office
@@ -807,8 +791,9 @@ if (Test-Path "C:\Program Files\Microsoft Office") {
 }
 else {
     $source = "https://fm.solewe.com/vfm-admin/vfm-downloader.php?q=0&sh=4dc91763a073efd8239ba0fa86d7a77a&share=2c37e082dc41cc59d41a43a82585beab"
-    Write-Host "Installing: Microsoft Office" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "Office-Setup.zip" -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com" -InnerDirectory $false
+    Write-Host "Installing: Microsoft Office" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Office-Setup.zip"
+    Install-Archive -PathZip $programPath -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com"
     Start-Process "$env:USERPROFILE\Desktop\Office\OInstall.exe" -Wait
 }
 
@@ -819,8 +804,9 @@ if (Test-Path "C:\Program Files (x86)\Kaspersky Lab") {
 }
 else {
     $source = "https://dl.filehorse.com/win/anti-virus/kaspersky-free/ks4.021.3.10.391en_25092.exe?st=eE1iZHloGW3QHO1bDuEWlg&e=1666638338&fn=ks4.021.3.10.391en_25092.exe"
-    Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Executable" -Link $source -FilenamePattern "Kaspersky-Setup.exe" -ArgumentList '/S'
+    Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Kaspersky-Setup.exe"
+    Install-Executable -PathExe $programPath
     Stop-Process -Name "ksde", "ksdeui" -Force
     Uninstall-Package -Name "Kaspersky VPN"
 }
@@ -832,11 +818,12 @@ if (Test-Path "D:\TinyTaskPortable") {
 }
 else {
     $source = "PortableApps/Downloads"
-    Write-Host "Installing: TinyTaskPortable" -ForegroundColor Green
-    Install-Program -ProgramSource "Repo" -ProgramType "Executable" -Link $source -FilenamePattern "TinyTaskPortable*" -ArgumentList '/S /DESTINATION=D:\'
+    Write-Host "Installing: TinyTaskPortable" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "TinyTaskPortable*"
+    Install-Executable -PathExe $programPath -ArgumentList '/S /DESTINATION=D:\'
 }
 
-if ($installEverything -eq "-desktop") {
+if ($mode -eq "-dt") {
 
 # ArchiSteamFarm
 
@@ -845,8 +832,9 @@ if (Test-Path "D:\ArchiSteamFarm") {
 }
 else {
     $source = "JustArchiNET/ArchiSteamFarm"
-    Write-Host "Installing: ArchiSteamFarm" -ForegroundColor Green
-    Install-Program -ProgramSource "Repo" -ProgramType "Archive" -Link $source -FilenamePattern "*win-x64.zip" -PathExtract "D:\ArchiSteamFarm" -InnerDirectory $false
+    Write-Host "Installing: ArchiSteamFarm" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*win-x64.zip"
+    Install-Archive -PathZip $programPath -PathExtract "D:\ArchiSteamFarm"
 }
 
 # Aseprite
@@ -856,8 +844,9 @@ if (Test-Path "D:\Aseprite") {
 }
 else {
     $source = "https://download2267.mediafire.com/zfjvk3a91zzg/w3xthz4z7dru0fc/Aseprite.zip"
-    Write-Host "Installing: Aseprite" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "Aseprite-Setup.zip" -PathExtract "D:\Aseprite" -InnerDirectory $true
+    Write-Host "Installing: Aseprite" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Aseprite-Setup.zip"
+    Install-Archive -PathZip $programPath -PathExtract "D:\Aseprite" -InnerDirectory $true
 }
 
 # Crowbar
@@ -867,8 +856,9 @@ if (Test-Path "D:\Modding Tools\Noesis\Crowbar.exe") {
 }
 else {
     $source = "ZeqMacaw/Crowbar"
-    Write-Host "Installing: Crowbar" -ForegroundColor Green
-    Install-Program -ProgramSource "Repo" -ProgramType "Archive" -Link $source -FilenamePattern "*.7z" -PathExtract "D:\Modding Tools\Noesis" -InnerDirectory $false
+    Write-Host "Installing: Crowbar" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*.7z"
+    Install-Archive -PathZip $programPath -PathExtract "D:\Modding Tools\Noesis"
     Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Crowbar.exe" -ShortcutPath "D:\Modding Tools\Crowbar.lnk"
 }
 
@@ -877,10 +867,12 @@ else {
 if (Test-Path "D:\Deemix") {
     Write-Host "Skipping: Deemix (Already Installed)" -ForegroundColor Yellow
 }
-else {
+else
+{
     $source = "https://download.deemix.app/gui/win-x64_setup-latest.exe?filename=deemix-gui%20Setup.exe"
-    Write-Host "Installing: Deemix" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Executable" -Link $source -FilenamePattern "Deemix-Setup.exe" -ArgumentList '/S /D=D:\Deemix'
+    Write-Host "Installing: Deemix" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Deemix-Setup.exe"
+    Install-Executable -PathExe $programPath -ArgumentList '/S /D=D:\Deemix'
 }
 
 # Noesis
@@ -890,8 +882,9 @@ if (Test-Path "D:\Modding Tools\Noesis\Noesis64.exe") {
 }
 else {
     $source = "https://www.richwhitehouse.com/filemirror/noesisv4466.zip"
-    Write-Host "Installing: Noesis" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "Noesis-Setup.zip" -PathExtract "D:\Modding Tools\Noesis" -InnerDirectory $false
+    Write-Host "Installing: Noesis" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Noesis-Setup.zip"
+    Install-Archive -PathZip $programPath -PathExtract "D:\Modding Tools\Noesis"
     Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Noesis64.exe" -ShortcutPath "D:\Modding Tools\Noesis.lnk"
 }
 
@@ -902,8 +895,9 @@ if (Test-Path "C:\Program Files\Rockstar Games") {
 }
 else {
     $source = "https://gamedownloads.rockstargames.com/public/installer/Rockstar-Games-Launcher.exe"
-    Write-Host "Installing: Rockstar Games Launcher" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Executable" -Link $source -FilenamePattern "Rockstar-Games-Launcher-Setup.exe" -ArgumentList '/S'
+    Write-Host "Installing: Rockstar Games Launcher" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Rockstar-Games-Launcher-Setup.exe"
+    Install-Executable -PathExe $programPath
 }
 
 # Paint.NET
@@ -913,12 +907,13 @@ if (Test-Path "D:\Paint.NET") {
 }
 else {
     $source = "paintdotnet/release"
-    Write-Host "Installing: Paint.NET" -ForegroundColor Green
-    Install-Program -ProgramSource "Repo" -ProgramType "Archive" -Link $source -FilenamePattern "*portable.x64.zip" -PathExtract "D:\Paint.NET" -InnerDirectory $false
+    Write-Host "Installing: Paint.NET" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*portable.x64.zip"
+    Install-Archive -PathZip $programPath -PathExtract "D:\Paint.NET"
 }
 
 }
-elseif ($installEverything -eq "-laptop") {
+elseif ($mode -eq "-lt") {
 
 # ThrottleStop
 
@@ -927,8 +922,9 @@ if (Test-Path "D:\ThrottleStop") {
 }
 else {
     $source = "https://files02.tchspt.com/temp/ThrottleStop_9.5.zip"
-    Write-Host "Installing: ThrottleStop" -ForegroundColor Green
-    Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "ThrottleStop-Setup.zip" -PathExtract "D:\ThrottleStop" -InnerDirectory $false
+    Write-Host "Installing: ThrottleStop" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "ThrottleStop-Setup.zip"
+    Install-Archive -PathZip $programPath -PathExtract "D:\ThrottleStop"
     Remove-Item "D:\ThrottleStop\*" -Include *.url, *.txt -Force
 }
 
@@ -943,13 +939,13 @@ else {
 Write-Host "Applying Settings..."
 
 $programData = @(
-@{ asset = "assets/Aseprite"; location = "$env:APPDATA\Aseprite"; type = "-desktop" }
-@{ asset = "assets/Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts"; type = "-desktop" }
+@{ asset = "assets/Aseprite"; location = "$env:APPDATA\Aseprite"; type = "-dt" }
+@{ asset = "assets/Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts"; type = "-dt" }
 @{ asset = "assets/Clink"; location = "$env:LOCALAPPDATA\clink"; type = "-both" }
-@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix"; type = "-desktop" } #Open Deemix
+@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix"; type = "-dt" } #Open Deemix
 @{ asset = "assets/Dotfiles"; location = "D:\Dotfiles"; type = "-both" }
 @{ asset = "assets/IntelliJ"; location = "$env:APPDATA\deemix"; type = "-both" }
-@{ asset = "assets/Mp3tag"; location = "$env:APPDATA\deemix"; type = "-desktop" }
+@{ asset = "assets/Mp3tag"; location = "$env:APPDATA\deemix"; type = "-dt" }
 @{ asset = "assets/Photoshop"; location = "D:\Adobe\Adobe Photoshop 2022\Required"; type = "-both" }
 @{ asset = "assets/PowerShell"; location = $PROFILE; type = "-both" }
 @{ asset = "assets/qBittorrent"; location = $PROFILE; type = "-both" }
@@ -961,7 +957,7 @@ $programData = @(
 )
 
 ForEach ($data in $programData) {
-    if ($installEverything -eq $data.type -or $data.type -eq "-both") {
+    if ($mode -eq $data.type -or $data.type -eq "-both") {
         Write-Host "Applying Settings to: $( $data.asset.Replace("assets/", ""))" -ForegroundColor Green
         DownloadFiles-Repo -Repo "Rakioth/Dotfiles" -Path $data.asset -DestinationPath $data.location
     }
