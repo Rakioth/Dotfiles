@@ -33,6 +33,9 @@ do {
 
 # - Dependencies
 
+winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
+Start-Process "magnet:?xt=urn:btih:487dafc52e228a71b8acc6d723471b64e4625976&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202022%20RUS-ENG%20v11|%20piratbit.org"
+
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force > $null
 Install-Module -Name "7Zip4Powershell" -Force > $null
 
@@ -41,9 +44,6 @@ Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" -All -NoRestart > $n
 
 Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart > $null
 Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart > $null
-
-winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
-Start-Process "magnet:?xt=urn:btih:487dafc52e228a71b8acc6d723471b64e4625976&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202022%20RUS-ENG%20v11|%20piratbit.org"
 
 # - Functions
 
@@ -149,6 +149,27 @@ function Create-Shortcut {
     $shortcut.TargetPath = $SourcePath
     $shortcut.Save()
 }
+
+add-type -type  @'
+using System;
+using System.Runtime.InteropServices;
+
+namespace Win32Functions {
+  public class ExtendedFileInfo {
+    public static double GetFileSizeOnDisk(string file) {
+        uint hosize;
+        uint losize = GetCompressedFileSizeW(file, out hosize);
+        double size = (uint.MaxValue + 1L) * hosize + losize;
+        return size;
+    }
+
+    [DllImport("kernel32.dll")]
+    static extern uint GetCompressedFileSizeW(
+        [In, MarshalAs(UnmanagedType.LPWStr)] string lpFileName,
+        [Out, MarshalAs(UnmanagedType.U4)] out uint lpFileSizeHigh);
+  }
+}
+'@
 
 #===========================================================================
 # Tweaks
@@ -297,8 +318,6 @@ Remove-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\StorageSense\
 Write-Host "Disabling GameDVR..." -ForegroundColor Cyan
 Start-BitsTransfer -Source "https://www.sordum.org/files/download/power-run/PowerRun.zip" -Destination "$env:TEMP\PowerRun.zip"
 Expand-7Zip -ArchiveFileName "$env:TEMP\PowerRun.zip" -TargetPath $env:TEMP
-#Move-Item -Path "$env:TEMP\PowerRun\PowerRun.exe" -Destination $env:WINDIR -Force
-#Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
 Remove-Item -Path "$env:TEMP\PowerRun.zip" -Force
 if (!(Test-Path "HKCU:\System\GameConfigStore")) {
     New-Item -Path "HKCU:\System\GameConfigStore" -Force
@@ -313,7 +332,6 @@ if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
 & $env:TEMP\PowerRun\PowerRun.exe /SW:0 Powershell.exe -command { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name "ActivationType" -Type DWord -Value 0 }
-#Remove-Item -Path "$env:WINDIR\PowerRun.*" -Force
 Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
 
 Write-Host "Doing Security Checks for Administrator Account and Group Policy" -ForegroundColor Cyan
@@ -393,7 +411,7 @@ Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer
 
 # - Set Services to Manual
 
-Write-Host "<Setting Services to Manual>" -ForegroundColor Yellow
+Write-Host "`n<Setting Services to Manual>" -ForegroundColor Yellow
 
 $services = @(
 "ALG"                                          # Application Layer Gateway Service(Provides support for 3rd party protocol plug-ins for Internet Connection Sharing)
@@ -474,7 +492,7 @@ ForEach ($service in $services) {
 
 # - Remove ALL MS Store Apps
 
-Write-Host "<Removing Bloatware Apps>" -ForegroundColor Yellow
+Write-Host "`n<Removing Bloatware Apps>" -ForegroundColor Yellow
 
 $bloatware = @(
 "3DBuilder"
@@ -580,7 +598,7 @@ ForEach ($bloat in $bloatware) {
     Write-Host "Removing $Bloat" -ForegroundColor Cyan
 }
 
-Write-Host "<Removing Bloatware Programs>" -ForegroundColor Yellow
+Write-Host "`n<Removing Bloatware Programs>" -ForegroundColor Yellow
 $InstalledPrograms = Get-Package | Where-Object { $UninstallPrograms -contains $_.Name }
 
 $InstalledPrograms | ForEach-Object {
@@ -699,7 +717,7 @@ Write-Host "=================================`n" -ForegroundColor Green
 # Install
 #===========================================================================
 
-Write-Host "<Installing Apps>" -ForegroundColor Yellow
+Write-Host "<Installing Winget Apps>" -ForegroundColor Yellow
 
 $apps = @(
 @{ id = "9N69B07TNQ5C"; options = ""; type = "-lt" }
@@ -732,7 +750,6 @@ $apps = @(
 @{ id = "Ubisoft.Connect"; options = ""; type = "-both" }
 @{ id = "Valve.Steam"; options = ""; type = "-both" }
 @{ id = "chrisant996.Clink"; options = ""; type = "-both" }
-@{ id = "qBittorrent.qBittorrent"; options = "-l D:\qBittorrent"; type = "-both" }
 )
 
 ForEach ($app in $apps) {
@@ -750,13 +767,24 @@ ForEach ($app in $apps) {
 
 # Adobe Master Collection
 
-if (Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\Photoshop.exe") {
+if (Test-Path "D:\Adobe\Adobe Photoshop 2022") {
     Write-Host "Skipping: Adobe Master Collection (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "magnet:?xt=urn:btih:487dafc52e228a71b8acc6d723471b64e4625976&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202022%20RUS-ENG%20v11|%20piratbit.org"
+    $source = "$env:USERPROFILE\Downloads\Master.Collection.2022\Adobe.Master.Collection.2022.v11.RU-EN.iso"
     Write-Host "Installing: Adobe Master Collection" -ForegroundColor Cyan
-    Start-Process $source
+    do {
+        $installerSize = [Win32Functions.ExtendedFileInfo]::GetFileSizeOnDisk($source)
+        $installerSize
+        Start-Sleep 1
+    } until ($installerSize -gt 28435236864)
+    Start-Sleep 3
+    Mount-DiskImage $source
+    Start-Process "E:\Adobe 2022\Set-up.exe" -Wait
+    Dismount-DiskImage $source
+    Stop-Process -Name "qbittorrent" -Force
+    Wait-Process -Name "qbittorrent"
+    Remove-Item -Path "$env:USERPROFILE\Downloads\Master.Collection.2022" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 # Arch WSL
@@ -812,6 +840,7 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Kaspersky-Setup.exe"
     Install-Executable -PathExe $programPath
     Stop-Process -Name "ksde", "ksdeui" -Force
+    Wait-Process -Name "ksde", "ksdeui"
     Uninstall-Package -Name "Kaspersky VPN"
 }
 
@@ -871,8 +900,7 @@ else {
 if (Test-Path "D:\Deemix") {
     Write-Host "Skipping: Deemix (Already Installed)" -ForegroundColor Yellow
 }
-else
-{
+else {
     $source = "https://download.deemix.app/gui/win-x64_setup-latest.exe?filename=deemix-gui%20Setup.exe"
     Write-Host "Installing: Deemix" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Deemix-Setup.exe"
