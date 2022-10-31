@@ -35,15 +35,23 @@ do {
 
 winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
 Start-Process "magnet:?xt=urn:btih:487dafc52e228a71b8acc6d723471b64e4625976&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202022%20RUS-ENG%20v11|%20piratbit.org"
-
 Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force > $null
-Install-Module -Name "7Zip4Powershell" -Force
 
-Enable-WindowsOptionalFeature -Online -FeatureName "NetFx4-AdvSrvs" -All -NoRestart
-Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" -All -NoRestart
-
-Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart
-Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart
+if (!(Get-InstalledModule -Name "7Zip4Powershell" -ErrorAction SilentlyContinue)) {
+    Install-Module -Name "7Zip4Powershell" -Force
+}
+if ((Get-WindowsOptionalFeature -Online -FeatureName "NetFx4-AdvSrvs").State -ne "Enabled") {
+    Enable-WindowsOptionalFeature -Online -FeatureName "NetFx4-AdvSrvs" -All -NoRestart > $null
+}
+if ((Get-WindowsOptionalFeature -Online -FeatureName "NetFx3").State -ne "Enabled") {
+    Enable-WindowsOptionalFeature -Online -FeatureName "NetFx3" -All -NoRestart > $null
+}
+if ((Get-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform").State -ne "Enabled") {
+    Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart > $null
+}
+if ((Get-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux").State -ne "Enabled") {
+    Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart > $null
+}
 
 # - Functions
 
