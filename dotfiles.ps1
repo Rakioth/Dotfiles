@@ -150,27 +150,6 @@ function Create-Shortcut {
     $shortcut.Save()
 }
 
-add-type -type  @'
-using System;
-using System.Runtime.InteropServices;
-
-namespace Win32Functions {
-  public class ExtendedFileInfo {
-    public static double GetFileSizeOnDisk(string file) {
-        uint hosize;
-        uint losize = GetCompressedFileSizeW(file, out hosize);
-        double size = (uint.MaxValue + 1L) * hosize + losize;
-        return size;
-    }
-
-    [DllImport("kernel32.dll")]
-    static extern uint GetCompressedFileSizeW(
-        [In, MarshalAs(UnmanagedType.LPWStr)] string lpFileName,
-        [Out, MarshalAs(UnmanagedType.U4)] out uint lpFileSizeHigh);
-  }
-}
-'@
-
 #===========================================================================
 # Tweaks
 #===========================================================================
@@ -647,7 +626,7 @@ if ($us.Length -gt 0) {
 
 if ($mode -eq "-dt") {
 
-# Disable Hibernation
+# - Disable Hibernation
 
 Set-ItemProperty -Path "HKLM:\System\CurrentControlSet\Control\Session Manager\Power" -Name "HibernateEnabled" -Type Dword -Value 0
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings")) {
@@ -655,7 +634,7 @@ if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Flyout
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\FlyoutMenuSettings" -Name "ShowHibernateOption" -Type Dword -Value 0
 
-# Disable Power Throttling
+# - Disable Power Throttling
 
 if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling") {
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -Type DWord -Value 00000001
@@ -665,7 +644,7 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\P
 }
 elseif ($mode -eq "-lt") {
 
-# Enable Power Throttling
+# - Enable Power Throttling
 
 if (Test-Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling") {
     Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Power\PowerThrottling" -Name "PowerThrottlingOff" -Type DWord -Value 00000000
@@ -674,13 +653,9 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\P
 
 }
 
-Write-Host "`n=================================" -ForegroundColor Green
-Write-Host "---      Tweaks Applied       ---" -ForegroundColor Green
-Write-Host "=================================`n" -ForegroundColor Green
+# - Fix Windows Update Scheme
 
-#===========================================================================
-# Updates
-#===========================================================================
+Write-Host "`n<Rescheduling Windows Updates>" -ForegroundColor Yellow
 
 Write-Host "Disabling Driver Offering through Windows Update..." -ForegroundColor Cyan
 if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Device Metadata")) {
@@ -708,9 +683,8 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Nam
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 365
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferQualityUpdatesPeriodInDays " -Type DWord -Value 4
 
-
 Write-Host "`n=================================" -ForegroundColor Green
-Write-Host "---      Updated Scheme       ---" -ForegroundColor Green
+Write-Host "---      Tweaks Applied       ---" -ForegroundColor Green
 Write-Host "=================================`n" -ForegroundColor Green
 
 #===========================================================================
@@ -765,7 +739,9 @@ ForEach ($app in $apps) {
     }
 }
 
-# Adobe Master Collection
+Write-Host "`n<Installing External Apps>" -ForegroundColor Yellow
+
+# - Adobe Master Collection
 
 if (Test-Path "D:\Adobe\Adobe Photoshop 2022") {
     Write-Host "Skipping: Adobe Master Collection (Already Installed)" -ForegroundColor Yellow
@@ -773,21 +749,15 @@ if (Test-Path "D:\Adobe\Adobe Photoshop 2022") {
 else {
     $source = "$env:USERPROFILE\Downloads\Master.Collection.2022\Adobe.Master.Collection.2022.v11.RU-EN.iso"
     Write-Host "Installing: Adobe Master Collection" -ForegroundColor Cyan
-    do {
-        $installerSize = [Win32Functions.ExtendedFileInfo]::GetFileSizeOnDisk($source)
-        $installerSize
-        Start-Sleep 1
-    } until ($installerSize -gt 28435236864)
-    Start-Sleep 3
-    Mount-DiskImage $source
+    Mount-DiskImage $source > $null
     Start-Process "E:\Adobe 2022\Set-up.exe" -Wait
-    Dismount-DiskImage $source
-    Stop-Process -Name "qbittorrent" -Force
-    Wait-Process -Name "qbittorrent"
+    Dismount-DiskImage $source > $null
+    Stop-Process -Name "qbittorrent" -Force -ErrorAction SilentlyContinue
+    Wait-Process -Name "qbittorrent" -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:USERPROFILE\Downloads\Master.Collection.2022" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
-# Arch WSL
+# - Arch WSL
 
 if (Test-Path "C:\Program Files\WindowsApps\yuk7.archwsl*") {
     Write-Host "Skipping: Arch WSL (Already Installed)" -ForegroundColor Yellow
@@ -804,7 +774,7 @@ else {
     Start-Process "C:\Program Files\WindowsApps\yuk7.archwsl*\Arch.exe" -Wait
 }
 
-# Battle.net
+# - Battle.net
 
 if (Test-Path "C:\Program Files (x86)\Battle.net") {
     Write-Host "Skipping: Battle.net (Already Installed)" -ForegroundColor Yellow
@@ -816,7 +786,7 @@ else {
     Install-Executable -PathExe $programPath -ArgumentList '--lang=enUS --installpath="C:\Program Files (x86)\Battle.net"'
 }
 
-# Microsoft Office
+# - Microsoft Office
 
 if (Test-Path "C:\Program Files\Microsoft Office") {
     Write-Host "Skipping: Microsoft Office (Already Installed)" -ForegroundColor Yellow
@@ -829,22 +799,22 @@ else {
     Start-Process "$env:USERPROFILE\Desktop\Office\OInstall.exe" -Wait
 }
 
-# Kaspersky Security Cloud
+# - Kaspersky Security Cloud
 
 if (Test-Path "C:\Program Files (x86)\Kaspersky Lab") {
     Write-Host "Skipping: Kaspersky Security Cloud (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "https://dl.filehorse.com/win/anti-virus/kaspersky-free/ks4.021.3.10.391en_25092.exe?st=eE1iZHloGW3QHO1bDuEWlg&e=1666638338&fn=ks4.021.3.10.391en_25092.exe"
+    $source = "https://www.filehorse.com/download/file/5pDnC3wO8B5VYavv4AVlKW-68N-SLZfvO2A3q3-jdo_-koosgLeX2i-RLB6zFRxRO3aio1fBZcvsNjsodfQJ1_MNP2e5dPBSwHet3e3I4AM"
     Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Kaspersky-Setup.exe"
     Install-Executable -PathExe $programPath
-    Stop-Process -Name "ksde", "ksdeui" -Force
-    Wait-Process -Name "ksde", "ksdeui"
+    Stop-Process -Name "ksde", "ksdeui" -Force -ErrorAction SilentlyContinue
+    Wait-Process -Name "ksde", "ksdeui" -ErrorAction SilentlyContinue
     Uninstall-Package -Name "Kaspersky VPN"
 }
 
-# TinyTaskPortable
+# - TinyTaskPortable
 
 if (Test-Path "D:\TinyTaskPortable") {
     Write-Host "Skipping: TinyTaskPortable (Already Installed)" -ForegroundColor Yellow
@@ -858,7 +828,7 @@ else {
 
 if ($mode -eq "-dt") {
 
-# ArchiSteamFarm
+# - ArchiSteamFarm
 
 if (Test-Path "D:\ArchiSteamFarm") {
     Write-Host "Skipping: ArchiSteamFarm (Already Installed)" -ForegroundColor Yellow
@@ -870,19 +840,20 @@ else {
     Install-Archive -PathZip $programPath -PathExtract "D:\ArchiSteamFarm"
 }
 
-# Aseprite
+# - Aseprite
 
 if (Test-Path "D:\Aseprite") {
     Write-Host "Skipping: Aseprite (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "https://download2267.mediafire.com/zfjvk3a91zzg/w3xthz4z7dru0fc/Aseprite.zip"
+#    $source = "https://download2267.mediafire.com/zfjvk3a91zzg/w3xthz4z7dru0fc/Aseprite.zip"
+    $source = "https://drive.google.com/u/0/uc?id=10RclaGRFYjVbRL-fK8pkWXx2rPVN7o4A&export=download&confirm=t&uuid=3ec60e51-0305-4b10-9488-6cf9660e492c&at=ALAFpqySx4Uflwod0L97byzkeJjw:1667205381457"
     Write-Host "Installing: Aseprite" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Aseprite-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\Aseprite" -InnerDirectory $true
 }
 
-# Crowbar
+# - Crowbar
 
 if (Test-Path "D:\Modding Tools\Noesis\Crowbar.exe") {
     Write-Host "Skipping: Crowbar (Already Installed)" -ForegroundColor Yellow
@@ -895,7 +866,7 @@ else {
     Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Crowbar.exe" -ShortcutPath "D:\Modding Tools\Crowbar.lnk"
 }
 
-# Deemix
+# - Deemix
 
 if (Test-Path "D:\Deemix") {
     Write-Host "Skipping: Deemix (Already Installed)" -ForegroundColor Yellow
@@ -907,7 +878,7 @@ else {
     Install-Executable -PathExe $programPath -ArgumentList '/S /D=D:\Deemix'
 }
 
-# Noesis
+# - Noesis
 
 if (Test-Path "D:\Modding Tools\Noesis\Noesis64.exe") {
     Write-Host "Skipping: Noesis (Already Installed)" -ForegroundColor Yellow
@@ -920,7 +891,7 @@ else {
     Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Noesis64.exe" -ShortcutPath "D:\Modding Tools\Noesis.lnk"
 }
 
-# Rockstar Games Launcher
+# - Rockstar Games Launcher
 
 if (Test-Path "C:\Program Files\Rockstar Games") {
     Write-Host "Skipping: Rockstar Games Launcher (Already Installed)" -ForegroundColor Yellow
@@ -932,7 +903,7 @@ else {
     Install-Executable -PathExe $programPath
 }
 
-# Paint.NET
+# - Paint.NET
 
 if (Test-Path "D:\Paint.NET") {
     Write-Host "Skipping: Paint.NET (Already Installed)" -ForegroundColor Yellow
@@ -947,7 +918,7 @@ else {
 }
 elseif ($mode -eq "-lt") {
 
-# ThrottleStop
+# - ThrottleStop
 
 if (Test-Path "D:\ThrottleStop") {
     Write-Host "Skipping: ThrottleStop (Already Installed)" -ForegroundColor Yellow
@@ -961,6 +932,10 @@ else {
 }
 
 }
+
+Write-Host "`n=================================" -ForegroundColor Green
+Write-Host "---      Apps Installed       ---" -ForegroundColor Green
+Write-Host "=================================`n" -ForegroundColor Green
 
 #===========================================================================
 # Settings
