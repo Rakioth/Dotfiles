@@ -797,6 +797,7 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Office-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com"
     Start-Process "$env:USERPROFILE\Desktop\Office\OInstall.exe" -Wait
+    Remove-Item -Path "$env:USERPROFILE\Desktop\Office" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 # - Kaspersky Security Cloud
