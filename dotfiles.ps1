@@ -34,7 +34,8 @@ do {
 # - Dependencies
 
 winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
-Start-Process "magnet:?xt=urn:btih:487dafc52e228a71b8acc6d723471b64e4625976&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202022%20RUS-ENG%20v11|%20piratbit.org"
+$monkrus = Invoke-WebRequest -Uri "https://pb.wtf/topic/386422/"
+Start-Process ($monkrus.Links | Where-Object class -eq "btn btn-sm btn-info mob").href
 $wScriptObj = New-Object -ComObject WScript.Shell
 Start-Sleep 1
 $wScriptObj.SendKeys("{ENTER}")
@@ -757,18 +758,18 @@ Write-Host "`n<Installing External Apps>" -ForegroundColor Yellow
 
 # - Adobe Master Collection
 
-if (Test-Path "D:\Adobe\Adobe Photoshop 2022") {
+if (Test-Path "D:\Adobe\Adobe Photoshop*") {
     Write-Host "Skipping: Adobe Master Collection (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "$env:USERPROFILE\Downloads\Master.Collection.2022\Adobe.Master.Collection.2022.v11.RU-EN.iso"
+    $source = Get-ChildItem "$env:USERPROFILE\Downloads\Master.Collection*\Adobe.Master.Collection*iso" | % {$_.FullName}
     Write-Host "Installing: Adobe Master Collection" -ForegroundColor Cyan
     Mount-DiskImage $source > $null
-    Start-Process "E:\Adobe 2022\Set-up.exe" -Wait
+    Start-Process -FilePath "E:\Autoplay.exe" -ArgumentList '-auto' -Wait
     Dismount-DiskImage $source > $null
     Stop-Process -Name "qbittorrent" -Force -ErrorAction SilentlyContinue
     Wait-Process -Name "qbittorrent" -ErrorAction SilentlyContinue
-    Remove-Item -Path "$env:USERPROFILE\Downloads\Master.Collection.2022" -Force -Recurse -ErrorAction SilentlyContinue
+    Remove-Item -Path "$env:USERPROFILE\Downloads\Master.Collection*" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 # - Arch WSL
@@ -866,6 +867,7 @@ else {
     Write-Host "Installing: Aseprite" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Aseprite-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\Aseprite" -InnerDirectory $true
+    Start-Process "D:\Aseprite\aseprite.exe"
 }
 
 # - Crowbar
@@ -891,6 +893,7 @@ else {
     Write-Host "Installing: Deemix" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Deemix-Setup.exe"
     Install-Executable -PathExe $programPath -ArgumentList '/S /D=D:\Deemix'
+    Start-Process "D:\Deemix\deemix-gui.exe"
 }
 
 # - Noesis
@@ -956,35 +959,45 @@ Write-Host "=================================`n" -ForegroundColor Green
 # Settings
 #===========================================================================
 
-<#
+Write-Host "`n<Login to Generate AppData>" -ForegroundColor Yellow
 
-Write-Host "Applying Settings..."
+Start-Process "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe" -Wait
+Start-Process "C:\Program Files\Android\Android Studio\bin\studio64.exe" -Wait
+Start-Process "C:\Program Files (x86)\Steam\Steam.exe" -Wait
+Start-Process "D:\010 Editor\010Editor.exe"
+DownloadFiles-Repo -Repo "Rakioth/Dotfiles" -Path "assets/Visual Studio" -DestinationPath $env:TEMP
+Install-Executable -PathExe "$env:TEMP\codely_purple.vsix"
+Remove-Item -Path "D:\Mp3tag\data\actions" -Force -Recurse -ErrorAction SilentlyContinue
 
 $programData = @(
 @{ asset = "assets/Aseprite"; location = "$env:APPDATA\Aseprite"; type = "-dt" }
 @{ asset = "assets/Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts"; type = "-dt" }
 @{ asset = "assets/Clink"; location = "$env:LOCALAPPDATA\clink"; type = "-both" }
-@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix"; type = "-dt" } #Open Deemix
-@{ asset = "assets/Dotfiles"; location = "D:\Dotfiles"; type = "-both" }
-@{ asset = "assets/IntelliJ"; location = "$env:APPDATA\deemix"; type = "-both" }
-@{ asset = "assets/Mp3tag"; location = "$env:APPDATA\deemix"; type = "-dt" }
-@{ asset = "assets/Photoshop"; location = "D:\Adobe\Adobe Photoshop 2022\Required"; type = "-both" }
-@{ asset = "assets/PowerShell"; location = $PROFILE; type = "-both" }
-@{ asset = "assets/qBittorrent"; location = $PROFILE; type = "-both" }
-@{ asset = "assets/Steam"; location = $PROFILE; type = "-both" }
-@{ asset = "assets/SweetScape"; location = $PROFILE; type = "-both" }
-@{ asset = "assets/Terminal"; location = $PROFILE; type = "-both" }
-@{ asset = "assets/Visual Studio"; location = $PROFILE; type = "-both" }
-@{ asset = "assets/Wallpaper Engine"; location = $PROFILE; type = "-both" }
+@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix"; type = "-dt" }
+@{ asset = "assets/Dotfiles"; location = "D:"; type = "-both" }
+@{ asset = "assets/JetBrains"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib"; type = "-both" }
+@{ asset = "assets/JetBrains"; location = "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib"; type = "-both" }
+@{ asset = "assets/Mp3tag"; location = "D:\Mp3tag\data"; type = "-dt" }
+@{ asset = "assets/Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required"; type = "-both" }
+@{ asset = "assets/PowerShell"; location = (Resolve-Path (Join-Path $PROFILE "..")).Path; type = "-both" }
+@{ asset = "assets/qBittorrent"; location = "D:\qBittorrent"; type = "-both" }
+@{ asset = "assets/Steam"; location = "C:\Program Files (x86)\Steam"; type = "-both" }
+@{ asset = "assets/SweetScape"; location = "$env:USERPROFILE\Documents\SweetScape"; type = "-both" }
+@{ asset = "assets/Terminal"; location = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState"; type = "-both" }
+@{ asset = "assets/Visual Studio Code"; location = "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes"; type = "-both" }
+@{ asset = "assets/Wallpaper Engine"; location = "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\projects\myprojects"; type = "-both" }
 )
 
 ForEach ($data in $programData) {
     if ($mode -eq $data.type -or $data.type -eq "-both") {
-        Write-Host "Applying Settings to: $( $data.asset.Replace("assets/", ""))" -ForegroundColor Green
+        Write-Host "Applying Settings to: $( $data.asset.Replace("assets/", ""))" -ForegroundColor Cyan
         DownloadFiles-Repo -Repo "Rakioth/Dotfiles" -Path $data.asset -DestinationPath $data.location
     }
 }
 
+Write-Host "`n=================================" -ForegroundColor Green
+Write-Host "---       Settings Done       ---" -ForegroundColor Green
+Write-Host "=================================`n" -ForegroundColor Green
 
 
 ## Delete Temporary Files
