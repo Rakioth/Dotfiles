@@ -25,25 +25,11 @@ $ascii = @"
 "@
 Write-Host $ascii -ForegroundColor Magenta
 
-# - Mode Selection
-
-do {
-    $mode = Read-Host -Prompt "Available Options [-dt | Desktop Mode] [-lt | Laptop Mode]"
-} until ($mode -eq "-dt" -or $mode -eq "-lt")
-
 # - Dependencies
 
-winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
-$monkrus = Invoke-WebRequest -Uri "https://pb.wtf/topic/386422/"
-Start-Process ($monkrus.Links | Where-Object class -eq "btn btn-sm btn-info mob").href
-$wScriptObj = New-Object -ComObject WScript.Shell
-Start-Sleep 1
-$wScriptObj.SendKeys("{ENTER}")
-Start-Sleep 1
-$wScriptObj.SendKeys("{ENTER}")
-
-Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force > $null
-
+if (!(Get-PackageProvider -ListAvailable | Where-Object Name -eq "NuGet")) {
+    Install-PackageProvider -Name "NuGet" -MinimumVersion 2.8.5.201 -Force > $null
+}
 if (!(Get-InstalledModule -Name "7Zip4Powershell" -ErrorAction SilentlyContinue)) {
     Install-Module -Name "7Zip4Powershell" -Force
 }
@@ -75,11 +61,11 @@ function Download-Files {
     $directories = $objects | Where-Object type -eq "dir"
 
     $directories | ForEach-Object {
-        DownloadFiles-Repo -Repo $Repo -Path $_.path -DestinationPath "$( $DestinationPath )/$( $_.name )"
+        Download-Files -Repo $Repo -Path $_.path -DestinationPath "$( $DestinationPath )/$( $_.name )"
     }
 
     if (!(Test-Path $DestinationPath)) {
-        New-Item -Path $DestinationPath -ItemType Directory
+        New-Item -Path $DestinationPath -ItemType Directory > $null
     }
 
     ForEach ($file in $files) {
@@ -155,15 +141,60 @@ function Install-Executable {
 
 function Create-Shortcut {
     param (
-    [string]$SourcePath,
-    [string]$ShortcutPath
+        [Parameter(Mandatory = $true)]
+        [string]$SourcePath,
+        [Parameter(Mandatory = $true)]
+        [string]$ShortcutPath,
+        [Parameter(Mandatory = $false)]
+        [string]$ShortcutIcon
     )
 
     $wScriptObj = New-Object -ComObject WScript.Shell
-    $shortcut = $wScriptObj.CreateShortcut($ShortcutPath)
-    $shortcut.TargetPath = $SourcePath
+    $shortcut = $wScriptObj.CreateShortcut("$ShortcutPath.lnk")
+    if ($PSBoundParameters.ContainsKey("ShortcutIcon")) {
+        $shortcut.IconLocation = "D:\Dotfiles\Icons\$ShortcutIcon.ico"
+    }
+    $shortcut.TargetPath = (Get-ChildItem $SourcePath).FullName
     $shortcut.Save()
 }
+
+# - Drivers
+
+$listApp = winget list --accept-source-agreements --exact -q "TechPowerUp.NVCleanstall"
+if (![String]::Join("", $listApp).Contains("TechPowerUp.NVCleanstall")) {
+    winget install -e -h --accept-source-agreements --accept-package-agreements --id "TechPowerUp.NVCleanstall" -l "D:\NVCleanstall" > $null
+    $source = "https://files02.tchspt.com/tempd/DDUv18.0.5.4.exe"
+    $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "DDU-Setup.exe"
+    Install-Executable -PathExe $programPath
+    Write-Host "Check All <NVIDIA Specific Options> Select <NVIDIA Device> Click <Clean and Restart>" -ForegroundColor Yellow
+    Start-Process "$env:TEMP\DDU*\Display Driver Uninstaller.exe" -Wait
+}
+elseif (!(Test-Path "D:\NVCleanstall\log.txt")) {
+    Remove-Item -Path "$env:TEMP\DDU*" -Force -Recurse -ErrorAction SilentlyContinue
+    New-Item -Path "D:\NVCleanstall\log.txt" > $null
+    Write-Host "Select <Recommended Settings> Check <Disable Installer Telemetry & Advertising>" -ForegroundColor Yellow
+    Start-Process "D:\NVCleanstall\NVCleanstall.exe" -Wait
+}
+
+$listApp = winget list --accept-source-agreements --exact -q "qBittorrent.qBittorrent"
+if (![String]::Join("", $listApp).Contains("qBittorrent.qBittorrent")) {
+    winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
+}
+if (!(Test-Path "D:\Adobe\Adobe Photoshop*")) {
+    Start-Process ((Invoke-WebRequest "https://pb.wtf/topic/386422/").Links | Where-Object class -eq "btn btn-sm btn-info mob").href
+    $wScriptObj = New-Object -ComObject WScript.Shell
+    Start-Sleep 2
+    $wScriptObj.SendKeys("{ENTER}")
+    Start-Sleep 2
+    $wScriptObj.SendKeys("{ENTER}")
+}
+
+# - Mode Selection
+
+Write-Host "Please Disable <Tamper Protection> and <Real-Time Protecion>`n" -ForegroundColor Magenta
+do {
+    $mode = Read-Host "Available Options [-dt | Desktop Mode] [-lt | Laptop Mode]"
+} until ($mode -eq "-dt" -or $mode -eq "-lt")
 
 #===========================================================================
 # Tweaks
@@ -171,7 +202,7 @@ function Create-Shortcut {
 
 # - Create Restore Point
 
-Write-Host "`nCreating Restore Point in Case Something Bad Happens..."
+Write-Host "Creating Restore Point in Case Something Bad Happens...`n"
 Enable-ComputerRestore -Drive "$env:SYSTEMDRIVE"
 Checkpoint-Computer -Description "Dotfiles" -RestorePointType "MODIFY_SETTINGS"
 
@@ -235,7 +266,7 @@ Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentD
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEnabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "PreInstalledAppsEverEnabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SilentInstalledAppsEnabled" -Type DWord -Value 0
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338387Enabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338388Enabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-338389Enabled" -Type DWord -Value 0
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" -Name "SubscribedContent-353698Enabled" -Type DWord -Value 0
@@ -250,7 +281,7 @@ if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" > $null
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
-Set-ItemProperty -Path  "HKCU:\Software\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
+Set-ItemProperty -Path  "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
 
 Write-Host "Disabling Feedback..." -ForegroundColor Cyan
 if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules")) {
@@ -326,7 +357,7 @@ if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
 & $env:TEMP\PowerRun\PowerRun.exe /SW:0 Powershell.exe -command { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name "ActivationType" -Type DWord -Value 0 }
-Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
+#Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
 
 Write-Host "Doing Security Checks for Administrator Account and Group Policy" -ForegroundColor Cyan
 if (($( Get-WMIObject -class Win32_ComputerSystem | Select-Object username ).username).IndexOf('Administrator') -eq -1) {
@@ -390,18 +421,18 @@ if (!(Test-Path "HKU:")) {
 Set-ItemProperty -Path "HKU:\.DEFAULT\Control Panel\Keyboard" -Name "InitialKeyboardIndicators" -Type DWord -Value 2
 
 Write-Host "Disabling Notifications and Action Center..." -ForegroundColor Cyan
-New-Item -Path "HKCU:\Software\Policies\Microsoft\Windows" -Name "Explorer" -Force > $null
-New-ItemProperty -Path "HKCU:\Software\Policies\Microsoft\Windows\Explorer" -Name "DisableNotificationCenter" -PropertyType "DWord" -Value 1 > $null
-New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -PropertyType "DWord" -Value 0 -force > $null
+New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows" -Name "Explorer" -Force > $null
+New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableNotificationCenter" -PropertyType DWord -Value 1 > $null
+New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -PropertyType DWord -Value 0 -Force > $null
 
-if (!(Test-Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
-    New-Item -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force > $null
+if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
+    New-Item -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Force > $null
 }
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer" -Name "HideSCAMeetNow" -Type DWord -Value 1
 
 Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Type DWORD -Value 1
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Type DWord -Value 0
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "Hidden" -Type DWord -Value 1
 
 # - Set Services to Manual
 
@@ -735,10 +766,10 @@ $apps = @(
 @{ id = "Oracle.VirtualBox"; options = "-l D:\VirtualBox"; type = "-both" }
 @{ id = "Python.Python.3.10"; options = ""; type = "-both" }
 @{ id = "SweetScape.010Editor"; options = "-l D:\010 Editor"; type = "-both" }
-@{ id = "TechPowerUp.NVCleanstall"; options = "-l D:\NVCleanstall"; type = "-both" }
 @{ id = "Ubisoft.Connect"; options = ""; type = "-both" }
 @{ id = "Valve.Steam"; options = ""; type = "-both" }
 @{ id = "chrisant996.Clink"; options = ""; type = "-both" }
+@{ id = "voidtools.Everything"; options = ""; type = "-both" }
 )
 
 ForEach ($app in $apps) {
@@ -762,10 +793,10 @@ if (Test-Path "D:\Adobe\Adobe Photoshop*") {
     Write-Host "Skipping: Adobe Master Collection (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = Get-ChildItem "$env:USERPROFILE\Downloads\Master.Collection*\Adobe.Master.Collection*iso" | % {$_.FullName}
+    $source = (Get-ChildItem "$env:USERPROFILE\Downloads\Master.Collection*\Adobe.Master.Collection*iso").FullName
     Write-Host "Installing: Adobe Master Collection" -ForegroundColor Cyan
     Mount-DiskImage $source > $null
-    Start-Process -FilePath "E:\Autoplay.exe" -ArgumentList '-auto' -Wait
+    Start-Process "E:\Adobe*\Set-up.exe" -Wait
     Dismount-DiskImage $source > $null
     Stop-Process -Name "qbittorrent" -Force -ErrorAction SilentlyContinue
     Wait-Process -Name "qbittorrent" -ErrorAction SilentlyContinue
@@ -781,8 +812,8 @@ else {
     $source = "yuk7/ArchWSL"
     Write-Host "Installing: Arch WSL" -ForegroundColor Cyan
     Write-Host "Select <Local Machine> and Place Certificate in <Trusted People>" -ForegroundColor Yellow
-    $certificatePath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "ArchWSL-AppX*.cer"
-    Install-Executable -PathExe $certificatePath
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "ArchWSL-AppX*.cer"
+    Install-Executable -PathExe $programPath
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "ArchWSL-AppX*.appx"
     Add-AppxPackage $programPath
     Remove-Item $programPath -Force
@@ -801,6 +832,29 @@ else {
     Install-Executable -PathExe $programPath -ArgumentList '--lang=enUS --installpath="C:\Program Files (x86)\Battle.net"'
 }
 
+# - Custom Context Menu
+
+if (Test-Path "$env:LOCALAPPDATA\Packages\*CustomContextMenu*") {
+    Write-Host "Skipping: Custom Context Menu (Already Installed)" -ForegroundColor Yellow
+}
+else {
+    $source = "ms-windows-store://pdp/?ProductId=9PC7BZZ28G0X"
+    Write-Host "Installing: Custom Context Menu" -ForegroundColor Cyan
+    Start-Process $source -Wait
+}
+
+# - Everything
+
+if (Test-Path "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything") {
+    Write-Host "Skipping: EverythingPowerToys (Already Installed)" -ForegroundColor Yellow
+}
+else {
+    $source = "lin-ycv/EverythingPowerToys"
+    Write-Host "Installing: EverythingPowerToys" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*-x64.zip"
+    Install-Archive -PathZip $programPath -PathExtract "C:\Program Files\PowerToys\modules\launcher\Plugins"
+}
+
 # - Microsoft Office
 
 if (Test-Path "C:\Program Files\Microsoft Office") {
@@ -812,6 +866,7 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Office-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com"
     Start-Process "$env:USERPROFILE\Desktop\Office\OInstall.exe" -Wait
+    # NotDeleting?
     Remove-Item -Path "$env:USERPROFILE\Desktop\Office" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
@@ -821,6 +876,7 @@ if (Test-Path "C:\Program Files (x86)\Kaspersky Lab") {
     Write-Host "Skipping: Kaspersky Security Cloud (Already Installed)" -ForegroundColor Yellow
 }
 else {
+    # NeedUpdate
     $source = "https://www.filehorse.com/download/file/5pDnC3wO8B5VYavv4AVlKW-68N-SLZfvO2A3q3-jdo_-koosgLeX2i-RLB6zFRxRO3aio1fBZcvsNjsodfQJ1_MNP2e5dPBSwHet3e3I4AM"
     Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Kaspersky-Setup.exe"
@@ -862,7 +918,7 @@ if (Test-Path "D:\Aseprite") {
     Write-Host "Skipping: Aseprite (Already Installed)" -ForegroundColor Yellow
 }
 else {
-#    $source = "https://download2267.mediafire.com/zfjvk3a91zzg/w3xthz4z7dru0fc/Aseprite.zip"
+#    $source = "https://download2267.mediafire.com/zfjvk3a91zzg/w3xthz4z7dru0fc/Aseprite.zip" NeedUpdate
     $source = "https://drive.google.com/u/0/uc?id=10RclaGRFYjVbRL-fK8pkWXx2rPVN7o4A&export=download&confirm=t&uuid=3ec60e51-0305-4b10-9488-6cf9660e492c&at=ALAFpqySx4Uflwod0L97byzkeJjw:1667205381457"
     Write-Host "Installing: Aseprite" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Aseprite-Setup.zip"
@@ -880,7 +936,7 @@ else {
     Write-Host "Installing: Crowbar" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*.7z"
     Install-Archive -PathZip $programPath -PathExtract "D:\Modding Tools\Noesis"
-    Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Crowbar.exe" -ShortcutPath "D:\Modding Tools\Crowbar.lnk"
+    Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Crowbar.exe" -ShortcutPath "D:\Modding Tools\Crowbar"
 }
 
 # - Deemix
@@ -906,7 +962,7 @@ else {
     Write-Host "Installing: Noesis" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Noesis-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\Modding Tools\Noesis"
-    Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Noesis64.exe" -ShortcutPath "D:\Modding Tools\Noesis.lnk"
+    Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Noesis64.exe" -ShortcutPath "D:\Modding Tools\Noesis"
 }
 
 # - Rockstar Games Launcher
@@ -963,65 +1019,204 @@ Write-Host "`n<Login to Generate AppData>" -ForegroundColor Yellow
 
 Start-Process "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe" -Wait
 Start-Process "C:\Program Files\Android\Android Studio\bin\studio64.exe" -Wait
-Start-Process "C:\Program Files (x86)\Steam\Steam.exe" -Wait
-Start-Process "D:\010 Editor\010Editor.exe"
-DownloadFiles-Repo -Repo "Rakioth/Dotfiles" -Path "assets/Visual Studio" -DestinationPath $env:TEMP
+Start-Process "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" -Wait
+Start-Process "C:\Program Files (x86)\Steam\Steam.exe"
+Start-Process "D:\010 Editor\010Editor.exe" -Wait
+Download-Files -Repo "Rakioth/Dotfiles" -Path "assets/Visual Studio" -DestinationPath $env:TEMP
 Install-Executable -PathExe "$env:TEMP\codely_purple.vsix"
 Remove-Item -Path "D:\Mp3tag\data\actions" -Force -Recurse -ErrorAction SilentlyContinue
 
 $programData = @(
-@{ asset = "assets/Aseprite"; location = "$env:APPDATA\Aseprite"; type = "-dt" }
-@{ asset = "assets/Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts"; type = "-dt" }
-@{ asset = "assets/Clink"; location = "$env:LOCALAPPDATA\clink"; type = "-both" }
-@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix"; type = "-dt" }
-@{ asset = "assets/Dotfiles"; location = "D:"; type = "-both" }
-@{ asset = "assets/JetBrains"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib"; type = "-both" }
-@{ asset = "assets/JetBrains"; location = "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib"; type = "-both" }
-@{ asset = "assets/Mp3tag"; location = "D:\Mp3tag\data"; type = "-dt" }
-@{ asset = "assets/Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required"; type = "-both" }
-@{ asset = "assets/PowerShell"; location = (Resolve-Path (Join-Path $PROFILE "..")).Path; type = "-both" }
-@{ asset = "assets/qBittorrent"; location = "D:\qBittorrent"; type = "-both" }
-@{ asset = "assets/Steam"; location = "C:\Program Files (x86)\Steam"; type = "-both" }
-@{ asset = "assets/SweetScape"; location = "$env:USERPROFILE\Documents\SweetScape"; type = "-both" }
-@{ asset = "assets/Terminal"; location = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState"; type = "-both" }
-@{ asset = "assets/Visual Studio Code"; location = "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes"; type = "-both" }
-@{ asset = "assets/Wallpaper Engine"; location = "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\projects\myprojects"; type = "-both" }
+@{ asset = "assets/Aseprite"; location = "$env:APPDATA\Aseprite" }
+@{ asset = "assets/Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts" }
+@{ asset = "assets/Clink"; location = "$env:LOCALAPPDATA\clink" }
+@{ asset = "assets/Custom Context Menu"; location = "$env:LOCALAPPDATA\Packages\*CustomContextMenu*\LocalState\custom_commands" }
+@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix" }
+@{ asset = "assets/Dotfiles"; location = "D:" }
+@{ asset = "assets/JetBrains"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib" }
+@{ asset = "assets/JetBrains"; location = "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib" }
+@{ asset = "assets/Mp3tag"; location = "D:\Mp3tag\data" }
+@{ asset = "assets/Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required" }
+@{ asset = "assets/PowerShell"; location = "$env:USERPROFILE\Documents\PowerShell" }
+@{ asset = "assets/qBittorrent"; location = "D:\qBittorrent" }
+@{ asset = "assets/Steam"; location = "C:\Program Files (x86)\Steam" }
+@{ asset = "assets/SweetScape"; location = "$env:USERPROFILE\Documents\SweetScape" }
+@{ asset = "assets/Terminal"; location = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState" }
+@{ asset = "assets/Visual Studio Code"; location = "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes" }
+@{ asset = "assets/Wallpaper Engine"; location = "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\projects\myprojects" }
 )
 
 ForEach ($data in $programData) {
-    if ($mode -eq $data.type -or $data.type -eq "-both") {
-        Write-Host "Applying Settings to: $( $data.asset.Replace("assets/", ""))" -ForegroundColor Cyan
-        DownloadFiles-Repo -Repo "Rakioth/Dotfiles" -Path $data.asset -DestinationPath $data.location
+    if (Test-Path $data.location) {
+        $name = $data.asset.Replace("assets/", "")
+        Write-Host "Applying Settings to: $name" -ForegroundColor Cyan
+        Download-Files -Repo "Rakioth/Dotfiles" -Path $data.asset -DestinationPath $data.location
     }
+}
+
+# - NerdFonts
+
+if (!(Test-Path "C:\Windows\Fonts\Caskaydia Cove Nerd Font Complete Mono Windows Compatible Regular.otf")) {
+    $source = "ryanoasis/nerd-fonts"
+    Write-Host "Applying Settings to: NerdFonts" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "CascadiaCode.zip"
+    Install-Archive -PathZip $programPath -PathExtract "$env:TEMP\Fonts"
+    Invoke-Item "$env:TEMP\Fonts"
+    Read-Host "Select <CaskaydiaCove Mono> and Install for <All Users>"
+    Remove-Item -Path "$env:TEMP\Fonts" -Force -Recurse -ErrorAction SilentlyContinue
+}
+
+# - Context Menu
+
+$contextKeys = @(
+@{ location = "HKCR:\Directory\Background\shell\AnyCode"; type = "-legacy" }
+@{ location = "HKCR:\Directory\Background\shell\git_gui"; type = "-legacy" }
+@{ location = "HKCR:\Directory\Background\shell\git_shell"; type = "-legacy" }
+@{ location = "HKCR:\Directory\shell\AnyCode"; type = "-legacy" }
+@{ location = "HKCR:\Directory\shell\git_gui"; type = "-legacy" }
+@{ location = "HKCR:\Directory\shell\git_shell"; type = "-legacy" }
+@{ location = "HKCR:\Drive\shell\pintohome"; type = "-legacy" }
+@{ location = "HKCR:\Folder\shell\opennewtab"; type = "-legacy" }
+@{ location = "HKCR:\Folder\shell\pintohome"; type = "-legacy" }
+@{ location = "HKCR:\``*\shell\pintohomefile"; type = "-legacy" }
+@{ location = "HKCR:\Directory\shellex\ContextMenuHandlers\EPP" }
+@{ location = "HKCR:\Drive\shellex\ContextMenuHandlers\EPP" }
+@{ location = "HKCR:\Folder\ShellEx\ContextMenuHandlers\Library Location" }
+@{ location = "HKCR:\``*\shellex\ContextMenuHandlers\EPP" }
+@{ location = "HKCR:\``*\shellex\ContextMenuHandlers\010 Editor Shell Extension" }
+@{ location = "HKCR:\AllFilesystemObjects\shellex\ContextMenuHandlers\SendTo" }
+@{ location = "HKCR:\UserLibraryFolder\shellex\ContextMenuHandlers\SendTo" }
+)
+
+New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
+ForEach ($key in $contextKeys) {
+    if ($key.type -eq "-legacy") {
+        New-ItemProperty -Path $key.location -Name "LegacyDisable" -PropertyType String > $null
+    }
+    else {
+        $value = Get-ItemPropertyValue -Path $key.location -Name "(Default)"
+        Set-ItemProperty -Path $key.location -Name "(Default)" -Value "-$value"
+    }
+}
+
+Get-AppxPackage "*Mp3tag.ShellExtension*" | Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue > $null
+if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked")) {
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" > $null
+}
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{f81e9010-6ea4-11ce-a7ff-00aa003ca9f6}" -PropertyType String > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{596AB062-B4D2-4215-9F74-E9109B0A8153}" -PropertyType String > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{1d27f844-3a1f-4410-85ac-14651078412d}" -PropertyType String > $null
+
+& $env:TEMP\PowerRun\PowerRun.exe /SW:0 Powershell.exe -command {
+    New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
+    New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Display" -Name "LegacyDisable" -PropertyType String > $null
+    New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Personalize" -Name "LegacyDisable" -PropertyType String > $null
 }
 
 Write-Host "`n=================================" -ForegroundColor Green
 Write-Host "---       Settings Done       ---" -ForegroundColor Green
 Write-Host "=================================`n" -ForegroundColor Green
 
+#===========================================================================
+# Final Setup
+#===========================================================================
 
-## Delete Temporary Files
-#Write-Host "Delete Temp Files"
-#Get-ChildItem -Path "C:\Windows\Temp" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-#Get-ChildItem -Path $env:TEMP *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+Write-Host "<Final Cleanup>" -ForegroundColor Yellow
 
-## Run Disk Cleanup
-#Write-Host "Running Disk Cleanup on Drive C:..."
-#cmd /c cleanmgr.exe /d C: /VERYLOWDISK
+# - Custom Start Menu Icons
 
-Remove-AppxPackage -Package "35795FlorianHeidenreich.Mp3tag.ShellExtension" -AllUsers
+Write-Host "Changing Start Menu Icons" -ForegroundColor Cyan
+$exclude = @("Accessibility", "Maintenance", "Startup", "Accessories", "Windows PowerShell", "System Tools", "Administrative Tools")
+$startCommon = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\"
+$startUser = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\"
 
-# DDU
+Get-ChildItem -Path $startCommon -Recurse -Exclude $exclude | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path $startUser -Recurse -Exclude $exclude | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 
-if (Test-Path "$env:USERPROFILE\Desktop\DDU") {
-Write-Host "Skipping: DDU (Already Installed)" -ForegroundColor Yellow
+$startMenu = @(
+@{ sourcePath = "D:\010 Editor\010Editor.exe"; shortcutPath = "$( $startCommon )010 Editor"; shortcutIcon = "010 Editor"}
+@{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\Acrobat.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat DC"; shortcutIcon = "Acrobat DC"}
+@{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\acrodist.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat Distiller DC"; shortcutIcon = "Acrobat Distiller DC"}
+@{ sourcePath = "C:\Program Files\Android\Android Studio\bin\studio64.exe"; shortcutPath = "$( $startCommon )Android Studio"; shortcutIcon = "Android Studio"}
+@{ sourcePath = "D:\ArchiSteamFarm\ArchiSteamFarm.exe"; shortcutPath = "$( $startCommon )ArchiSteamFarm"; shortcutIcon = "ArchiSteamFarm"}
+@{ sourcePath = "D:\Aseprite\aseprite.exe"; shortcutPath = "$( $startCommon )Aseprite"; shortcutIcon = "Aseprite"}
+@{ sourcePath = "C:\Program Files (x86)\Battle.net\Battle.net Launcher.exe"; shortcutPath = "$( $startCommon )Battle.net"; shortcutIcon = "Battle.net"}
+@{ sourcePath = "D:\BCUninstaller\BCUninstaller.exe"; shortcutPath = "$( $startCommon )BCUninstaller"; shortcutIcon = "BCUninstaller"}
+@{ sourcePath = "C:\Program Files\Blender Foundation\Blender 2.83\blender.exe"; shortcutPath = "$( $startUser )Blender"; shortcutIcon = "Blender"}
+@{ sourcePath = "D:\Deemix\deemix-gui.exe"; shortcutPath = "$( $startUser )Deemix"; shortcutIcon = "Deemix"}
+@{ sourcePath = "$env:LOCALAPPDATA\Discord\app*\Discord.exe"; shortcutPath = "$( $startUser )Discord"; shortcutIcon = "Discord"}
+@{ sourcePath = "C:\Program Files\Electronic Arts\EA Desktop\EA Desktop\EALauncher.exe"; shortcutPath = "$( $startCommon )EA"; shortcutIcon = "EA"}
+@{ sourcePath = "C:\Program Files (x86)\Epic Games\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe"; shortcutPath = "$( $startCommon )Epic Games Launcher"; shortcutIcon = "Epic Games Launcher"}
+@{ sourcePath = "C:\Program Files\Microsoft Office\root\Office16\EXCEL.EXE"; shortcutPath = "$( $startCommon )Excel"; shortcutIcon = "Excel"}
+@{ sourcePath = "C:\Program Files\NVIDIA Corporation\NVIDIA GeForce Experience\NVIDIA GeForce Experience.exe"; shortcutPath = "$( $startCommon )GeForce Experience"; shortcutIcon = "GeForce Experience"}
+@{ sourcePath = "$env:LOCALAPPDATA\GitHubDesktop\GitHubDesktop.exe"; shortcutPath = "$( $startUser )GitHub Desktop"; shortcutIcon = "GitHub Desktop"}
+@{ sourcePath = "C:\Program Files (x86)\GOG Galaxy\GalaxyClient.exe"; shortcutPath = "$( $startCommon )GOG GALAXY"; shortcutIcon = "GOG GALAXY"}
+@{ sourcePath = "C:\Program Files\Google\Chrome\Application\chrome.exe"; shortcutPath = "$( $startCommon )Google Chrome"; shortcutIcon = "Google Chrome"}
+@{ sourcePath = "D:\Adobe\Adobe Illustrator*\Support Files\Contents\Windows\Illustrator.exe"; shortcutPath = "$( $startCommon )Adobe Illustrator 2022"; shortcutIcon = "Illustrator 2022"}
+@{ sourcePath = "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe"; shortcutPath = "$( $startCommon )IntelliJ IDEA Ultimate"; shortcutIcon = "IntelliJ IDEA Ultimate"}
+@{ sourcePath = "C:\Program Files (x86)\Kaspersky Lab\Kaspersky*\avpui.exe"; shortcutPath = "$( $startCommon )Kaspersky"; shortcutIcon = "Kaspersky"}
+@{ sourcePath = "C:\Program Files\KeePassXC\KeePassXC.exe"; shortcutPath = "$( $startCommon )KeePassXC"; shortcutIcon = "KeePassXC"}
+@{ sourcePath = "C:\Program Files\LGHUB\lghub.exe"; shortcutPath = "$( $startCommon )Logitech G HUB"; shortcutIcon = "Logitech G HUB"}
+@{ sourcePath = "D:\Mp3tag\Mp3tag.exe"; shortcutPath = "$( $startCommon )Mp3tag"; shortcutIcon = "Mp3tag"}
+@{ sourcePath = "D:\NVCleanstall\NVCleanstall.exe"; shortcutPath = "$( $startCommon )NVCleanstall"; shortcutIcon = "NVCleanstall"}
+@{ sourcePath = "D:\VirtualBox\VirtualBox.exe"; shortcutPath = "$( $startCommon )Oracle VM VirtualBox"; shortcutIcon = "Oracle VM VirtualBox"}
+@{ sourcePath = "D:\Paint.NET\paintdotnet.exe"; shortcutPath = "$( $startCommon )Paint.NET"; shortcutIcon = "Paint.net"}
+@{ sourcePath = "D:\Adobe\Adobe Photoshop*\Photoshop.exe"; shortcutPath = "$( $startCommon )Adobe Photoshop 2022"; shortcutIcon = "Photoshop 2022"}
+@{ sourcePath = "C:\Program Files\Microsoft Office\root\Office16\POWERPNT.EXE"; shortcutPath = "$( $startCommon )PowerPoint"; shortcutIcon = "PowerPoint"}
+@{ sourcePath = "D:\qBittorrent\qbittorrent.exe"; shortcutPath = "$( $startCommon )qBittorrent"; shortcutIcon = "qBittorrent"}
+@{ sourcePath = "C:\Program Files\Rockstar Games\Launcher\LauncherPatcher.exe"; shortcutPath = "$( $startUser )Rockstar Games Launcher"; shortcutIcon = "Rockstar Games Launcher"}
+@{ sourcePath = "C:\Program Files (x86)\Steam\Steam.exe"; shortcutPath = "$( $startCommon )Steam"; shortcutIcon = "Steam"}
+@{ sourcePath = "D:\Adobe\Adobe Substance 3D Designer\Adobe Substance 3D Designer.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Designer"; shortcutIcon = "Substance 3D Designer"}
+@{ sourcePath = "D:\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Painter"; shortcutIcon = "Substance 3D Painter"}
+@{ sourcePath = "D:\Adobe\Adobe Substance 3D Sampler\Adobe Substance 3D Sampler.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Sampler"; shortcutIcon = "Substance 3D Sampler"}
+@{ sourcePath = "D:\ThrottleStop\ThrottleStop.exe"; shortcutPath = "$( $startCommon )ThrottleStop"; shortcutIcon = "ThrottleStop"}
+@{ sourcePath = "D:\TinyTaskPortable\TinyTaskPortable.exe"; shortcutPath = "$( $startCommon )TinyTask"; shortcutIcon = "TinyTask"}
+@{ sourcePath = "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"; shortcutPath = "$( $startUser )Ubisoft Connect"; shortcutIcon = "Ubisoft Connect"}
+@{ sourcePath = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe"; shortcutPath = "$( $startUser )Visual Studio Code"; shortcutIcon = "Visual Studio Code"}
+@{ sourcePath = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe"; shortcutPath = "$( $startCommon )Visual Studio Installer"; shortcutIcon = "Visual Studio Installer"}
+@{ sourcePath = "C:\Program Files\Microsoft Visual Studio\*\Community\Common7\IDE\devenv.exe"; shortcutPath = "$( $startCommon )Visual Studio 2022"; shortcutIcon = "Visual Studio"}
+@{ sourcePath = "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE"; shortcutPath = "$( $startCommon )Word"; shortcutIcon = "Word"}
+)
+
+ForEach ($menuApp in $startMenu) {
+    if (Test-Path $menuApp.sourcePath) {
+        Create-Shortcut -SourcePath $menuApp.sourcePath -ShortcutPath $menuApp.shortcutPath -ShortcutIcon $menuApp.shortcutIcon
+    }
+    else {
+        Remove-Item "D:\Dotfiles\Icons\$( $menuApp.shortcutIcon ).ico" -Force
+    }
 }
-else {
-$source = "https://ftp.nluug.nl/pub/games/PC/guru3d/ddu/[Guru3D.com]-DDU.zip"
-Write-Host "Installing: DDU" -ForegroundColor Green
-Install-Program -ProgramSource "Web" -ProgramType "Archive" -Link $source -FilenamePattern "DDU-Setup.zip" -PathExtract "$env:USERPROFILE\Desktop\DDU" -InnerDirectory $false
-Start-Process "$env:USERPROFILE\Desktop\DDU\*.exe" -Wait
-Start-Process "$env:USERPROFILE\Desktop\DDU\DDU*\Display Driver Uninstaller.exe" -Wait
-}
 
-#>
+# - Drive Label
+
+Write-Host "Changing Drive Label" -ForegroundColor Cyan
+Set-Volume -DriveLetter D -NewFileSystemLabel "Programs Disk"
+
+# - Shortcut Settings
+
+Write-Host "Changing Shortcut Settings" -ForegroundColor Cyan
+if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons")) {
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" > $null
+}
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" -Name "29" -PropertyType String -Value "%windir%\System32\shell32.dll,-50" > $null
+if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates")) {
+    New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates" > $null
+}
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates" -Name "ShortcutNameTemplate" -PropertyType String -Value "`"%s.lnk`"" > $null
+
+# - Desktop CleanUp
+
+Write-Host "Cleaning Up Desktop" -ForegroundColor Cyan
+Get-ChildItem -Path "$env:USERPROFILE\Desktop" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path "$env:PUBLIC\Desktop" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+
+# - Delete Temporary Files
+
+Write-Host "Deleting Temp Files" -ForegroundColor Cyan
+Get-ChildItem -Path "C:\Windows\Temp" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path $env:TEMP *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+
+# - Run Disk CleanUp
+
+Write-Host "Running Disk CleanUp on Drive C" -ForegroundColor Cyan
+cmd /c cleanmgr.exe /d C: /VERYLOWDISK
