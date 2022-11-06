@@ -357,7 +357,6 @@ if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR")) {
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR" -Name "AllowGameDVR" -Type DWord -Value 0
 & $env:TEMP\PowerRun\PowerRun.exe /SW:0 Powershell.exe -command { Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Windows.Gaming.GameBar.PresenceServer.Internal.PresenceWriter" -Name "ActivationType" -Type DWord -Value 0 }
-#Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
 
 Write-Host "Doing Security Checks for Administrator Account and Group Policy" -ForegroundColor Cyan
 if (($( Get-WMIObject -class Win32_ComputerSystem | Select-Object username ).username).IndexOf('Administrator') -eq -1) {
@@ -401,6 +400,12 @@ Set-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control" -Name "SvcHostSp
 
 Write-Host "Hiding Task View Button..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "ShowTaskViewButton" -Type DWord -Value 0
+
+Write-Host "Hiding Widgets Button..." -ForegroundColor Cyan
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarDa" -Type DWord -Value 0
+
+Write-Host "Hiding Chat Button..." -ForegroundColor Cyan
+Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarMn" -Type DWord -Value 0
 
 Write-Host "Hiding People Icon..." -ForegroundColor Cyan
 if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People")) {
@@ -765,6 +770,7 @@ $apps = @(
 @{ id = "OpenJS.NodeJS"; options = ""; type = "-both" }
 @{ id = "Oracle.VirtualBox"; options = "-l D:\VirtualBox"; type = "-both" }
 @{ id = "Python.Python.3.10"; options = ""; type = "-both" }
+@{ id = "Stardock.Start11"; options = ""; type = "-both" }
 @{ id = "SweetScape.010Editor"; options = "-l D:\010 Editor"; type = "-both" }
 @{ id = "Ubisoft.Connect"; options = ""; type = "-both" }
 @{ id = "Valve.Steam"; options = ""; type = "-both" }
@@ -840,7 +846,7 @@ if (Test-Path "$env:LOCALAPPDATA\Packages\*CustomContextMenu*") {
 else {
     $source = "ms-windows-store://pdp/?ProductId=9PC7BZZ28G0X"
     Write-Host "Installing: Custom Context Menu" -ForegroundColor Cyan
-    Start-Process $source -Wait
+    Start-Process $source
 }
 
 # - Everything
@@ -1015,7 +1021,7 @@ Write-Host "=================================`n" -ForegroundColor Green
 # Settings
 #===========================================================================
 
-Write-Host "`n<Login to Generate AppData>" -ForegroundColor Yellow
+Write-Host "<Login to Generate AppData>" -ForegroundColor Yellow
 
 Start-Process "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe" -Wait
 Start-Process "C:\Program Files\Android\Android Studio\bin\studio64.exe" -Wait
@@ -1054,19 +1060,9 @@ ForEach ($data in $programData) {
     }
 }
 
-# - NerdFonts
-
-if (!(Test-Path "C:\Windows\Fonts\Caskaydia Cove Nerd Font Complete Mono Windows Compatible Regular.otf")) {
-    $source = "ryanoasis/nerd-fonts"
-    Write-Host "Applying Settings to: NerdFonts" -ForegroundColor Cyan
-    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "CascadiaCode.zip"
-    Install-Archive -PathZip $programPath -PathExtract "$env:TEMP\Fonts"
-    Invoke-Item "$env:TEMP\Fonts"
-    Read-Host "Select <CaskaydiaCove Mono> and Install for <All Users>"
-    Remove-Item -Path "$env:TEMP\Fonts" -Force -Recurse -ErrorAction SilentlyContinue
-}
-
 # - Context Menu
+
+Write-Host "Applying Settings to: Context Menu" -ForegroundColor Cyan
 
 $contextKeys = @(
 @{ location = "HKCR:\Directory\Background\shell\AnyCode"; type = "-legacy" }
@@ -1090,12 +1086,14 @@ $contextKeys = @(
 
 New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
 ForEach ($key in $contextKeys) {
-    if ($key.type -eq "-legacy") {
-        New-ItemProperty -Path $key.location -Name "LegacyDisable" -PropertyType String > $null
-    }
-    else {
-        $value = Get-ItemPropertyValue -Path $key.location -Name "(Default)"
-        Set-ItemProperty -Path $key.location -Name "(Default)" -Value "-$value"
+    if (Test-Path $key.location) {
+        if ($key.type -eq "-legacy") {
+            New-ItemProperty -Path $key.location -Name "LegacyDisable" -PropertyType String > $null
+        }
+        else {
+            $value = Get-ItemPropertyValue -Path $key.location -Name "(Default)"
+            Set-ItemProperty -Path $key.location -Name "(Default)" -Value "-$value"
+        }
     }
 }
 
@@ -1111,6 +1109,18 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Ex
     New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
     New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Display" -Name "LegacyDisable" -PropertyType String > $null
     New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Personalize" -Name "LegacyDisable" -PropertyType String > $null
+}
+
+# - NerdFonts
+
+if (!(Test-Path "C:\Windows\Fonts\Caskaydia Cove Nerd Font Complete Mono Windows Compatible Regular.otf")) {
+    $source = "ryanoasis/nerd-fonts"
+    Write-Host "Applying Settings to: NerdFonts" -ForegroundColor Cyan
+    $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "CascadiaCode.zip"
+    Install-Archive -PathZip $programPath -PathExtract "$env:TEMP\Fonts"
+    Invoke-Item "$env:TEMP\Fonts"
+    Read-Host "Select <CaskaydiaCove Mono> and Install for <All Users>" > $null
+    Remove-Item -Path "$env:TEMP\Fonts" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
 Write-Host "`n=================================" -ForegroundColor Green
@@ -1215,6 +1225,7 @@ Get-ChildItem -Path "$env:PUBLIC\Desktop" *.* -Recurse | Remove-Item -Force -Rec
 Write-Host "Deleting Temp Files" -ForegroundColor Cyan
 Get-ChildItem -Path "C:\Windows\Temp" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path $env:TEMP *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+#Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
 
 # - Run Disk CleanUp
 
