@@ -1009,6 +1009,11 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "ThrottleStop-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\ThrottleStop"
     Remove-Item "D:\ThrottleStop\*" -Include *.url, *.txt -Force
+    $action = New-ScheduledTaskAction -Execute "D:\ThrottleStop\ThrottleStop.exe"
+    $trigger = New-ScheduledTaskTrigger -AtLogOn
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -DisallowHardTerminate -Compatibility Win8
+    $settings.ExecutionTimeLimit = "PT0S"
+    Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest -TaskName "ThrottleStop" -Description "ThrottleStop on StartUp"
 }
 
 }
@@ -1231,3 +1236,14 @@ Get-ChildItem -Path $env:TEMP *.* -Recurse | Remove-Item -Force -Recurse -ErrorA
 
 Write-Host "Running Disk CleanUp on Drive C" -ForegroundColor Cyan
 cmd /c cleanmgr.exe /d C: /VERYLOWDISK
+
+# - Finished Prompt
+
+$ascii = @"
+   _________  ____________ _________
+  / __/  _/ |/ /  _/ __/ // / __/ _ \
+ / _/_/ //    // /_\ \/ _  / _// // /
+/_/ /___/_/|_/___/___/_//_/___/____/
+
+"@
+Write-Host $ascii -ForegroundColor Magenta
