@@ -1,7 +1,7 @@
 # 👨‍💻 Rak's Dotfiles
 
 <p align="center">
-<img style="border: 3px solid red;" src="https://steamuserimages-a.akamaihd.net/ugc/1818888748735729643/07049E925D66C8C3DF2A44AC7CAE25DD10419EAE/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" />
+<img style="border-radius: 25px;" src="https://steamuserimages-a.akamaihd.net/ugc/1818888748735729643/07049E925D66C8C3DF2A44AC7CAE25DD10419EAE/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" alt="">
 </p>
 
 
