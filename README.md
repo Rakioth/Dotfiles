@@ -1,6 +1,9 @@
 # 👨‍💻 Rak's Dotfiles
 
-<img style="display: block; margin: 0 auto; border-radius: 25px;" src="https://steamuserimages-a.akamaihd.net/ugc/1818888748735729643/07049E925D66C8C3DF2A44AC7CAE25DD10419EAE/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" />
+<p align="center">
+<img style="border-radius: 25px;" src="https://steamuserimages-a.akamaihd.net/ugc/1818888748735729643/07049E925D66C8C3DF2A44AC7CAE25DD10419EAE/?imw=5000&imh=5000&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false" />
+</p>
+
 
 ## 📜 Table of Contents
 
