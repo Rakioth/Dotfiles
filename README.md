@@ -10,7 +10,7 @@
 
 1. Completely Update Windows System
 2. Modify System Settings
-3. Change Accent Color &nbsp;![](como/ShareX/accent.png) #891798
+3. Change Accent Color &nbsp;![](trash/ShareX/accent.png) #891798
 4. Modify Keyboard Layouts
    * **Time & Language** > **Language & Region** > **Options**
      * Remove Unwanted Keyboard Layouts
