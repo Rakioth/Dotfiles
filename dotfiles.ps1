@@ -1013,7 +1013,7 @@ else {
     $trigger = New-ScheduledTaskTrigger -AtLogOn
     $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -DisallowHardTerminate -Compatibility Win8
     $settings.ExecutionTimeLimit = "PT0S"
-    Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest -TaskName "ThrottleStop" -Description "ThrottleStop on StartUp"
+    Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest -TaskName "ThrottleStop" -Description "ThrottleStop on StartUp" > $null
 }
 
 }
