@@ -181,7 +181,7 @@ if (![String]::Join("", $listApp).Contains("qBittorrent.qBittorrent")) {
     winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
 }
 if (!(Test-Path "D:\Adobe\Adobe Photoshop*")) {
-    Start-Process ((Invoke-WebRequest "https://pb.wtf/topic/385266/").Links | Where-Object class -eq "btn btn-sm btn-info mob").href
+    Start-Process "magnet:?xt=urn:btih:e6a01ee34add9f54a6bba2f8ee1ddeb7f1261dc0&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202023%20RUS-ENG|%20piratbit.org"
     $wScriptObj = New-Object -ComObject WScript.Shell
     Start-Sleep 2
     $wScriptObj.SendKeys("{ENTER}")
