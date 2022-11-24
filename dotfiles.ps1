@@ -181,7 +181,7 @@ if (![String]::Join("", $listApp).Contains("qBittorrent.qBittorrent")) {
     winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
 }
 if (!(Test-Path "D:\Adobe\Adobe Photoshop*")) {
-    Start-Process ((Invoke-WebRequest "https://pb.wtf/topic/386422/").Links | Where-Object class -eq "btn btn-sm btn-info mob").href
+    Start-Process ((Invoke-WebRequest "https://pb.wtf/topic/385266/").Links | Where-Object class -eq "btn btn-sm btn-info mob").href
     $wScriptObj = New-Object -ComObject WScript.Shell
     Start-Sleep 2
     $wScriptObj.SendKeys("{ENTER}")
