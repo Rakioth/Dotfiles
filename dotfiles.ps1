@@ -1150,8 +1150,8 @@ Get-ChildItem -Path $startUser -Recurse -Exclude $exclude | Remove-Item -Force -
 
 $startMenu = @(
 @{ sourcePath = "D:\010 Editor\010Editor.exe"; shortcutPath = "$( $startCommon )010 Editor"; shortcutIcon = "010 Editor" }
-@{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\Acrobat.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat DC"; shortcutIcon = "Acrobat DC" }
-@{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\acrodist.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat Distiller DC"; shortcutIcon = "Acrobat Distiller DC" }
+@{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\Acrobat.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat DC"; shortcutIcon = "Adobe Acrobat DC" }
+@{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\acrodist.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat Distiller DC"; shortcutIcon = "Adobe Acrobat Distiller DC" }
 @{ sourcePath = "C:\Program Files\Android\Android Studio\bin\studio64.exe"; shortcutPath = "$( $startCommon )Android Studio"; shortcutIcon = "Android Studio" }
 @{ sourcePath = "D:\ArchiSteamFarm\ArchiSteamFarm.exe"; shortcutPath = "$( $startCommon )ArchiSteamFarm"; shortcutIcon = "ArchiSteamFarm" }
 @{ sourcePath = "D:\Aseprite\aseprite.exe"; shortcutPath = "$( $startCommon )Aseprite"; shortcutIcon = "Aseprite" }
@@ -1167,7 +1167,7 @@ $startMenu = @(
 @{ sourcePath = "$env:LOCALAPPDATA\GitHubDesktop\GitHubDesktop.exe"; shortcutPath = "$( $startUser )GitHub Desktop"; shortcutIcon = "GitHub Desktop" }
 @{ sourcePath = "C:\Program Files (x86)\GOG Galaxy\GalaxyClient.exe"; shortcutPath = "$( $startCommon )GOG GALAXY"; shortcutIcon = "GOG GALAXY" }
 @{ sourcePath = "C:\Program Files\Google\Chrome\Application\chrome.exe"; shortcutPath = "$( $startCommon )Google Chrome"; shortcutIcon = "Google Chrome" }
-@{ sourcePath = "D:\Adobe\Adobe Illustrator*\Support Files\Contents\Windows\Illustrator.exe"; shortcutPath = "$( $startCommon )Adobe Illustrator 2022"; shortcutIcon = "Illustrator 2022" }
+@{ sourcePath = "D:\Adobe\Adobe Illustrator*\Support Files\Contents\Windows\Illustrator.exe"; shortcutPath = "$( $startCommon )Adobe Illustrator"; shortcutIcon = "Adobe Illustrator" }
 @{ sourcePath = "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe"; shortcutPath = "$( $startCommon )IntelliJ IDEA Ultimate"; shortcutIcon = "IntelliJ IDEA Ultimate" }
 @{ sourcePath = "C:\Program Files (x86)\Kaspersky Lab\Kaspersky*\avpui.exe"; shortcutPath = "$( $startCommon )Kaspersky"; shortcutIcon = "Kaspersky" }
 @{ sourcePath = "C:\Program Files\KeePassXC\KeePassXC.exe"; shortcutPath = "$( $startCommon )KeePassXC"; shortcutIcon = "KeePassXC" }
@@ -1175,21 +1175,21 @@ $startMenu = @(
 @{ sourcePath = "D:\Mp3tag\Mp3tag.exe"; shortcutPath = "$( $startCommon )Mp3tag"; shortcutIcon = "Mp3tag" }
 @{ sourcePath = "D:\NVCleanstall\NVCleanstall.exe"; shortcutPath = "$( $startCommon )NVCleanstall"; shortcutIcon = "NVCleanstall" }
 @{ sourcePath = "D:\VirtualBox\VirtualBox.exe"; shortcutPath = "$( $startCommon )Oracle VM VirtualBox"; shortcutIcon = "Oracle VM VirtualBox" }
-@{ sourcePath = "D:\Paint.NET\paintdotnet.exe"; shortcutPath = "$( $startCommon )Paint.NET"; shortcutIcon = "Paint.net" }
-@{ sourcePath = "D:\Adobe\Adobe Photoshop*\Photoshop.exe"; shortcutPath = "$( $startCommon )Adobe Photoshop 2022"; shortcutIcon = "Photoshop 2022" }
+@{ sourcePath = "D:\Paint.NET\paintdotnet.exe"; shortcutPath = "$( $startCommon )Paint.NET"; shortcutIcon = "Paint.NET" }
+@{ sourcePath = "D:\Adobe\Adobe Photoshop*\Photoshop.exe"; shortcutPath = "$( $startCommon )Adobe Photoshop"; shortcutIcon = "Adobe Photoshop" }
 @{ sourcePath = "C:\Program Files\Microsoft Office\root\Office16\POWERPNT.EXE"; shortcutPath = "$( $startCommon )PowerPoint"; shortcutIcon = "PowerPoint" }
 @{ sourcePath = "D:\qBittorrent\qbittorrent.exe"; shortcutPath = "$( $startCommon )qBittorrent"; shortcutIcon = "qBittorrent" }
 @{ sourcePath = "C:\Program Files\Rockstar Games\Launcher\LauncherPatcher.exe"; shortcutPath = "$( $startUser )Rockstar Games Launcher"; shortcutIcon = "Rockstar Games Launcher" }
 @{ sourcePath = "C:\Program Files (x86)\Steam\Steam.exe"; shortcutPath = "$( $startCommon )Steam"; shortcutIcon = "Steam" }
-@{ sourcePath = "D:\Adobe\Adobe Substance 3D Designer\Adobe Substance 3D Designer.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Designer"; shortcutIcon = "Substance 3D Designer" }
-@{ sourcePath = "D:\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Painter"; shortcutIcon = "Substance 3D Painter" }
-@{ sourcePath = "D:\Adobe\Adobe Substance 3D Sampler\Adobe Substance 3D Sampler.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Sampler"; shortcutIcon = "Substance 3D Sampler" }
+@{ sourcePath = "D:\Adobe\Adobe Substance 3D Designer\Adobe Substance 3D Designer.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Designer"; shortcutIcon = "Adobe Substance 3D Designer" }
+@{ sourcePath = "D:\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Painter"; shortcutIcon = "Adobe Substance 3D Painter" }
+@{ sourcePath = "D:\Adobe\Adobe Substance 3D Sampler\Adobe Substance 3D Sampler.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Sampler"; shortcutIcon = "Adobe Substance 3D Sampler" }
 @{ sourcePath = "D:\ThrottleStop\ThrottleStop.exe"; shortcutPath = "$( $startCommon )ThrottleStop"; shortcutIcon = "ThrottleStop" }
 @{ sourcePath = "D:\TinyTaskPortable\TinyTaskPortable.exe"; shortcutPath = "$( $startCommon )TinyTask"; shortcutIcon = "TinyTask" }
 @{ sourcePath = "C:\Program Files (x86)\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"; shortcutPath = "$( $startUser )Ubisoft Connect"; shortcutIcon = "Ubisoft Connect" }
 @{ sourcePath = "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe"; shortcutPath = "$( $startUser )Visual Studio Code"; shortcutIcon = "Visual Studio Code" }
 @{ sourcePath = "C:\Program Files (x86)\Microsoft Visual Studio\Installer\setup.exe"; shortcutPath = "$( $startCommon )Visual Studio Installer"; shortcutIcon = "Visual Studio Installer" }
-@{ sourcePath = "C:\Program Files\Microsoft Visual Studio\*\Community\Common7\IDE\devenv.exe"; shortcutPath = "$( $startCommon )Visual Studio 2022"; shortcutIcon = "Visual Studio" }
+@{ sourcePath = "C:\Program Files\Microsoft Visual Studio\*\Community\Common7\IDE\devenv.exe"; shortcutPath = "$( $startCommon )Visual Studio 2022"; shortcutIcon = "Visual Studio 2022" }
 @{ sourcePath = "C:\Program Files\Microsoft Office\root\Office16\WINWORD.EXE"; shortcutPath = "$( $startCommon )Word"; shortcutIcon = "Word" }
 )
 
