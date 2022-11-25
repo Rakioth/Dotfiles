@@ -85,11 +85,11 @@ function Install-Archive {
     if ($InnerDirectory) {
         $tempExtract = Join-Path -Path $env:TEMP -ChildPath $( (New-Guid).Guid )
         Expand-7Zip -ArchiveFileName $PathZip -TargetPath $tempExtract -Password $Password
-        Move-Item -Path "$tempExtract\*" -Destination $PathExtract -Force
+        Move-Item -Path "$tempExtract\*" -Destination (Get-ChildItem $PathExtract).FullName -Force
         Remove-Item -Path $tempExtract -Force -Recurse -ErrorAction SilentlyContinue
     }
     else {
-        Expand-7Zip -ArchiveFileName $PathZip -TargetPath $PathExtract -Password $Password
+        Expand-7Zip -ArchiveFileName $PathZip -TargetPath (Get-ChildItem $PathExtract).FullName -Password $Password
     }
     Remove-Item $PathZip -Force
 }
