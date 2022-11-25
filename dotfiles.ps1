@@ -163,7 +163,7 @@ function Create-Shortcut {
 $listApp = winget list --accept-source-agreements --exact -q "TechPowerUp.NVCleanstall"
 if (![String]::Join("", $listApp).Contains("TechPowerUp.NVCleanstall")) {
     winget install -e -h --accept-source-agreements --accept-package-agreements --id "TechPowerUp.NVCleanstall" -l "D:\NVCleanstall" > $null
-    $source = "https://files02.tchspt.com/tempd/DDUv18.0.5.4.exe"
+    $source = "https://files02.tchspt.com/tempd/DDUv18.0.5.8.exe"
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "DDU-Setup.exe"
     Install-Executable -PathExe $programPath
     Write-Host "Check All <NVIDIA Specific Options> Select <NVIDIA Device> Click <Clean and Restart>" -ForegroundColor Yellow
@@ -179,8 +179,6 @@ elseif (!(Test-Path "D:\NVCleanstall\log.txt")) {
 $listApp = winget list --accept-source-agreements --exact -q "qBittorrent.qBittorrent"
 if (![String]::Join("", $listApp).Contains("qBittorrent.qBittorrent")) {
     winget install -e -h --accept-source-agreements --accept-package-agreements --id "qBittorrent.qBittorrent" -l "D:\qBittorrent" > $null
-}
-if (!(Test-Path "D:\Adobe\Adobe Photoshop*")) {
     Start-Process "magnet:?xt=urn:btih:e6a01ee34add9f54a6bba2f8ee1ddeb7f1261dc0&tr=http%3A%2F%2Fbt.piratbit.club%2Fannounce%3Fuk%3DmEIL9M3q2L&dn=Adobe%20Master%20Collection%202023%20RUS-ENG|%20piratbit.org"
     $wScriptObj = New-Object -ComObject WScript.Shell
     Start-Sleep 2
@@ -281,7 +279,7 @@ if (!(Test-Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds")) {
     New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" > $null
 }
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Feeds" -Name "EnableFeeds" -Type DWord -Value 0
-Set-ItemProperty -Path  "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2
+Set-ItemProperty -Path  "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Feeds" -Name "ShellFeedsTaskbarViewMode" -Type DWord -Value 2 -ErrorAction SilentlyContinue
 
 Write-Host "Disabling Feedback..." -ForegroundColor Cyan
 if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Siuf\Rules")) {
@@ -867,7 +865,7 @@ if (Test-Path "C:\Program Files\Microsoft Office") {
     Write-Host "Skipping: Microsoft Office (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "https://fm.solewe.com/vfm-admin/vfm-downloader.php?q=0&sh=4dc91763a073efd8239ba0fa86d7a77a&share=2c37e082dc41cc59d41a43a82585beab"
+    $source = "https://fm.solewe.com/vfm-admin/vfm-downloader.php?q=0&sh=23e1618a62c446c40c3105299d558536&share=c7e346e355e6ae2005451c124ea8d564"
     Write-Host "Installing: Microsoft Office" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Office-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com"
@@ -882,8 +880,7 @@ if (Test-Path "C:\Program Files (x86)\Kaspersky Lab") {
     Write-Host "Skipping: Kaspersky Security Cloud (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    # NeedUpdate
-    $source = "https://www.filehorse.com/download/file/5pDnC3wO8B5VYavv4AVlKW-68N-SLZfvO2A3q3-jdo_-koosgLeX2i-RLB6zFRxRO3aio1fBZcvsNjsodfQJ1_MNP2e5dPBSwHet3e3I4AM"
+    $source = "rawkaspersk"
     Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Kaspersky-Setup.exe"
     Install-Executable -PathExe $programPath
@@ -924,7 +921,6 @@ if (Test-Path "D:\Aseprite") {
     Write-Host "Skipping: Aseprite (Already Installed)" -ForegroundColor Yellow
 }
 else {
-#    $source = "https://download2267.mediafire.com/zfjvk3a91zzg/w3xthz4z7dru0fc/Aseprite.zip" NeedUpdate
     $source = "https://drive.google.com/u/0/uc?id=10RclaGRFYjVbRL-fK8pkWXx2rPVN7o4A&export=download&confirm=t&uuid=3ec60e51-0305-4b10-9488-6cf9660e492c&at=ALAFpqySx4Uflwod0L97byzkeJjw:1667205381457"
     Write-Host "Installing: Aseprite" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Aseprite-Setup.zip"
@@ -955,7 +951,7 @@ else {
     Write-Host "Installing: Deemix" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Deemix-Setup.exe"
     Install-Executable -PathExe $programPath -ArgumentList '/S /D=D:\Deemix'
-    Start-Process "D:\Deemix\deemix-gui.exe"
+    Start-Process "D:\Deemix\deemix-gui.exe" > $null
 }
 
 # - Noesis
