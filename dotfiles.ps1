@@ -130,6 +130,30 @@ function Create-Shortcut {
     $shortcut.Save()
 }
 
+function Check-Install {
+    param (
+        [string]$AppID
+    )
+
+    if ($AppID.Contains("\")) {
+        if (!(Test-Path $AppID)) {
+            Write-Host "Installation Failed" -ForegroundColor Yellow
+        }
+        else {
+            Write-Host "Installation Successful" -ForegroundColor Yellow
+        }
+    }
+    else {
+        $listApp = winget list --accept-source-agreements --exact -q $AppID
+        if (![String]::Join("", $listApp).Contains($AppID)) {
+            Write-Host "Installation Failed" -ForegroundColor Yellow
+        }
+        else {
+            Write-Host "Installation Successful" -ForegroundColor Yellow
+        }
+    }
+}
+
 # - Drivers
 
 $listApp = winget list --accept-source-agreements --exact -q "TechPowerUp.NVCleanstall"
@@ -755,7 +779,8 @@ ForEach ($app in $apps) {
         $listApp = winget list --accept-source-agreements --exact -q $app.id
         if (![String]::Join("", $listApp).Contains($app.id)) {
             Write-Host "Installing: $( $app.id )" -ForegroundColor Cyan
-            Invoke-Expression "winget install -e -h --accept-source-agreements --accept-package-agreements --id $( $app.id ) $( $app.options )"
+            Invoke-Expression "winget install -e -h --accept-source-agreements --accept-package-agreements --id $( $app.id ) $( $app.options )" > $null
+            Check-Install -AppID $app.id
         }
         else {
             Write-Host "Skipping: $( $app.id ) (Already Installed)" -ForegroundColor Yellow
@@ -779,6 +804,7 @@ else {
     Stop-Process -Name "qbittorrent" -Force -ErrorAction SilentlyContinue
     Wait-Process -Name "qbittorrent" -ErrorAction SilentlyContinue
     Remove-Item -Path "$env:USERPROFILE\Downloads\Master.Collection*" -Force -Recurse -ErrorAction SilentlyContinue
+    Check-Install -AppID "D:\Adobe\Adobe Photoshop*"
 }
 
 # - Arch WSL
@@ -796,6 +822,7 @@ else {
     Add-AppxPackage $programPath
     Remove-Item $programPath -Force
     Start-Process "C:\Program Files\WindowsApps\yuk7.archwsl*\Arch.exe" -Wait
+    Check-Install -AppID "C:\Program Files\WindowsApps\yuk7.archwsl*"
 }
 
 # - Battle.net
@@ -808,6 +835,7 @@ else {
     Write-Host "Installing: Battle.net" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Battle.net-Setup.exe"
     Install-Executable -PathExe $programPath -ArgumentList '--lang=enUS --installpath="C:\Program Files (x86)\Battle.net"'
+    Check-Install -AppID "C:\Program Files (x86)\Battle.net"
 }
 
 # - Custom Context Menu
@@ -831,6 +859,7 @@ else {
     Write-Host "Installing: EverythingPowerToys" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*-x64.zip"
     Install-Archive -PathZip $programPath -PathExtract "C:\Program Files\PowerToys\modules\launcher\Plugins"
+    Check-Install -AppID "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything"
 }
 
 # - Microsoft Office
@@ -845,6 +874,7 @@ else {
     Install-Archive -PathZip $programPath -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com"
     Start-Process "$env:USERPROFILE\Desktop\Office\OInstall_x64.exe" -Wait
     Remove-Item -Path "$env:USERPROFILE\Desktop\Office" -Force -Recurse -ErrorAction SilentlyContinue
+    Check-Install -AppID "C:\Program Files\Microsoft Office"
 }
 
 # - Kaspersky Security Cloud
@@ -860,6 +890,7 @@ else {
     Stop-Process -Name "ksde", "ksdeui" -Force -ErrorAction SilentlyContinue
     Wait-Process -Name "ksde", "ksdeui" -ErrorAction SilentlyContinue
     Uninstall-Package -Name "Kaspersky VPN" > $null
+    Check-Install -AppID "C:\Program Files (x86)\Kaspersky Lab"
 }
 
 # - TinyTaskPortable
@@ -872,6 +903,7 @@ else {
     Write-Host "Installing: TinyTaskPortable" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "TinyTaskPortable*"
     Install-Executable -PathExe $programPath -ArgumentList '/S /DESTINATION=D:\'
+    Check-Install -AppID "D:\TinyTaskPortable"
 }
 
 if ($mode -eq "-dt") {
@@ -886,6 +918,7 @@ else {
     Write-Host "Installing: ArchiSteamFarm" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*win-x64.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\ArchiSteamFarm"
+    Check-Install -AppID "D:\ArchiSteamFarm"
 }
 
 # - Aseprite
@@ -899,6 +932,7 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Aseprite-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\Aseprite" -InnerDirectory $true
     Start-Process "D:\Aseprite\aseprite.exe"
+    Check-Install -AppID "D:\Aseprite"
 }
 
 # - Crowbar
@@ -912,6 +946,7 @@ else {
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*.7z"
     Install-Archive -PathZip $programPath -PathExtract "D:\Modding Tools\Noesis"
     Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Crowbar.exe" -ShortcutPath "D:\Modding Tools\Crowbar"
+    Check-Install -AppID "D:\Modding Tools\Noesis\Crowbar.exe"
 }
 
 # - Deemix
@@ -925,6 +960,7 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Deemix-Setup.exe"
     Install-Executable -PathExe $programPath -ArgumentList '/S /D=D:\Deemix'
     Start-Process "D:\Deemix\deemix-gui.exe" > $null
+    Check-Install -AppID "D:\Deemix"
 }
 
 # - Noesis
@@ -938,6 +974,7 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Noesis-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\Modding Tools\Noesis"
     Create-Shortcut -SourcePath "D:\Modding Tools\Noesis\Noesis64.exe" -ShortcutPath "D:\Modding Tools\Noesis"
+    Check-Install -AppID "D:\Modding Tools\Noesis\Noesis64.exe"
 }
 
 # - Rockstar Games Launcher
@@ -950,6 +987,7 @@ else {
     Write-Host "Installing: Rockstar Games Launcher" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Rockstar-Games-Launcher-Setup.exe"
     Install-Executable -PathExe $programPath
+    Check-Install -AppID "C:\Program Files\Rockstar Games"
 }
 
 # - Paint.NET
@@ -962,6 +1000,7 @@ else {
     Write-Host "Installing: Paint.NET" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*portable.x64.zip"
     Install-Archive -PathZip $programPath -PathExtract "D:\Paint.NET"
+    Check-Install -AppID "D:\Paint.NET"
 }
 
 }
@@ -983,6 +1022,7 @@ else {
     $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -DisallowHardTerminate -Compatibility Win8
     $settings.ExecutionTimeLimit = "PT0S"
     Register-ScheduledTask -Action $action -Trigger $trigger -Settings $settings -RunLevel Highest -TaskName "ThrottleStop" -Description "ThrottleStop on StartUp" > $null
+    Check-Install -AppID "D:\ThrottleStop"
 }
 
 }
