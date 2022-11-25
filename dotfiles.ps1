@@ -766,7 +766,6 @@ $apps = @(
 @{ id = "OpenJS.NodeJS"; options = ""; type = "-both" }
 @{ id = "Oracle.VirtualBox"; options = "-l D:\VirtualBox"; type = "-both" }
 @{ id = "Python.Python.3.10"; options = ""; type = "-both" }
-@{ id = "Stardock.Start11"; options = ""; type = "-both" }
 @{ id = "SweetScape.010Editor"; options = "-l D:\010 Editor"; type = "-both" }
 @{ id = "Ubisoft.Connect"; options = ""; type = "-both" }
 @{ id = "Valve.Steam"; options = ""; type = "-both" }
@@ -1247,6 +1246,7 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer
 Write-Host "Cleaning Up Desktop" -ForegroundColor Cyan
 Get-ChildItem -Path "$env:USERPROFILE\Desktop" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path "$env:PUBLIC\Desktop" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
+Uninstall-Module -Name "7Zip4Powershell" -Force
 
 # - Delete Temporary Files
 
