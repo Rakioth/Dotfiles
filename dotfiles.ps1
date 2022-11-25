@@ -997,11 +997,21 @@ Write-Host "=================================`n" -ForegroundColor Green
 
 Write-Host "<Login to Generate AppData>" -ForegroundColor Yellow
 
-Start-Process "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe" -Wait
-Start-Process "C:\Program Files\Android\Android Studio\bin\studio64.exe" -Wait
-Start-Process "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" -Wait
-Start-Process "C:\Program Files (x86)\Steam\Steam.exe"
-Start-Process "D:\010 Editor\010Editor.exe" -Wait
+if (!(Test-Path "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib")) {
+    Start-Process "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe" -Wait
+}
+if (!(Test-Path "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib")) {
+    Start-Process "C:\Program Files\Android\Android Studio\bin\studio64.exe" -Wait
+}
+if (!(Test-Path "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes")) {
+    Start-Process "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" -Wait
+}
+if (!(Test-Path "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\projects\myprojects")) {
+    Start-Process "C:\Program Files (x86)\Steam\Steam.exe"
+}
+if (!(Test-Path "$env:USERPROFILE\Documents\SweetScape")) {
+    Start-Process "D:\010 Editor\010Editor.exe" -Wait
+}
 $source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/Visual Studio/codely_purple.vsix"
 $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "codely_purple.vsix"
 Install-Executable -PathExe $programPath
