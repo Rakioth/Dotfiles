@@ -137,19 +137,19 @@ function Check-Install {
 
     if ($AppID.Contains("\")) {
         if (!(Test-Path $AppID)) {
-            Write-Host "Installation Failed" -ForegroundColor Yellow
+            Write-Host "Installation Failed" -ForegroundColor Red
         }
         else {
-            Write-Host "Installation Successful" -ForegroundColor Yellow
+            Write-Host "Installation Successful" -ForegroundColor Green
         }
     }
     else {
         $listApp = winget list --accept-source-agreements --exact -q $AppID
         if (![String]::Join("", $listApp).Contains($AppID)) {
-            Write-Host "Installation Failed" -ForegroundColor Yellow
+            Write-Host "Installation Failed" -ForegroundColor Red
         }
         else {
-            Write-Host "Installation Successful" -ForegroundColor Yellow
+            Write-Host "Installation Successful" -ForegroundColor Green
         }
     }
 }
@@ -730,9 +730,9 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Nam
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferFeatureUpdatesPeriodInDays" -Type DWord -Value 365
 Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -Name "DeferQualityUpdatesPeriodInDays " -Type DWord -Value 4
 
-Write-Host "`n=================================" -ForegroundColor Green
-Write-Host "---      Tweaks Applied       ---" -ForegroundColor Green
-Write-Host "=================================`n" -ForegroundColor Green
+Write-Host "`n=================================" -ForegroundColor Magenta
+Write-Host "---      Tweaks Applied       ---" -ForegroundColor Magenta
+Write-Host "=================================`n" -ForegroundColor Magenta
 
 #===========================================================================
 # Install
@@ -1027,9 +1027,9 @@ else {
 
 }
 
-Write-Host "`n=================================" -ForegroundColor Green
-Write-Host "---      Apps Installed       ---" -ForegroundColor Green
-Write-Host "=================================`n" -ForegroundColor Green
+Write-Host "`n=================================" -ForegroundColor Magenta
+Write-Host "---      Apps Installed       ---" -ForegroundColor Magenta
+Write-Host "=================================`n" -ForegroundColor Magenta
 
 #===========================================================================
 # Settings
@@ -1110,11 +1110,11 @@ $contextKeys = @(
 @{ location = "HKCR:\UserLibraryFolder\shellex\ContextMenuHandlers\SendTo" }
 )
 
-New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT > $null
+New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT -ErrorAction SilentlyContinue > $null
 ForEach ($key in $contextKeys) {
     if (Test-Path $key.location) {
         if ($key.type -eq "-legacy") {
-            New-ItemProperty -Path $key.location -Name "LegacyDisable" -PropertyType String > $null
+            New-ItemProperty -Path $key.location -Name "LegacyDisable" -PropertyType String -ErrorAction SilentlyContinue > $null
         }
         else {
             $value = Get-ItemPropertyValue -Path $key.location -Name "(Default)"
@@ -1127,9 +1127,9 @@ Get-AppxPackage "*Mp3tag.ShellExtension*" | Remove-AppxPackage -AllUsers -ErrorA
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" > $null
 }
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{f81e9010-6ea4-11ce-a7ff-00aa003ca9f6}" -PropertyType String > $null
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{596AB062-B4D2-4215-9F74-E9109B0A8153}" -PropertyType String > $null
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{1d27f844-3a1f-4410-85ac-14651078412d}" -PropertyType String > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{f81e9010-6ea4-11ce-a7ff-00aa003ca9f6}" -PropertyType String -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{596AB062-B4D2-4215-9F74-E9109B0A8153}" -PropertyType String -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{1d27f844-3a1f-4410-85ac-14651078412d}" -PropertyType String -ErrorAction SilentlyContinue > $null
 
 & $env:TEMP\PowerRun\PowerRun.exe /SW:0 Powershell.exe -command {
     New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
@@ -1149,9 +1149,9 @@ if (!(Test-Path "C:\Windows\Fonts\Caskaydia Cove Nerd Font Complete Mono Windows
     Remove-Item -Path "$env:TEMP\Fonts" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
-Write-Host "`n=================================" -ForegroundColor Green
-Write-Host "---       Settings Done       ---" -ForegroundColor Green
-Write-Host "=================================`n" -ForegroundColor Green
+Write-Host "`n=================================" -ForegroundColor Magenta
+Write-Host "---       Settings Done       ---" -ForegroundColor Magenta
+Write-Host "=================================`n" -ForegroundColor Magenta
 
 #===========================================================================
 # Final Setup
