@@ -1052,6 +1052,7 @@ if (!(Test-Path "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\
 if (!(Test-Path "$env:USERPROFILE\Documents\SweetScape")) {
     Start-Process "D:\010 Editor\010Editor.exe" -Wait
 }
+Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/O%26O%20ShutUp/010Editor.vbs" -Destination "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\010Editor.vbs"
 $source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/Visual Studio/codely_purple.vsix"
 $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "codely_purple.vsix"
 Install-Executable -PathExe $programPath
