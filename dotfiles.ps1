@@ -201,8 +201,10 @@ do {
 # - Create Restore Point
 
 Write-Host "Creating Restore Point in Case Something Bad Happens...`n"
-Enable-ComputerRestore -Drive "$env:SYSTEMDRIVE"
-Checkpoint-Computer -Description "Dotfiles" -RestorePointType "MODIFY_SETTINGS"
+if (!(Get-ComputerRestorePoint | Where-Object Description -eq "Dotfiles")) {
+    Enable-ComputerRestore -Drive "$env:SYSTEMDRIVE"
+    Checkpoint-Computer -Description "Dotfiles" -RestorePointType "MODIFY_SETTINGS"
+}
 
 # - System Tweaks
 
@@ -880,7 +882,7 @@ if (Test-Path "C:\Program Files (x86)\Kaspersky Lab") {
     Write-Host "Skipping: Kaspersky Security Cloud (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "rawkaspersk"
+    $source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/trash/Kaspersky/Kaspersky-Setup.exe"
     Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Kaspersky-Setup.exe"
     Install-Executable -PathExe $programPath
