@@ -85,11 +85,11 @@ function Install-Archive {
     if ($InnerDirectory) {
         $tempExtract = Join-Path -Path $env:TEMP -ChildPath $( (New-Guid).Guid )
         Expand-7Zip -ArchiveFileName $PathZip -TargetPath $tempExtract -Password $Password
-        Move-Item -Path "$tempExtract\*" -Destination (Get-ChildItem $PathExtract).FullName -Force
+        Move-Item -Path "$tempExtract\*" -Destination (Resolve-Path $PathExtract).Path -Force
         Remove-Item -Path $tempExtract -Force -Recurse -ErrorAction SilentlyContinue
     }
     else {
-        Expand-7Zip -ArchiveFileName $PathZip -TargetPath (Get-ChildItem $PathExtract).FullName -Password $Password
+        Expand-7Zip -ArchiveFileName $PathZip -TargetPath (Resolve-Path $PathExtract).Path -Password $Password
     }
     Remove-Item $PathZip -Force
 }
@@ -126,7 +126,7 @@ function Create-Shortcut {
     if ($PSBoundParameters.ContainsKey("ShortcutIcon")) {
         $shortcut.IconLocation = "D:\Dotfiles\Icons\$ShortcutIcon.ico"
     }
-    $shortcut.TargetPath = (Get-ChildItem $SourcePath).FullName
+    $shortcut.TargetPath = (Resolve-Path $SourcePath).Path
     $shortcut.Save()
 }
 
@@ -796,7 +796,7 @@ if (Test-Path "D:\Adobe\Adobe Photoshop*") {
     Write-Host "Skipping: Adobe Master Collection (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = (Get-ChildItem "$env:USERPROFILE\Downloads\Master.Collection*\Adobe.Master.Collection*iso").FullName
+    $source = (Resolve-Path "$env:USERPROFILE\Downloads\Master.Collection*\Adobe.Master.Collection*iso").Path
     Write-Host "Installing: Adobe Master Collection" -ForegroundColor Cyan
     Mount-DiskImage $source > $null
     Start-Process "E:\Adobe*\Set-up.exe" -Wait
