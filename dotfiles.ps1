@@ -1068,6 +1068,7 @@ $programData = @(
 @{ asset = "JetBrains"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib" }
 @{ asset = "JetBrains"; location = "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib" }
 @{ asset = "Mp3tag"; location = "D:\Mp3tag\data" }
+@{ asset = "Paint.NET"; location = "D:\Paint.NET" }
 @{ asset = "Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required" }
 @{ asset = "PowerShell"; location = "$env:USERPROFILE\Documents" }
 @{ asset = "qBittorrent"; location = "D:\qBittorrent" }
