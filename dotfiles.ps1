@@ -48,34 +48,6 @@ if ((Get-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsyste
 
 # - Functions
 
-function Download-Files {
-    param (
-        [string]$Repo,
-        [string]$Path,
-        [string]$DestinationPath
-    )
-
-    $contentsUri = "https://api.github.com/repos/$Repo/contents/$Path"
-    $objects = Invoke-RestMethod -Method GET -Uri $contentsUri
-    $files = $objects | Where-Object type -eq "file" | Select-Object -ExpandProperty download_url
-    $directories = $objects | Where-Object type -eq "dir"
-
-    $directories | ForEach-Object {
-        Download-Files -Repo $Repo -Path $_.path -DestinationPath "$( $DestinationPath )/$( $_.name )"
-    }
-
-    if (!(Test-Path $DestinationPath)) {
-        New-Item -Path $DestinationPath -ItemType Directory > $null
-    }
-
-    ForEach ($file in $files) {
-        $fileName = Split-Path -Path $file -Leaf
-        $fileDestination = Join-Path -Path $DestinationPath -ChildPath $fileName
-        $outputFilename = $fileDestination.Replace("%20", " ")
-        Start-BitsTransfer -Source $file -Destination $outputFilename
-    }
-}
-
 function Download-Program {
     param (
         [string]$ProgramSource,
@@ -211,7 +183,7 @@ if (!(Get-ComputerRestorePoint | Where-Object Description -eq "Dotfiles")) {
 Write-Host "<Doing System Tweaks>" -ForegroundColor Yellow
 if (!(Test-Path "$env:USERPROFILE\ooshutup10.cfg")) {
     Write-Host "Running O&O Shutup with Recommended Settings..." -ForegroundColor Cyan
-    Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/assets/O%26O%20ShutUp/ooshutup10.cfg" -Destination "$env:USERPROFILE\ooshutup10.cfg"
+    Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/O%26O%20ShutUp/ooshutup10.cfg" -Destination "$env:USERPROFILE\ooshutup10.cfg"
     Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination "$env:USERPROFILE\OOSU10.exe"
 }
 Start-Process -FilePath "$env:USERPROFILE\OOSU10.exe" -ArgumentList "$env:USERPROFILE\ooshutup10.cfg /quiet" -Wait
@@ -646,7 +618,7 @@ Write-Host "Removing: Cortana" -ForegroundColor Cyan
 Get-AppxPackage -AllUsers Microsoft.549981C3F5F10 | Remove-AppxPackage
 
 Write-Host "Removing: Microsoft Edge" -ForegroundColor Cyan
-Invoke-WebRequest -useb https://raw.githubusercontent.com/Rakioth/Dotfiles/main/assets/O%26O%20ShutUp/Edge_Removal.bat | Invoke-Expression
+Invoke-WebRequest -useb https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/O%26O%20ShutUp/Edge_Removal.bat | Invoke-Expression
 
 Write-Host "Removing: Microsoft Teams" -ForegroundColor Cyan
 function getUninstallString($match) {
@@ -872,7 +844,6 @@ else {
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Office-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com"
     Start-Process "$env:USERPROFILE\Desktop\Office\OInstall_x64.exe" -Wait
-    # NotDeleting?
     Remove-Item -Path "$env:USERPROFILE\Desktop\Office" -Force -Recurse -ErrorAction SilentlyContinue
 }
 
@@ -888,7 +859,7 @@ else {
     Install-Executable -PathExe $programPath
     Stop-Process -Name "ksde", "ksdeui" -Force -ErrorAction SilentlyContinue
     Wait-Process -Name "ksde", "ksdeui" -ErrorAction SilentlyContinue
-    Uninstall-Package -Name "Kaspersky VPN"
+    Uninstall-Package -Name "Kaspersky VPN" > $null
 }
 
 # - TinyTaskPortable
@@ -1031,35 +1002,37 @@ Start-Process "C:\Program Files\Android\Android Studio\bin\studio64.exe" -Wait
 Start-Process "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" -Wait
 Start-Process "C:\Program Files (x86)\Steam\Steam.exe"
 Start-Process "D:\010 Editor\010Editor.exe" -Wait
-Download-Files -Repo "Rakioth/Dotfiles" -Path "assets/Visual Studio" -DestinationPath $env:TEMP
-Install-Executable -PathExe "$env:TEMP\codely_purple.vsix"
+$source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/Visual Studio/codely_purple.vsix"
+$programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "codely_purple.vsix"
+Install-Executable -PathExe $programPath
 Remove-Item -Path "D:\Mp3tag\data\actions" -Force -Recurse -ErrorAction SilentlyContinue
 
 $programData = @(
-@{ asset = "assets/Aseprite"; location = "$env:APPDATA\Aseprite" }
-@{ asset = "assets/Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts" }
-@{ asset = "assets/Clink"; location = "$env:LOCALAPPDATA\clink" }
-@{ asset = "assets/Custom Context Menu"; location = "$env:LOCALAPPDATA\Packages\*CustomContextMenu*\LocalState\custom_commands" }
-@{ asset = "assets/Deemix"; location = "$env:APPDATA\deemix" }
-@{ asset = "assets/Dotfiles"; location = "D:" }
-@{ asset = "assets/JetBrains"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib" }
-@{ asset = "assets/JetBrains"; location = "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib" }
-@{ asset = "assets/Mp3tag"; location = "D:\Mp3tag\data" }
-@{ asset = "assets/Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required" }
-@{ asset = "assets/PowerShell"; location = "$env:USERPROFILE\Documents\PowerShell" }
-@{ asset = "assets/qBittorrent"; location = "D:\qBittorrent" }
-@{ asset = "assets/Steam"; location = "C:\Program Files (x86)\Steam" }
-@{ asset = "assets/SweetScape"; location = "$env:USERPROFILE\Documents\SweetScape" }
-@{ asset = "assets/Terminal"; location = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState" }
-@{ asset = "assets/Visual Studio Code"; location = "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes" }
-@{ asset = "assets/Wallpaper Engine"; location = "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\projects\myprojects" }
+@{ asset = "Aseprite"; location = "$env:APPDATA\Aseprite" }
+@{ asset = "Blender"; location = "C:\Program Files\Blender Foundation\Blender\2.79\scripts" }
+@{ asset = "Clink"; location = "$env:LOCALAPPDATA\clink" }
+@{ asset = "Custom Context Menu"; location = "$env:LOCALAPPDATA\Packages\*CustomContextMenu*\LocalState\custom_commands" }
+@{ asset = "Deemix"; location = "$env:APPDATA\deemix" }
+@{ asset = "Dotfiles"; location = "D:" }
+@{ asset = "JetBrains"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib" }
+@{ asset = "JetBrains"; location = "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib" }
+@{ asset = "Mp3tag"; location = "D:\Mp3tag\data" }
+@{ asset = "Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required" }
+@{ asset = "PowerShell"; location = "$env:USERPROFILE\Documents" }
+@{ asset = "qBittorrent"; location = "D:\qBittorrent" }
+@{ asset = "Steam"; location = "C:\Program Files (x86)\Steam" }
+@{ asset = "SweetScape"; location = "$env:USERPROFILE\Documents\SweetScape" }
+@{ asset = "Terminal"; location = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState" }
+@{ asset = "Visual Studio Code"; location = "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes" }
+@{ asset = "Wallpaper Engine"; location = "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\projects\myprojects" }
 )
 
 ForEach ($data in $programData) {
     if (Test-Path $data.location) {
-        $name = $data.asset.Replace("assets/", "")
-        Write-Host "Applying Settings to: $name" -ForegroundColor Cyan
-        Download-Files -Repo "Rakioth/Dotfiles" -Path $data.asset -DestinationPath $data.location
+        $source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/assets/$( $data.asset ).zip"
+        Write-Host "Applying Settings to: $( $data.asset )" -ForegroundColor Cyan
+        $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "$( $data.asset ).zip"
+        Install-Archive -PathZip $programPath -PathExtract $data.location
     }
 }
 
@@ -1228,7 +1201,6 @@ Get-ChildItem -Path "$env:PUBLIC\Desktop" *.* -Recurse | Remove-Item -Force -Rec
 Write-Host "Deleting Temp Files" -ForegroundColor Cyan
 Get-ChildItem -Path "C:\Windows\Temp" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path $env:TEMP *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-#Remove-Item -Path "$env:TEMP\PowerRun" -Force -Recurse -ErrorAction SilentlyContinue
 
 # - Run Disk CleanUp
 
