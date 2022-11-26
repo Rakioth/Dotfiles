@@ -1,0 +1,8 @@
+#!/bin/bash
+
+pacman-key --init
+pacman-key --populate
+pacman -Sy archlinux-keyring
+pacman -Su
+pacman -Runs vim
+pacman -Syyu bat lsd neofetch neovim nodejs
