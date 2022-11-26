@@ -1070,6 +1070,7 @@ $programData = @(
 @{ asset = "Paint.NET"; location = "D:\Paint.NET" }
 @{ asset = "Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required" }
 @{ asset = "PowerShell"; location = "$env:USERPROFILE\Documents" }
+@{ asset = "PowerToys"; location = "$env:USERPROFILE\Documents" }
 @{ asset = "qBittorrent"; location = "D:\qBittorrent" }
 @{ asset = "Steam"; location = "C:\Program Files (x86)\Steam" }
 @{ asset = "SweetScape"; location = "$env:USERPROFILE\Documents\SweetScape" }

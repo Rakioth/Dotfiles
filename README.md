@@ -25,7 +25,7 @@
 Launch PowerShell as Administrator
 
 ```
-irm raw.githubusercontent.com/Rakioth/Dotfiles/main/dotfiles.ps1 | iex
+irm raw.githubusercontent.com/Rakioth/Dotfiles/main/dotfiles | iex
 ```
 
 ### 🧰 Post-Install
@@ -36,6 +36,7 @@ Apply Themes
 * Aseprite &nbsp;➤&nbsp; **Edit** > **Preferences** > **Theme**
 * Blender &nbsp;➤&nbsp; **File** > **User Preferences** > **Themes**
 * Photoshop &nbsp;➤&nbsp; **Edit** > **Preferences** > **Interface**
+* PowerToys &nbsp;➤&nbsp; **General** > **Backup & Restore** > **Restore**
 * qBittorrent &nbsp;➤&nbsp; **Tools** > **Options** > **Behavior**
 
 Clean StartUp by Removing Unwanted Programs
