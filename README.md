@@ -10,18 +10,20 @@
 
 1. Completely Update Windows System
 2. Modify System Settings
-3. Change Accent Color &nbsp;![](trash/ShareX/accent.png) #891798
+3. Change Accent Color &nbsp;![](outdated/ShareX/accent.png) #891798
 4. Modify Keyboard Layouts
-   * **Time & Language** > **Language & Region** > **Options**
-     * Remove Unwanted Keyboard Layouts
-   * **Time & Language** > **Typing** > **Advanced Keyboard Settings**
-     * _Check_ &nbsp;➤&nbsp; "Use the Desktop Language Bar when it's Available"
-     * _Click_ &nbsp;➤&nbsp; "Language Bar Options" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Hidden"
-     * _Click_ &nbsp;➤&nbsp; "Input Language Hot Keys" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Change Key Sequence to (None)"
+    * **Time & Language** > **Language & Region** > **Options**
+        * Remove Unwanted Keyboard Layouts
+    * **Time & Language** > **Typing** > **Advanced Keyboard Settings**
+        * _Check_ &nbsp;➤&nbsp; "Use the Desktop Language Bar when it's Available"
+        * _Click_ &nbsp;➤&nbsp; "Language Bar Options" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Hidden"
+        * _Click_ &nbsp;➤&nbsp; "Input Language Hot Keys" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Change Key Sequence to (
+          None)"
 
 ### 🐙 Installation
 
 Launch PowerShell as Administrator
+
 ```
 irm raw.githubusercontent.com/Rakioth/Dotfiles/main/dotfiles.ps1 | iex
 ```
@@ -29,6 +31,7 @@ irm raw.githubusercontent.com/Rakioth/Dotfiles/main/dotfiles.ps1 | iex
 ### 🧰 Post-Install
 
 Apply Themes
+
 * ANTP &nbsp;➤&nbsp; **Configure** > **Import/Export** > **Import Tile String**
 * Aseprite &nbsp;➤&nbsp; **Edit** > **Preferences** > **Theme**
 * Blender &nbsp;➤&nbsp; **File** > **User Preferences** > **Themes**
@@ -36,11 +39,27 @@ Apply Themes
 * qBittorrent &nbsp;➤&nbsp; **Tools** > **Options** > **Behavior**
 
 Clean StartUp by Removing Unwanted Programs
+
 * `Win` + `R`
-  * shell:startup
-  * shell:common startup
+    * shell:startup
+    * shell:common startup
 * `Registry Editor`
-  * HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
-  * HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+    * HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
+    * HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Run
 * `Task Scheduler`
-  * Disable Tasks from Library
+    * Disable Tasks from Library
+
+Setup ArchWSL
+
+```bash
+[root@PC-NAME] passwd
+[root@PC-NAME] echo "%wheel ALL=(ALL) ALL" > /etc/sudoers.d/wheel
+[root@PC-NAME] useradd -m -G wheel -s /bin/bash raks
+[root@PC-NAME] passwd raks
+[root@PC-NAME] exit
+> Arch.exe config --default-user raks
+```
+
+```
+curl https://raw.githubusercontent.com/Rakioth/Dotfiles/main/helpers/arch | sudo bash
+```
