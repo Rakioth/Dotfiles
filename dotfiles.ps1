@@ -207,7 +207,7 @@ if (!(Get-ComputerRestorePoint | Where-Object Description -eq "Dotfiles")) {
 Write-Host "<Doing System Tweaks>" -ForegroundColor Yellow
 if (!(Test-Path "$env:USERPROFILE\ooshutup10.cfg")) {
     Write-Host "Running O&O Shutup with Recommended Settings..." -ForegroundColor Cyan
-    Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/O%26O%20ShutUp/ooshutup10.cfg" -Destination "$env:USERPROFILE\ooshutup10.cfg"
+    Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/helpers/ooshutup10.cfg" -Destination "$env:USERPROFILE\ooshutup10.cfg"
     Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe" -Destination "$env:USERPROFILE\OOSU10.exe"
 }
 Start-Process -FilePath "$env:USERPROFILE\OOSU10.exe" -ArgumentList "$env:USERPROFILE\ooshutup10.cfg /quiet" -Wait
@@ -642,7 +642,7 @@ Write-Host "Removing: Cortana" -ForegroundColor Cyan
 Get-AppxPackage -AllUsers Microsoft.549981C3F5F10 | Remove-AppxPackage
 
 Write-Host "Removing: Microsoft Edge" -ForegroundColor Cyan
-Invoke-WebRequest -useb https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/O%26O%20ShutUp/Edge_Removal.bat | Invoke-Expression
+Invoke-WebRequest -useb https://raw.githubusercontent.com/Rakioth/Dotfiles/main/helpers/Edge_Removal.bat | Invoke-Expression
 
 Write-Host "Removing: Microsoft Teams" -ForegroundColor Cyan
 function getUninstallString($match) {
@@ -882,7 +882,7 @@ if (Test-Path "C:\Program Files (x86)\Kaspersky Lab") {
     Write-Host "Skipping: Kaspersky Security Cloud (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/trash/Kaspersky/Kaspersky-Setup.exe"
+    $source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/helpers/Kaspersky-Setup.exe"
     Write-Host "Installing: Kaspersky Security Cloud" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Kaspersky-Setup.exe"
     Install-Executable -PathExe $programPath
@@ -1051,8 +1051,8 @@ if (!(Test-Path "C:\Program Files (x86)\Steam\steamapps\common\wallpaper_engine\
 if (!(Test-Path "$env:USERPROFILE\Documents\SweetScape")) {
     Start-Process "D:\010 Editor\010Editor.exe" -Wait
 }
-Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/O%26O%20ShutUp/010Editor.vbs" -Destination "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\010Editor.vbs"
-$source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/outdated/Visual Studio/codely_purple.vsix"
+Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/helpers/010Editor.vbs" -Destination "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup\010Editor.vbs"
+$source = "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/helpers/codely_purple.vsix"
 $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "codely_purple.vsix"
 Install-Executable -PathExe $programPath
 Remove-Item -Path "D:\Mp3tag\data\actions" -Force -Recurse -ErrorAction SilentlyContinue
