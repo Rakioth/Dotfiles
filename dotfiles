@@ -1249,7 +1249,6 @@ New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer
 Write-Host "Cleaning Up Desktop" -ForegroundColor Cyan
 Get-ChildItem -Path "$env:USERPROFILE\Desktop" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path "$env:PUBLIC\Desktop" *.* -Recurse | Remove-Item -Force -Recurse -ErrorAction SilentlyContinue
-Uninstall-Module -Name "7Zip4Powershell" -Force
 
 # - Delete Temporary Files
 
