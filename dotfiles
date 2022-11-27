@@ -621,9 +621,9 @@ $bloatware = @(
 )
 
 ForEach ($bloat in $bloatware) {
-    Get-AppxPackage "*$Bloat*" | Remove-AppxPackage -ErrorAction SilentlyContinue > $null
-    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "*$Bloat*" | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue > $null
-    Write-Host "Removing $Bloat" -ForegroundColor Cyan
+    Get-AppxPackage "*$bloat*" | Remove-AppxPackage -ErrorAction SilentlyContinue > $null
+    Get-AppxProvisionedPackage -Online | Where-Object DisplayName -like "*$bloat*" | Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue > $null
+    Write-Host "Removing $bloat" -ForegroundColor Cyan
 }
 
 Write-Host "`n<Removing Bloatware Programs>" -ForegroundColor Yellow
@@ -632,7 +632,7 @@ $InstalledPrograms = Get-Package | Where-Object { $UninstallPrograms -contains $
 $InstalledPrograms | ForEach-Object {
     Write-Host -Object "Attempting to Uninstall: [$( $_.Name )]..." -ForegroundColor Yellow
     try {
-        $Null = $_ | Uninstall-Package -AllVersions -Force -ErrorAction SilentlyContinue
+        $_ | Uninstall-Package -AllVersions -Force -ErrorAction SilentlyContinue > $null
         Write-Host -Object "Successfully Uninstalled: [$( $_.Name )]" -ForegroundColor Cyan
     }
     catch {
