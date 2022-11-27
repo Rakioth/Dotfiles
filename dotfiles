@@ -82,14 +82,18 @@ function Install-Archive {
         [bool]$InnerDirectory = $false
     )
 
+    try { Resolve-Path $PathExtract -ErrorAction SilentlyContinue -ErrorVariable rpError > $null }
+    catch { }
+    if (!$rpError) { $PathExtract = (Resolve-Path $PathExtract).Path }
+
     if ($InnerDirectory) {
         $tempExtract = Join-Path -Path $env:TEMP -ChildPath $( (New-Guid).Guid )
         Expand-7Zip -ArchiveFileName $PathZip -TargetPath $tempExtract -Password $Password
-        Move-Item -Path "$tempExtract\*" -Destination (Resolve-Path $PathExtract).Path -Force
+        Move-Item -Path "$tempExtract\*" -Destination $PathExtract -Force
         Remove-Item -Path $tempExtract -Force -Recurse -ErrorAction SilentlyContinue
     }
     else {
-        Expand-7Zip -ArchiveFileName $PathZip -TargetPath (Resolve-Path $PathExtract).Path -Password $Password
+        Expand-7Zip -ArchiveFileName $PathZip -TargetPath $PathExtract -Password $Password
     }
     Remove-Item $PathZip -Force
 }
