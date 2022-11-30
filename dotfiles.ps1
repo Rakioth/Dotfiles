@@ -43,7 +43,7 @@ if ((Get-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform").S
     Enable-WindowsOptionalFeature -Online -FeatureName "VirtualMachinePlatform" -All -NoRestart > $null
 }
 if ((Get-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux").State -ne "Enabled") {
-    Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All -NoRestart > $null
+    Enable-WindowsOptionalFeature -Online -FeatureName "Microsoft-Windows-Subsystem-Linux" -All > $null
 }
 
 # - Functions
@@ -406,7 +406,7 @@ Write-Host "Hiding Chat Button..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "TaskbarMn" -Type DWord -Value 0
 
 Write-Host "Hiding Home Button..." -ForegroundColor Cyan
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "HubMode" -PropertyType DWord -Value 1 -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer" -Name "HubMode" -PropertyType DWord -Value 1 -Force -ErrorAction SilentlyContinue > $null
 Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Desktop\NameSpace_36354489\{f874310e-b6b7-47dc-bc84-b9e6b38f5903}" -Recurse -ErrorAction SilentlyContinue
 
 Write-Host "Hiding People Icon..." -ForegroundColor Cyan
@@ -415,8 +415,10 @@ if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanc
 }
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced\People" -Name "PeopleBand" -Type DWord -Value 0
 
-Write-Host "Hiding 3D Objects Icon from This PC..." -ForegroundColor Cyan
+Write-Host "Cleaning Up This PC..." -ForegroundColor Cyan
 Remove-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{0DB7E03F-FC29-4DC6-9020-FF41B59E513A}" -Recurse -ErrorAction SilentlyContinue
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{B4BFCC3A-DB2C-424C-B029-7FE99A87C641}" -Name "HideIfEnabled" -PropertyType DWord -Value 0x022ab9b9 -Force -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\MyComputer\NameSpace\{f86fa3ab-70d2-4fc7-9c99-fcbf05467f3a}" -Name "HideIfEnabled" -PropertyType DWord -Value 0x022ab9b9 -Force -ErrorAction SilentlyContinue > $null
 
 Write-Host "Changing Default Explorer View to This PC..." -ForegroundColor Cyan
 Set-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "LaunchTo" -Type DWord -Value 1
@@ -429,7 +431,7 @@ Set-ItemProperty -Path "HKU:\.DEFAULT\Control Panel\Keyboard" -Name "InitialKeyb
 
 Write-Host "Disabling Notifications and Action Center..." -ForegroundColor Cyan
 New-Item -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows" -Name "Explorer" -Force > $null
-New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableNotificationCenter" -PropertyType DWord -Value 1 -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -Name "DisableNotificationCenter" -PropertyType DWord -Value 1 -Force -ErrorAction SilentlyContinue > $null
 New-ItemProperty -Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\PushNotifications" -Name "ToastEnabled" -PropertyType DWord -Value 0 -Force -ErrorAction SilentlyContinue > $null
 
 if (!(Test-Path "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer")) {
@@ -1106,7 +1108,6 @@ $contextKeys = @(
 @{ location = "HKCR:\Directory\shell\git_gui"; type = "-legacy" }
 @{ location = "HKCR:\Directory\shell\git_shell"; type = "-legacy" }
 @{ location = "HKCR:\Drive\shell\pintohome"; type = "-legacy" }
-@{ location = "HKCR:\Folder\shell\opennewtab"; type = "-legacy" }
 @{ location = "HKCR:\Folder\shell\pintohome"; type = "-legacy" }
 @{ location = "HKCR:\``*\shell\pintohomefile"; type = "-legacy" }
 @{ location = "HKCR:\Directory\shellex\ContextMenuHandlers\EPP" }
@@ -1124,7 +1125,7 @@ if (!(Test-Path "HKCR:")) {
 ForEach ($key in $contextKeys) {
     if (Test-Path $key.location) {
         if ($key.type -eq "-legacy") {
-            New-ItemProperty -Path $key.location -Name "LegacyDisable" -PropertyType String -ErrorAction SilentlyContinue > $null
+            New-ItemProperty -Path $key.location -Name "LegacyDisable" -PropertyType String -Force -ErrorAction SilentlyContinue > $null
         }
         else {
             $value = Get-ItemPropertyValue -Path $key.location -Name "(Default)"
@@ -1137,14 +1138,14 @@ Get-AppxPackage "*Mp3tag.ShellExtension*" | Remove-AppxPackage -AllUsers -ErrorA
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" > $null
 }
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{f81e9010-6ea4-11ce-a7ff-00aa003ca9f6}" -PropertyType String -ErrorAction SilentlyContinue > $null
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{596AB062-B4D2-4215-9F74-E9109B0A8153}" -PropertyType String -ErrorAction SilentlyContinue > $null
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{1d27f844-3a1f-4410-85ac-14651078412d}" -PropertyType String -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{f81e9010-6ea4-11ce-a7ff-00aa003ca9f6}" -PropertyType String -Force -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{596AB062-B4D2-4215-9F74-E9109B0A8153}" -PropertyType String -Force -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Shell Extensions\Blocked" -Name "{1d27f844-3a1f-4410-85ac-14651078412d}" -PropertyType String -Force -ErrorAction SilentlyContinue > $null
 
 & $env:TEMP\PowerRun\PowerRun.exe /SW:0 Powershell.exe -command {
     New-PSDrive -Name HKCR -PSProvider Registry -Root HKEY_CLASSES_ROOT
-    New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Display" -Name "LegacyDisable" -PropertyType String -ErrorAction SilentlyContinue > $null
-    New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Personalize" -Name "LegacyDisable" -PropertyType String -ErrorAction SilentlyContinue > $null
+    New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Display" -Name "LegacyDisable" -PropertyType String -Force -ErrorAction SilentlyContinue > $null
+    New-ItemProperty -Path "HKCR:\DesktopBackground\Shell\Personalize" -Name "LegacyDisable" -PropertyType String -Force -ErrorAction SilentlyContinue > $null
 }
 
 # - NerdFonts
@@ -1247,11 +1248,11 @@ if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell 
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" > $null
 }
 Start-BitsTransfer -Source "https://raw.githubusercontent.com/Rakioth/Dotfiles/main/helpers/blank.ico" -Destination "C:\Windows\blank.ico"
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" -Name "29" -PropertyType String -Value "C:\Windows\blank.ico" -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons" -Name "29" -PropertyType String -Value "C:\Windows\blank.ico" -Force -ErrorAction SilentlyContinue > $null
 if (!(Test-Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates")) {
     New-Item -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates" > $null
 }
-New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates" -Name "ShortcutNameTemplate" -PropertyType String -Value "`"%s.lnk`"" -ErrorAction SilentlyContinue > $null
+New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\NamingTemplates" -Name "ShortcutNameTemplate" -PropertyType String -Value "`"%s.lnk`"" -Force -ErrorAction SilentlyContinue > $null
 
 # - Desktop CleanUp
 

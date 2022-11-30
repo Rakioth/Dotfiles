@@ -15,7 +15,6 @@
     * **Time & Language** > **Language & Region** > **Options**
         * Remove Unwanted Keyboard Layouts
     * **Time & Language** > **Typing** > **Advanced Keyboard Settings**
-        * _Check_ &nbsp;➤&nbsp; "Use the Desktop Language Bar when it's Available"
         * _Click_ &nbsp;➤&nbsp; "Language Bar Options" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Hidden"
         * _Click_ &nbsp;➤&nbsp; "Input Language Hot Keys" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Change Key Sequence to (
           None)"
