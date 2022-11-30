@@ -31,6 +31,7 @@ irm raw.githubusercontent.com/Rakioth/Dotfiles/main/dotfiles | iex
 
 Apply Themes
 
+* AccentColorizer &nbsp;➤&nbsp; **Color Violet Red Light** > **Apply**
 * ANTP &nbsp;➤&nbsp; **Configure** > **Import/Export** > **Import Tile String**
 * Aseprite &nbsp;➤&nbsp; **Edit** > **Preferences** > **Theme**
 * Blender &nbsp;➤&nbsp; **File** > **User Preferences** > **Themes**

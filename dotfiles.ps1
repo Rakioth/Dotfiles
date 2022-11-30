@@ -570,7 +570,6 @@ $bloatware = @(
 "XboxApp"
 "ConnectivityStore"
 "CommsPhone"
-"ScreenSketch"
 "TCUI"
 "XboxGameOverlay"
 "XboxGameCallableUI"
@@ -1081,7 +1080,6 @@ $programData = @(
 @{ asset = "PowerShell"; location = "$env:USERPROFILE\Documents" }
 @{ asset = "PowerToys"; location = "$env:USERPROFILE\Documents" }
 @{ asset = "qBittorrent"; location = "D:\qBittorrent" }
-@{ asset = "Steam"; location = "C:\Program Files (x86)\Steam" }
 @{ asset = "SweetScape"; location = "$env:USERPROFILE\Documents\SweetScape" }
 @{ asset = "Terminal"; location = "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState" }
 @{ asset = "Visual Studio Code"; location = "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes" }
