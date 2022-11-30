@@ -825,6 +825,7 @@ else {
     Write-Host "Select <Local Machine> and Place Certificate in <Trusted People>" -ForegroundColor Yellow
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "ArchWSL-AppX*.cer"
     Install-Executable -PathExe $programPath
+    wsl --update > $null
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "ArchWSL-AppX*.appx"
     Add-AppxPackage $programPath
     Remove-Item $programPath -Force
