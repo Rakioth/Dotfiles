@@ -875,7 +875,7 @@ if (Test-Path "C:\Program Files\Microsoft Office") {
     Write-Host "Skipping: Microsoft Office (Already Installed)" -ForegroundColor Yellow
 }
 else {
-    $source = "https://fm.solewe.com/vfm-admin/vfm-downloader.php?q=0&sh=23e1618a62c446c40c3105299d558536&share=c7e346e355e6ae2005451c124ea8d564"
+    $source = "https://fm.solewe.com/vfm-admin/vfm-downloader.php?q=0&sh=f0999a784903586e59bb299eb353dbcd&share=0c08b325fc12953ad9de4857b7fd1ed4"
     Write-Host "Installing: Microsoft Office" -ForegroundColor Cyan
     $programPath = Download-Program -ProgramSource "Web" -Link $source -FilePattern "Office-Setup.zip"
     Install-Archive -PathZip $programPath -PathExtract "$env:USERPROFILE\Desktop\Office" -Password "appnee.com"
