@@ -557,6 +557,7 @@ $bloatware = @(
 "OneConnect"
 "People"
 "Print3D"
+"PowerAutomate"
 "RemoteDesktop"
 "SkypeApp"
 "Todos"
@@ -576,7 +577,6 @@ $bloatware = @(
 "XboxGameCallableUI"
 "XboxSpeechToTextOverlay"
 "MixedReality.Portal"
-"ZuneMusic"
 "ZuneVideo"
 "YourPhone"
 "Getstarted"
@@ -757,7 +757,6 @@ $apps = @(
 @{ id = "GOG.Galaxy"; options = ""; type = "-dt" }
 @{ id = "Git.Git"; options = ""; type = "-both" }
 @{ id = "GitHub.GitHubDesktop"; options = ""; type = "-both" }
-@{ id = "Google.AndroidStudio"; options = ""; type = "-both" }
 @{ id = "Google.Chrome"; options = ""; type = "-both" }
 @{ id = "JanDeDobbeleer.OhMyPosh"; options = ""; type = "-both" }
 @{ id = "JetBrains.IntelliJIDEA.Ultimate"; options = ""; type = "-both" }
@@ -865,8 +864,9 @@ if (Test-Path "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything") 
 else {
     $source = "lin-ycv/EverythingPowerToys"
     Write-Host "Installing: EverythingPowerToys" -ForegroundColor Cyan
+    New-Item -ItemType Directory -Path "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything"
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*-x64.zip"
-    Install-Archive -PathZip $programPath -PathExtract "C:\Program Files\PowerToys\modules\launcher\Plugins"
+    Install-Archive -PathZip $programPath -PathExtract "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything"
     Check-Install -AppID "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything"
 }
 
@@ -1048,9 +1048,6 @@ Write-Host "<Login to Generate AppData>" -ForegroundColor Yellow
 if (!(Test-Path "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib")) {
     Start-Process "C:\Program Files (x86)\JetBrains\IntelliJ IDEA*\bin\idea64.exe" -Wait
 }
-if (!(Test-Path "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib")) {
-    Start-Process "C:\Program Files\Android\Android Studio\bin\studio64.exe" -Wait
-}
 if (!(Test-Path "$env:USERPROFILE\.vscode\extensions\codely.codely-theme*\themes")) {
     Start-Process "$env:LOCALAPPDATA\Programs\Microsoft VS Code\Code.exe" -Wait
 }
@@ -1073,8 +1070,7 @@ $programData = @(
 @{ asset = "Custom Context Menu"; location = "$env:LOCALAPPDATA\Packages\*CustomContextMenu*\LocalState\custom_commands" }
 @{ asset = "Deemix"; location = "$env:APPDATA\deemix" }
 @{ asset = "Dotfiles"; location = "D:" }
-@{ asset = "JetBrains"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib" }
-@{ asset = "JetBrains"; location = "$env:APPDATA\Google\AndroidStudio*\plugins\codelytv-theme\lib" }
+@{ asset = "IntelliJ"; location = "$env:APPDATA\JetBrains\IntelliJIdea*\plugins\codelytv-theme\lib" }
 @{ asset = "Mp3tag"; location = "D:\Mp3tag\data" }
 @{ asset = "Paint.NET"; location = "D:\Paint.NET" }
 @{ asset = "Photoshop"; location = "D:\Adobe\Adobe Photoshop*\Required" }
