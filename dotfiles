@@ -598,6 +598,8 @@ $bloatware = @(
 "Viber"
 "ACGMediaPlayer"
 "Netflix"
+"Disney"
+"SpotifyAB"
 "OneCalendar"
 "LinkedInforWindows"
 "HiddenCityMysteryofShadows"
@@ -864,7 +866,6 @@ if (Test-Path "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything") 
 else {
     $source = "lin-ycv/EverythingPowerToys"
     Write-Host "Installing: EverythingPowerToys" -ForegroundColor Cyan
-    New-Item -ItemType Directory -Path "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything"
     $programPath = Download-Program -ProgramSource "Repo" -Link $source -FilePattern "*-x64.zip"
     Install-Archive -PathZip $programPath -PathExtract "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything"
     Check-Install -AppID "C:\Program Files\PowerToys\modules\launcher\Plugins\Everything"
