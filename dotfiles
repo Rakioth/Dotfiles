@@ -1182,6 +1182,7 @@ $startMenu = @(
 @{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\Acrobat.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat DC" }
 @{ sourcePath = "D:\Adobe\Acrobat DC\Acrobat\acrodist.exe"; shortcutPath = "$( $startCommon )Adobe Acrobat Distiller DC" }
 @{ sourcePath = "D:\Adobe\Adobe Illustrator*\Support Files\Contents\Windows\Illustrator.exe"; shortcutPath = "$( $startCommon )Adobe Illustrator" }
+@{ sourcePath = "D:\Adobe\Adobe InDesign*\InDesign.exe"; shortcutPath = "$( $startCommon )Adobe InDesign" }
 @{ sourcePath = "D:\Adobe\Adobe Photoshop*\Photoshop.exe"; shortcutPath = "$( $startCommon )Adobe Photoshop" }
 @{ sourcePath = "D:\Adobe\Adobe Substance 3D Designer\Adobe Substance 3D Designer.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Designer" }
 @{ sourcePath = "D:\Adobe\Adobe Substance 3D Painter\Adobe Substance 3D Painter.exe"; shortcutPath = "$( $startCommon )Adobe Substance 3D Painter" }
