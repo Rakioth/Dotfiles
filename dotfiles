@@ -774,6 +774,7 @@ $apps = @(
 @{ id = "Neovim.Neovim"; options = ""; type = "-both" }
 @{ id = "OpenJS.NodeJS"; options = ""; type = "-both" }
 @{ id = "Oracle.VirtualBox"; options = "-l D:\VirtualBox"; type = "-both" }
+@{ id = "Postman.Postman"; options = ""; type = "-both" }
 @{ id = "Python.Python.3.10"; options = ""; type = "-both" }
 @{ id = "SweetScape.010Editor"; options = "-l D:\010 Editor"; type = "-both" }
 @{ id = "Ubisoft.Connect"; options = ""; type = "-both" }
@@ -1211,6 +1212,7 @@ $startMenu = @(
 @{ sourcePath = "D:\NVCleanstall\NVCleanstall.exe"; shortcutPath = "$( $startCommon )NVCleanstall" }
 @{ sourcePath = "D:\VirtualBox\VirtualBox.exe"; shortcutPath = "$( $startCommon )Oracle VM VirtualBox" }
 @{ sourcePath = "D:\Paint.NET\paintdotnet.exe"; shortcutPath = "$( $startCommon )Paint.NET" }
+@{ sourcePath = "$env:LOCALAPPDATA\Postman\Postman.exe"; shortcutPath = "$( $startUser )Postman" }
 @{ sourcePath = "C:\Program Files\Microsoft Office\root\Office16\POWERPNT.EXE"; shortcutPath = "$( $startCommon )PowerPoint" }
 @{ sourcePath = "D:\qBittorrent\qbittorrent.exe"; shortcutPath = "$( $startCommon )qBittorrent" }
 @{ sourcePath = "C:\Program Files\Rockstar Games\Launcher\LauncherPatcher.exe"; shortcutPath = "$( $startUser )Rockstar Games Launcher" }
