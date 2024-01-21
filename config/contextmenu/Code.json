@@ -1,0 +1,14 @@
+{
+    "title": "Code",
+    "exe": "%LOCALAPPDATA%\\Programs\\Microsoft VS Code\\Code.exe",
+    "param": "\"{path}\"",
+    "icon": "\"C:\\Users\\raks\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe\",0",
+    "index": 2,
+    "acceptDirectory": true,
+    "acceptExts": "",
+    "acceptFileFlag": 0,
+    "acceptFileRegex": "",
+    "acceptMultipleFilesFlag": 0,
+    "pathDelimiter": "",
+    "paramForMultipleFiles": ""
+}

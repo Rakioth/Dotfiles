@@ -1,0 +1,17 @@
+user: dark_magenta
+group: magenta
+permission:
+    read: 75
+    write: 69
+    exec: 63
+    no-access: 57
+date:
+    hour-old: 155
+    day-old: 119
+    older: yellow
+size:
+    none: green
+    small: 142
+    medium: 136
+    large: 130
+tree-edge: cyan

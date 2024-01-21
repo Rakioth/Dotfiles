@@ -1,0 +1,137 @@
+"$schema" = "https://starship.rs/config-schema.json"
+format = """
+$username\
+$directory\
+$git_branch\
+$git_commit\
+$git_status\
+$fill\
+$package\
+$bun\
+$gradle\
+$nodejs\
+$dotnet\
+$golang\
+$java\
+$kotlin\
+$lua\
+$python\
+$rust\
+$swift\
+$line_break\
+$character"""
+palette = "raks"
+add_newline = false
+
+[username]
+format = "[@$user]($style) in "
+style_root = "atomic_purple"
+style_user = "atomic_purple"
+show_always = true
+
+[directory]
+format = "[$path]($style) "
+style = "atomic_violet"
+
+[directory.substitutions]
+"C:" = "Local"
+"D:" = "Data"
+
+[git_branch]
+format = "on [$symbol$branch]($style) "
+symbol = "🪵 "
+style = "git_branch"
+
+[git_commit]
+format = "on [$tag]($style) "
+style = "git_tag"
+tag_symbol = "🔖 "
+tag_disabled = false
+
+[git_status]
+style = "atomic_purple"
+
+[character]
+success_symbol = "[❯](bold yellow)"
+
+[fill]
+symbol = " "
+
+[package]
+format = "[$symbol($version )]($style)"
+symbol = "📦 "
+style = "package"
+display_private = true
+
+[bun]
+format = "[$symbol($version )]($style)"
+symbol = "🍞 "
+style = "package_bun"
+
+[gradle]
+format = "[$symbol($version )]($style)"
+symbol = "🐘 "
+style = "package_gradle"
+
+[nodejs]
+format = "[$symbol($version )]($style)"
+symbol = "🍀 "
+style = "package_node"
+
+[dotnet]
+format = "[$symbol($version )]($style)"
+symbol = "🎯 "
+style = "lang_dotnet"
+
+[golang]
+format = "[$symbol($version )]($style)"
+symbol = "🐹 "
+style = "lang_golang"
+
+[java]
+format = "[$symbol($version )]($style)"
+symbol = "☕ "
+style = "lang_java"
+
+[kotlin]
+format = "[$symbol($version )]($style)"
+symbol = "🫧 "
+style = "lang_kotlin"
+
+[lua]
+format = "[$symbol($version )]($style)"
+symbol = "🌙 "
+style = "lang_lua"
+
+[python]
+format = "[$symbol($version )]($style)"
+symbol = "🐍 "
+style = "lang_python"
+
+[rust]
+format = "[$symbol($version )]($style)"
+symbol = "🦀 "
+style = "lang_rust"
+
+[swift]
+format = "[$symbol($version )]($style)"
+symbol = "🐦 "
+style = "lang_swift"
+
+[palettes.raks]
+atomic_purple = "#ce3ed6"
+atomic_violet = "#c698f2"
+git_branch = "#d69956"
+git_tag = "#da2d2b"
+package = "#e0b56e"
+package_bun = "#e0c393"
+package_gradle = "#bababa"
+package_node = "#02b95e"
+lang_dotnet = "#3f91dc"
+lang_golang = "#d69956"
+lang_java = "#7d4533"
+lang_kotlin = "#c599da"
+lang_lua = "#ddbb39"
+lang_python = "#02b95e"
+lang_rust = "#da2d2b"
+lang_swift = "#b20c42"

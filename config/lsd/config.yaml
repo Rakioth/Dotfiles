@@ -1,0 +1,5 @@
+color:
+    when: auto
+    theme: custom
+date: '+%b %d %H:%M'
+symlink-arrow: 󰁕

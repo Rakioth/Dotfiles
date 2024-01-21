@@ -1,0 +1,14 @@
+{
+    "title": "IntelliJ",
+    "exe": "%PROGRAMFILES(x86)%\\JetBrains\\IntelliJ IDEA 2023.3.2\\bin\\idea64.exe",
+    "param": "\"{path}\"",
+    "icon": "\"C:\\Program Files (x86)\\JetBrains\\IntelliJ IDEA 2023.3.2\\bin\\idea64.exe\",0",
+    "index": 1,
+    "acceptDirectory": true,
+    "acceptExts": "",
+    "acceptFileFlag": 0,
+    "acceptFileRegex": "",
+    "acceptMultipleFilesFlag": 0,
+    "pathDelimiter": "",
+    "paramForMultipleFiles": ""
+}

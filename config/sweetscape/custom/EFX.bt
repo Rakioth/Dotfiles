@@ -1,0 +1,576 @@
+// ------------------------------------------------
+// --- 010 Editor v8.0.1
+//
+//      File: 
+//   Authors: 叶子, 尾巴, canni, 冰块冰块冰Ice, MHW Modding Wiki, Crimson, Asterisk, Dave uRrr
+//   Version: 3.1
+//   Purpose
+//  Category: 
+// File Mask: *efx
+//  ID Bytes: 
+//   History: 
+//              1.0     initial template
+//                      structure tidy up
+//                      more efx type hash marked
+//                      research and generalisation from DMQW Group
+//
+//              1.1     add new type EFX_Behavior (FAKEPLANE)
+//                      added notes about 20 bytes (type Post_Basic) before type Transform3D
+//                      more parameter type found on EFX_Behavior
+//
+//              1.2     naming correction for Spawn (bone id that mapped to need to be marked)
+//                      few counting parameter found for Keyframe_Anim, as least the structure is now filled up
+//                      updated & added structure accroding to wiki
+//                          structre of BILLBOARD3D
+//                          added PLEMISSIVE structure
+//                      
+//              1.3     Removed the Post_Basic structure before the Transform3D
+//                          as there is too many varies and hard to tell if there exists one
+//                      Remove Dummy as it is one of the Post_Basic struct
+//                      DDS_Useage ( = CM_Useage) -> marked brightness, scale, height/width, color
+//                      Transform2D -> Flowmap, marked brightness, scale, height/width, color
+//                      Billboard2D -> RgbWater, marked brightness, scale, height/width, color
+//                      Added Turbulence
+//                      Added EmitterBoundary and Unkn_12 struct, usually occur before Turbulence
+//                      RandomFix -> Material, extended and structured, looks like mrl3
+//                      
+//              1.4     Added Guideing Effect
+//                      SHADERSETTINGS -Moved before-> BILLBOARD3D
+//                      
+//                      
+//                      ***Note***
+//                      GOTO template variable may not work properly as the order of #EFX TYPE is not fully correct
+//                      naming on #HASH EFX may not full correct
+//                      overlapping on Keyframe_Anim -> Unknown Parameter 2 -> if the last Frame_Para's type is [93 2F D5 2B] 
+//                      Unknow left over at end of efx file, with no header, seems like bunch of ints
+//                      
+//                      when controlling mod3 behavior, KEYFRAME_ANIM need to shift ONE block below (while there is mod3, 
+//                      won't necessary having a keyframe)
+//
+//              2.0     Iceborne Fix
+//                      Keyframe_Anim -Rename-> TIML
+//                      Global_Control -Reestimate-> Prefix & Internal / External Efx useage (I/E Function Tested by Canni)
+//                      Mod3 Path: No longer have a length indicator, instead, having fixed two entry
+//                                  -> Mod3 Path 1 & Mod3 Path 2 -> identified by end of string [00]
+//                      Material & relating attri path: Not fixed yet
+//                      Header: unkn2[4] function mostly discovered
+//                                  EFX_type (Count) = EFX_Count + IE_Count + UNKN_Count + NULL_Efx
+//                                  Null Entry in EFX_type [00] = NULL_Efx
+//                      ~           F_Lenth: Block Length relating to End of EFX (by Canni)
+//                      ~ TIML:   Always have a prefix (5*4)
+//                      Internal / External Efx useage (counted with IE_Count):
+//                           External must have a prefix (5*4)
+//                           Internal could have an External as a prefix or a prefix (2*4)
+//
+//              2.1     Restructured on External/Internal code when blocking
+//
+//              2.2     Introduced a section after External/Internal, temporary named as Unknown Prefix
+//                      There is 17 types of discovered prefix header, two of them only have one instance
+//                      THEY ARE NOT SORTED and only filled with LONG ARRAY
+//                      
+//              2.2.1   Marked EFX/EPV Color Slot for DDS/MOD3/PLEMISSIVE/EFX Behavior according to Crimson
+//
+//              3.0     Fixing a length for Unknown Prefix type 12 (DA A5 DE 10)
+//                      Introduce the true header of EFX main part
+//                      A unique type of main part, header = [9A A9 39 49]
+//                          Discovered Three Types of Block, see detail in the template Single_Prefix
+//                              One of the Main Body Attribute (Layout [77 99 54 09]) 
+//                              having the same structure to Type 3 Block [F6 F4 37 7A]
+//                      Merged TIML template by Dave uRrr, mapped TIML Foot value marked by 叶子
+//                      Fixed Main Body Attribute:
+//                          Material [6B B9 E2 62]
+//                          ShaderSettings [5A F8 E9 75]
+//                          Turbulence [B2 04 E0 37]
+//
+//                      Added path deceleration to few attribute
+//                      Fix some type error when serializing
+//                       
+//                      Adding new attributes to complete the padding
+//                      Discovered 45 new attribute and structure
+//
+//                      Discovered where the NULL efx entry count points to (second last structure of the efx)
+//                      Marked the EFX Actual which is relating to the ints at the end of EFX file
+//
+//                      Restructure the EFX template, it reads the EFX sequentially instead to find key header
+//                      Main attribute are repainted in occur order (See order at and of this template)
+//                          * Note * The order is not exact as some of attribute not strictly guide the order and 
+//                            forming a loop when sorting at all efxs
+//                              [ShaderSettings,EmitterShape3D,Material,RotateAnim,Noise,Unkn_35,ScaleAnim,EmitterBoundary]
+//                      Tested on all 8858 EFXs (with script ported python, in which the template also should do)
+//
+//              3.1     Added CRC string check for prefix headers (Thanks to Asterisk pointing out JAMCRC)
+//
+//                      *** Note ***                      
+//                      One of the prefix clearly relating to the EFX Behavior attribute, by induction, the rest of 
+//                      the header may share the similar function with other attribute
+//                      Some Main attribute has only few occur times on all files
+//
+//              3.2     Added in Crimson, Silvris and Asterisk's Research regarding: Unknown_21 now EmissiveRim, Unknown_30 now AlbedoBlend
+//                      and Unknown03 now TrailPhysics;
+//                      filled in attributes for Spin_Control, Materials, EmissiveRim, AlbedoBlend, BasicTransform, LimitTransform,
+//                      MomentumControl, ColorPropControl, Mod3Properties, PlEmissive, TrailPhysics, Unknown04.
+//
+//              3.3     Labelling properties, specifically in Flowmap, Dds_Usage, and UNKN_06 now renamed to Material_Animation
+//
+//              3.4     Renamed UNKN_12 to Parenting, renamed UNKN_17 to Lightning, Renamed UNKN_35 to StrainRibbon and labelled properties.
+//
+//              3.5     Renamed structures to guide the exe naming conventions found by SilvFris. Renamed externs to guide attribute conventions.
+//
+//              3.6     Split the template into multiple files to help with editing and automated conversion to other formats
+// ------------------------------------------------
+#include <Libs/EFX_Extern.bt>
+#include <Libs/EFX_Play.bt>
+#include <Libs/EFX_Root.bt>
+#include <Libs/EFX_Hashes.bt>
+#include <Libs/EFX_TIML.bt>
+
+
+// #HEADER STRUCT
+typedef struct {
+    long    EFX<name="EFX">;
+    long    VERSION<name="VERSION">;
+    long    CONST0[5]<name="CONSTANT">;
+    long    EFXR<name="EFXR">;
+    int     unkn0;
+    int     unkn1;
+    int     EFX_Count<name="NON-NULL EFX Type Entry Count">;
+    int     EFX_type_len<name="EFX Type Entry Length">;
+    int     IE_Count<name="Play Emitter/Player EFX Count">;
+    int     UNKN_Count<name="Extern Count">;
+    int     NULL_Count<name="Subselect Count">;
+    int     NULL_Length_Double<name="Subselect Table Length">;
+    int     End_Count<name="EOF Count">;
+    int     FileSize_Double;
+} Header;
+
+typedef struct {
+    local int i;
+    local int64 en = FTell()+header.EFX_type_len;
+    local TFindResults s = FindAll((ubyte)0,true,false,0,0.0,1,FTell(),en);
+    for(i=0;i<s.count && FTell()<en;i++){
+        STRING efx_T<name=" ",read=ReadSTR>;
+    };
+} EFX_Type;
+
+// LAYOUT see after single prefix
+
+
+//typedef struct {
+//    long    type<name="Type",format=hex,bgcolor=0x000000>;
+//    int     unkn0[2];
+//    long    unkn1;
+//    float   unkn2[2];
+//    int     unkn3[2];
+//    int     unkn4[2];
+//    int     unkn5[2];
+//    int     unkn6[2];
+//    int     unkn7[2];
+//    int     unkn8[2];
+//    int     unkn9[2];
+//} Dummy;
+
+string ReadTIML_Data(TIML_Data& r) {
+    string s;
+    SPrintf(s, "offSet: %d \t Count: %d \t [%d %d %f %f %d %x]", 
+        r.offSet, r.unkn0, r.unkn1, r.unkn2, r.animationLength, r.loopStartPoint, r.loopControl, r.unknHash);
+    return s;
+}
+
+typedef struct (int count){
+    local int j;
+    for(j=0;j<count && j <100;j++)
+        //Printf("%d\n",j);
+        if      (ReadInt() == EXTERNREFERENCE             )
+            ExternReference             externreference             <bgcolor=0x1800ff>;
+        else if (ReadInt() == FADEBYEMITTERANGLE             )
+            FadeByEmitterAngle             fadebyemitterangle             <bgcolor=0xff2400>;
+        else if (ReadInt() == FAKEPLANE             )
+            FakePlane             fakeplane             <bgcolor=0xff2400>;
+        else if (ReadInt() == RIBBON       )
+            Ribbon       ribbon       <bgcolor=0xffe400>;
+        else if (ReadInt() == NOISE             )
+            Noise  noise             <bgcolor=0x00d8ff>;
+        else if (ReadInt() == DUMMY             )
+            Dummy             dummy             <bgcolor=0xff5a00>;
+        else if (ReadInt() == UVCONTROL   )
+            UVControl   uvcontrol <bgcolor=0xe4ff00>;
+        else if (ReadInt() == FADEBYANGLE             )
+            FadeByAngle             fadebyangle             <bgcolor=0xff003c>;
+        else if (ReadInt() == RANDOMFIX             )
+            RandomFix             randomfix             <bgcolor=0x4800ff>;
+        else if (ReadInt() == TRANSFORM2D             )
+            Transform2D             transform2d             <bgcolor=0x7800ff>;
+        else if (ReadInt() == BILLBOARD2D             )
+            Billboard2D             billboard2d             <bgcolor=0xff2400>;
+        else if (ReadInt() == EMITTERBOUNDARY             )
+            EmitterBoundary             emitterboundary             <bgcolor=0x00ff06>;
+        else if (ReadInt() == PTLIFE        )
+            PtLife  ptlife<bgcolor=0x00ff06>;
+        else if (ReadInt() == BLINK             )
+            Blink             blink             <bgcolor=0x00d8ff>;
+        else if (ReadInt() == LUMINANCEBLEED             )
+            LuminanceBleed             luminancebleed             <bgcolor=0x0078ff>;
+        else if (ReadInt() == EMITTERSHAPE2D             )
+            EmitterShape2D             emittershape2d             <bgcolor=0xff003c>;
+        else if (ReadInt() == VELOCITY2D             )
+            Velocity2D             velocity2d             <bgcolor=0xff0006>;
+        else if (ReadInt() == LIGHTNING           )
+            Lightning          lightning            <bgcolor=0xffba00>;
+        else if (ReadInt() == REFRACTION          )
+            Refraction         refraction           <bgcolor=0x24ff00>;
+        else if (ReadInt() == MASTERONLY             )
+            MasterOnly             masteronly             <bgcolor=0x0018ff>;
+        else if (ReadInt() == RAYCAST      )
+            RayCast      raycast    <bgcolor=0xd800ff>;
+        else if (ReadInt() == PARENTEMISSIVE        )
+            ParentEmissive        parentemissive        <bgcolor=0x00a8ff>;
+        else if (ReadInt() == TUBELIGHT             )
+            TubeLight             tubelight             <bgcolor=0x5aff00>;
+        else if (ReadInt() == SCREENSPACECOLLISION           )
+            ScreenSpaceCollision           screenspacecollision           <bgcolor=0x00fff6>;
+        else if (ReadInt() == PTCOLLISION       )
+            PtCollision    ptcollision    <bgcolor=0x00fff6>;
+        else if (ReadInt() == SHOVEL             )
+            Shovel             shovel             <bgcolor=0x00d8ff>;
+        else if (ReadInt() == LAYOUT             )
+            Layout             layout             <bgcolor=0x00a8ff>;
+        else if (ReadInt() == FAKEDOF             )
+            FakeDoF             fakedof             <bgcolor=0x0078ff>;
+        else if (ReadInt() == REPEATAREA             )
+            RepeatArea             repeatarea             <bgcolor=0xffba00>;
+        else if (ReadInt() == LINKPARTSVISIBLE             )
+            LinkPartsVisible             linkpartsvisible             <bgcolor=0xff00f6>;
+        else if (ReadInt() == PLSNOW        )
+            PlSnow        plsnow        <bgcolor=0xff8400>;
+        else if (ReadInt() == PTTRIGGER             )
+            PtTrigger             pttrigger             <bgcolor=0x00d8ff>;
+        else if (ReadInt() == PATHCHAIN             )
+            PathChain             pathchain             <bgcolor=0x00a8ff>;
+        else if (ReadInt() == HOMING             )
+            Homing homing <bgcolor=0x00a8ff>;
+        else if (ReadInt() == EMITTERSHAPEMESH             )
+            EmitterShapeMesh             emittershapemesh             <bgcolor=0xff5a00>;
+        else if (ReadInt() == STRAINRIBBON       )
+            StrainRibbon       strainribbon  <bgcolor=0x24ff00>;
+        else if (ReadInt() == SPAWNBYANGLE             )
+            SpawnByAngle             spawnbyangle             <bgcolor=0xff0096>;
+        else if (ReadInt() == CHECKPUREATTRIBUTE             )
+            CheckPureAttribute             checkpureattribute             <bgcolor=0x00ff66>;
+        else if (ReadInt() == TONEMAPFILTER             )
+            TonemapFilter             tonemapfilter             <bgcolor=0x1800ff>;
+        else if (ReadInt() == COLORCORRECTFILTER             )
+            ColorCorrectFilter             colorcorrectfilter             <bgcolor=0x0018ff>;
+        else if (ReadInt() == SPAWNBYOCCLUSION             )
+            SpawnByOcclusion             spawnbyocclusion             <bgcolor=0xff0096>;
+        else if (ReadInt() == FADEBYOCCLUSION             )
+            FadeByOcclusion             fadebyocclusion             <bgcolor=0xff2400>;
+        else if (ReadInt() == PARENTSNOW             )
+            ParentSnow             parentsnow             <bgcolor=0xff8400>;
+        else if (ReadInt() == OTOMOSNOW             )
+            OtomoSnow             otomosnow             <bgcolor=0x1800ff>;
+        else if (ReadInt() == PARENTMATERIAL             )
+            ParentMaterial             parentmaterial             <bgcolor=0x1800ff>;
+        else if (ReadInt() == TRANSFORM3D     )
+            Transform3D     transform3d     <bgcolor=0x7800ff>;
+        else if (ReadInt() == PARENTOPTIONS     )
+            ParentOptions     parentoptions     <bgcolor=0xa800ff>;
+        else if (ReadInt() == SPAWN   )
+            Spawn   spawn   <bgcolor=0xff00c6>;
+        else if (ReadInt() == LIFE          )
+            Life          life          <bgcolor=0xff0066>;
+        else if (ReadInt() == EMITTERSHAPE3D      )
+            EmitterShape3D      emittershape3d      <bgcolor=0xff8400>;
+        else if (ReadInt() == VELOCITY3D    )
+            Velocity3D    velocity3d    <bgcolor=0xff8400>;
+        else if (ReadInt() == FADEBYDEPTH        )
+            FadeByDepth        fadebydepth        <bgcolor=0xff0006>;
+        else if (ReadInt() == RIBBONBLADE      )
+            RibbonBlade      ribbonblade      <bgcolor=0xffba00>;
+        else if (ReadInt() == BILLBOARD3D          )
+            Billboard3D          billboard3d          <bgcolor=0xffe400>;
+        else if (ReadInt() == SCALEANIM           )
+            ScaleAnim           scaleanim           <bgcolor=0x84ff00>;
+        else if (ReadInt() == UVSEQUENCE          )
+            UVSequence          uvsequence          <bgcolor=0x84ff00>;
+        else if (ReadInt() == ALPHACORRECTION )
+            AlphaCorrection alphacorrection <bgcolor=0x5aff00>;
+        else if (ReadInt() == SHADERSETTINGS    )
+            ShaderSettings    shadersettings    <bgcolor=0xf4ce7e>;
+        else if (ReadInt() == RGBFIRE  )
+            RgbFire  rgbfire  <bgcolor=0x00ff66>;
+        else if (ReadInt() == MESH         )
+            Mesh         mesh         <bgcolor=0xbaff00>;
+        else if (ReadInt() == ROTATEANIM   )
+            RotateAnim   rotateanim   <bgcolor=0x84ff00>;
+        else if (ReadInt() == PLEMISSIVE               )
+            PlEmissive               plemissive               <bgcolor=0xffba00>;
+        else if (ReadInt() == GUIDE              )
+            Guide              guide              <bgcolor=0x0018ff>;
+        else if (ReadInt() == PTBEHAVIOR       )
+            PtBehavior       ptbehavior       <bgcolor=0x00ff3c>;
+        else if (ReadInt() == MATERIAL             )
+            Material             material             <bgcolor=0x00fff6>;
+        else if (ReadInt() == PLANE      )
+            Plane       plane     <bgcolor=0xffe400>;
+        else if (ReadInt() == RGBWATER             )
+            RgbWater             rgbwater             <bgcolor=0x00ff96>;
+        else if (ReadInt() == TURBULENCE              )
+            Turbulence              turbulence              <bgcolor=0x00ffc6>;
+        else
+            Printf("%d Not Found!\n", FTell());
+} Main_Body;
+
+typedef struct (int x) {
+    local int ord = x;
+    long    type<name="Type",format=hex,bgcolor=0x000000>;
+    int     unkn0;
+    int     attr_count<name="Atribute Count",bgcolor=0xffffff>;
+    int     NULL;
+    int     timl_length;
+    if(timl_length>0)
+        Timl    timl<name="Keyframe Animation",bgcolor=0x0099ff>;
+    Main_Body mb(attr_count);
+} Main_Data;
+
+typedef struct {
+    local int k;
+    for(k=0;k<header.EFX_Count;k++)
+        if(ReadInt() == 1228515738) // 9A A9 39 49
+            Root sp(k)<name="Root",bgcolor=0x882E61,read=ReadSingleP>;
+        else
+            Main_Data mp(k)<read=ReadMainP>;
+} Main;
+
+typedef struct {
+    long    type<name="Type",format=hex,bgcolor=0x0000ff>;
+    long    unkn0[3];
+    int     count<name="Subselection Table Entry Count",bgcolor=0x0000aa>;
+    int     entry[count]<name="Subselection Entry">;
+} Subselect_Table;
+
+typedef struct {
+    local int k;
+    for(k=0;k<header.NULL_Count;k++)
+        Subselect_Table  subselect_table<name="SUBSELECT TABLE">;
+} Subselect;//Acts as a table of subselectable sections for the epv subselection calls
+
+// #HEADER
+Header          header<name="Header",bgcolor=0x00ffff>;
+EFX_Type        efx_Type<name="EFX Type",bgcolor=0xf000ff>;
+Play            play<name="Play Emitter/Play EFX Useage",bgcolor=0x7C9F35>;
+Extern          extern<name="External Reference",bgcolor=0x277553>;
+Main            main<name="Main Body",bgcolor=0x1b1b1b>;
+Subselect       null<name="Subselection Tables",bgcolor=0xffffff>;
+int             end[header.End_Count]<name="End EFX (Acutal?)",bgcolor=0x999887>;
+
+
+// CRC string
+
+// Full function
+
+/*
+#include <Libs/EFX_CRC.bt>
+
+string ReadIEP(IE_Prefix &ie) {
+    string s;
+    SPrintf(s, "IE Map to: [%d] %s \t\t CRC: %s", ie.ord, efx_Type.efx_T[ie.ord].str, EFXTypeCRC(ie.type));
+    return s;
+}
+
+string ReadExtern(Extern_Attribute &up) {
+    local int order = up.ord + header.IE_Count;
+    string s;
+    SPrintf(s, "UP Map to: [%d] %s \t\t CRC: %s", order, efx_Type.efx_T[order].str, EFXTypeCRC(up.type));
+    return s;
+}
+
+string ReadSingleP(SINGLE_PREFIX &sp) {
+    local int order = sp.ord + header.IE_Count + header.UNKN_Count;
+    string s;
+    SPrintf(s, "SP Map to: [%d] %s \t\t CRC: %s", order, efx_Type.efx_T[order].str, EFXTypeCRC(sp.type));
+    return s;
+}
+
+string ReadMainP(MAIN_PREFIX &mp) {
+    local int order = mp.ord + header.IE_Count + header.UNKN_Count;
+    string s;
+    SPrintf(s, "MP Map to: [%d] %s \t\t CRC: %s", order, efx_Type.efx_T[order].str, EFXTypeCRC(mp.type));
+    return s;
+}
+*/
+
+// #DISPLAY FUNCTION
+string ReadintXYZ(XYZ& h) {
+    string s;
+    SPrintf(s, "X:%d \t Y:%d \t Z:%d", h.x, h.y, h.z);
+    return s;
+};
+
+string ReadfloatXYZ(XYZ& h) {
+    string s;
+    SPrintf(s, "X:%f \t Y:%f \t Z:%f - rX:%f \trY:%f \trZ:%f", h.fixed_x, h.fixed_y, h.fixed_z,h.random_x, h.random_y, h.random_z);
+    return s;
+};
+
+string ReadbyteXYZ(XYZ& h) {
+    string s;
+    SPrintf(s, "X:%d \t Y:%d \t Z:%d", h.x, h.y, h.z);
+    return s;
+};
+
+string ReadStr(string c){
+    string s;
+    SPrintf(s, "%s", c);
+    return s;
+};
+
+string ReadSTR(STRING& c){
+    string s;
+    SPrintf(s, "%s", c.str);
+    return s;
+};
+
+string ReadUN(UN &u) {
+    string s;
+    SPrintf(s, "Int: %d\tFloat: %f", u.unkni, u.unknf);
+    return s;
+}
+
+// Map Only
+
+string ReadIEP(PlayData &ie) {
+    string s;
+    SPrintf(s, "IE Map to: [%d] %s", ie.ord, efx_Type.efx_T[ie.ord].str);
+    return s;
+}
+
+string ReadExtern(Extern_Attribute &up) {
+    string s;
+    SPrintf(s, "Extern Map");
+    return s;
+}
+
+string ReadSingleP(Root &sp) {
+    local int order = sp.ord + header.IE_Count + header.UNKN_Count;
+    string s;
+    SPrintf(s, "Root Map to: [%d] %s", order, efx_Type.efx_T[order].str);
+    return s;
+}
+
+string ReadMainP(Main_Data &mp) {
+    local int order = mp.ord + header.IE_Count + header.UNKN_Count;
+    string s;
+    SPrintf(s, "MP Map to: [%d] %s", order, efx_Type.efx_T[order].str);
+    return s;
+}
+
+// ORDER (sort of)
+/*
+[(__main__.ExternReference, 0),
+ (__main__.TonemapFilter, 0),
+ (__main__.OtomoSnow, 0),
+ (__main__.ParentMaterial, 0),
+ (__main__.RandomFix, 1),
+ (__main__.Transform3D, 2),
+ (__main__.Transform2D, 2),
+ (__main__.ParentOptions, 3),
+ (__main__.RayCast, 4),
+ (__main__.LinkPartsVisible, 5),
+ (__main__.Launcher_Prop, 6),
+ (__main__.SpawnByAngle, 7),
+ (__main__.SpawnByOcclusion, 7),
+ (__main__.Life, 8),
+ (__main__.EmitterShape2D, 9),
+ (__main__.FadeByAngle, 9),
+ (__main__.Velocity2D, 10),
+ (__main__.FadeByDepth, 10),
+ (__main__.Billboard2D, 11),
+ (__main__.FadeByEmitterAngle, 11),
+ (__main__.FakePlane, 11),
+ (__main__.FadeByOcclusion, 11),
+ (__main__.Dummy, 12),
+ (__main__.EmitterShapeMesh, 12),
+ (__main__.EmitterShape3D, 13),
+ (__main__.Velocity3D, 13),
+ (__main__.PlSnow, 13),
+ (__main__.ParentSnow, 13),
+ (__main__.PlEmissive, 14),
+ (__main__.Lightning, 14),
+ (__main__.RibbonBlade, 14),
+ (__main__.RepeatArea, 14),
+ (__main__.Billboard3D, 15),
+ (__main__.Ribbon, 15),
+ (__main__.Plane, 15),
+ (__main__.Material_Animation, 16),
+ (__main__.Mesh, 17),
+ (__main__.UVSequence, 18),
+ (__main__.ScaleAnim, 18),
+ (__main__.RotateAnim, 18),
+ (__main__.AlphaCorrection, 19),
+ (__main__.TubeLight, 19),
+ (__main__.Refraction, 20),
+ (__main__.StrainRibbon, 20),
+ (__main__.EmitterBoundary, 21),
+ (__main__.Parenting, 21),
+ (__main__.EFX_Behavior, 22),
+ (__main__.RgbFire, 23),
+ (__main__.CheckPureAttribute, 23),
+ (__main__.RgbWater, 24),
+ (__main__.Turbulence, 25),
+ (__main__.Material, 26),
+ (__main__.PtCollisioning, 26),
+ (__main__.ScreenSpaceCollision, 26),
+ (__main__.Noise, 27),
+ (__main__.Blink, 27),
+ (__main__.Shovel, 27),
+ (__main__.PtTrigger, 27),
+ (__main__.ParentEmissive, 28),
+ (__main__.PathChain, 28),
+ (__main__.Homing, 28),
+ (__main__.Layout, 28),
+ (__main__.FakeDoF, 29),
+ (__main__.LuminanceBleed, 30),
+ (__main__.MasterOnly, 31),
+ (__main__.Guide, 31),
+ (__main__.ColorCorrectFilter, 31),
+ (__main__.ShaderSettings, 32)]
+ */
+
+// COLOR
+/*
+0 <bgcolor=0x1800ff>
+1 <bgcolor=0x4800ff>
+2 <bgcolor=0x7800ff>
+3 <bgcolor=0xa800ff>
+4 <bgcolor=0xd800ff>
+5 <bgcolor=0xff00f6>
+6 <bgcolor=0xff00c6>
+7 <bgcolor=0xff0096>
+8 <bgcolor=0xff0066>
+9 <bgcolor=0xff003c>
+10 <bgcolor=0xff0006>
+11 <bgcolor=0xff2400>
+12 <bgcolor=0xff5a00>
+13 <bgcolor=0xff8400>
+14 <bgcolor=0xffba00>
+15 <bgcolor=0xffe400>
+16 <bgcolor=0xe4ff00>
+17 <bgcolor=0xbaff00>
+18 <bgcolor=0x84ff00>
+19 <bgcolor=0x5aff00>
+20 <bgcolor=0x24ff00>
+21 <bgcolor=0x00ff06>
+22 <bgcolor=0x00ff3c>
+23 <bgcolor=0x00ff66>
+24 <bgcolor=0x00ff96>
+25 <bgcolor=0x00ffc6>
+26 <bgcolor=0x00fff6>
+27 <bgcolor=0x00d8ff>
+28 <bgcolor=0x00a8ff>
+29 <bgcolor=0x0078ff>
+30 <bgcolor=0x0048ff>
+31 <bgcolor=0x0018ff>
+*/
+
+
+//Unused Dummies

@@ -1,0 +1,14 @@
+{
+    "title": "Neovim",
+    "exe": "%LOCALAPPDATA%\\Microsoft\\WindowsApps\\wt.exe",
+    "param": "-p \"PowerShell\" nvim \"{path}\"",
+    "icon": "\"C:\\Program Files\\Neovim\\bin\\nvim-qt.exe\",0",
+    "index": 0,
+    "acceptDirectory": false,
+    "acceptExts": "",
+    "acceptFileFlag": 1,
+    "acceptFileRegex": "",
+    "acceptMultipleFilesFlag": 0,
+    "pathDelimiter": "",
+    "paramForMultipleFiles": ""
+}
