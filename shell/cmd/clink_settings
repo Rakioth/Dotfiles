@@ -1,0 +1,9 @@
+autosuggest.hint = False
+clink.logo       = none
+color.argmatcher = yellow
+color.cmd        = yellow
+color.cmdredir   = cyan
+color.cmdsep     = cyan
+color.doskey     = yellow
+color.executable = yellow
+color.input      = white
