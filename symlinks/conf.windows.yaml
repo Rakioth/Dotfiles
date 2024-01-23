@@ -1,0 +1,27 @@
+-   defaults:
+        link:
+            force: true
+
+-   link:
+        $APPDATA/bat: config/bat
+        $LOCALAPPDATA/Packages/7061touchwp.CustomContextMenu_m9vp3t2f55f5t/LocalState/custom_commands: config/contextmenu
+        $APPDATA/lsd: config/lsd
+        ~/.gitconfig: config/git/.gitconfig
+        $PROGRAMFILES/Paint.NET/Effects: config/paint
+        ~/Documents/PowerToys/Backup: config/powertoys
+        ~/Documents/SweetScape/010 Templates/Custom: config/sweetscape/custom
+        $APPDATA/Microsoft/Windows/Start Menu/Programs/Startup/010Editor.vbs: config/sweetscape/script.vbs
+        $LOCALAPPDATA/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json: config/terminal/settings.json
+        $PROGRAMFILES (x86)/Steam/steamapps/common/wallpaper_engine/projects/myprojects: config/wallpaper
+        ~/extensions/codely.codely-theme-0.0.1/themes/dark.codely-theme-color-theme.json: editors/code/theme.json
+        $APPDATA/JetBrains/IntelliJIdea2023.3/plugins/codelytv-theme/lib/codelytv-theme-2.2.5.jar: editors/intellij/theme.jar
+        $LOCALAPPDATA/nvim/lua/custom: editors/nvim
+        $LOCALAPPDATA/clink/aliases.lua: shell/cmd/aliases.lua
+        $LOCALAPPDATA/clink/exports.lua: shell/cmd/exports.lua
+        $LOCALAPPDATA/clink/starship.lua: shell/cmd/starship.lua
+        $LOCALAPPDATA/clink/clink_settings: shell/cmd/clink_settings
+        ~/Documents/PowerShell: shell/pwsh
+
+-   shell:
+        - [ bat cache --build, Bat binary cache ]
+        - [ pwsh -ExecutionPolicy Bypass -File config/wallpaper/bootstrap.ps1, Wallpaper presets ]

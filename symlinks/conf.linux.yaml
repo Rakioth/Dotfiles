@@ -1,0 +1,15 @@
+-   defaults:
+        link:
+            force: true
+
+-   link:
+        ~/.config/bat: config/bat
+        ~/.config/lsd: config/lsd
+        ~/.config/nvim/lua/custom: editors/nvim
+        ~/.zimrc: shell/zsh/.zimrc
+        ~/.zshrc: shell/zsh/.zshrc
+
+-   shell:
+        - [ bat cache --build, Bat binary cache ]
+        - [ source ~/.zim/init.zsh; zimfw uninstall & zimfw install, Zim modules ]
+        - [ cp config/git/.gitconfig ~/.gitconfig && sed -i 's|C:\\\\Program Files (x86)\\\\GnuPG\\\\bin\\\\gpg.exe|/mnt/c/Program Files (x86)/GnuPG/bin/gpg.exe|' ~/.gitconfig, Git config ]
