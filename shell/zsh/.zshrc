@@ -16,10 +16,13 @@ ZSH_AUTOSUGGEST_USE_ASYNC=true
 ZSH_HIGHLIGHT_MAXLENGTH=300
 
 # Initialize Modules
-source ${ZIM_HOME}/init.zsh
+source ${HOME}/.zim/init.zsh
 
 # Aliases
 source ${DOTFILES}/shell/zsh/aliases.sh
+
+# Exports
+source ${DOTFILES}/shell/zsh/exports.sh
 
 # Fzf
 source /usr/share/fzf/completion.zsh

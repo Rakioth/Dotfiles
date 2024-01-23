@@ -1,5 +1,4 @@
 #Requires -PSEdition Core
-#Requires -RunAsAdministrator
 
 # Script variables
 $SCRIPT_NAME = "Wallpaper Bootstrap"

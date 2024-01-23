@@ -7,6 +7,8 @@ git
 lsd
 make
 neovim
+nodejs
+pnpm
 ripgrep
 sd
 starship
