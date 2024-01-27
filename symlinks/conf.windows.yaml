@@ -24,4 +24,4 @@
 
 -   shell:
         - [ bat cache --build, Bat binary cache ]
-        - [ pwsh -ExecutionPolicy Bypass -File config/wallpaper/bootstrap.ps1, Wallpaper presets ]
+        - [ pwsh -ExecutionPolicy Bypass -File config/wallpaper/main.ps1, Wallpaper presets ]

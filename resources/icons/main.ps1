@@ -62,7 +62,7 @@ function Move-Shortcut {
 
 $excludePattern = '\b(?:' + ($excludeFolders -join "|") + ')\b'
 $shortcutsFiles = Get-ChildItem -Path $shortcutsPaths -Filter "*.lnk" -Recurse | Where-Object { $_.DirectoryName -notmatch $excludePattern }
-$iconsFiles     = Get-ChildItem -Path $iconsPath -Filter "*.ico"
+$iconsFiles     = Get-ChildItem -Path $iconsPath      -Filter "*.ico"
 
 $iconsFiles | ForEach-Object {
     $iconBaseName      = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)

@@ -1,6 +1,3 @@
-. "$env:DOTFILES\shell\pwsh\Scripts\aliases.ps1"
-. "$env:DOTFILES\shell\pwsh\Scripts\exports.ps1"
-
 # PSReadLine
 Import-Module -Name PSReadLine
 Set-PSReadLineOption -BellStyle None -PredictionSource History -PredictionViewStyle ListView
@@ -9,8 +6,14 @@ Set-PSReadLineOption -BellStyle None -PredictionSource History -PredictionViewSt
 Import-Module -Name PSFzf
 Set-PsFzfOption -PSReadlineChordProvider "Ctrl+r" -PSReadlineChordReverseHistory "Ctrl+h"
 
-# WingetExtensions
-Import-Module -Name WingetExtensions
+# Aliases
+. "$env:DOTFILES\shell\pwsh\Scripts\aliases.ps1"
+
+# Exports
+. "$env:DOTFILES\shell\pwsh\Scripts\exports.ps1"
+
+# Winget Extensions
+. "$env:DOTFILES\package\main.ps1"
 
 # Prompt
 Invoke-Expression (&starship init powershell)

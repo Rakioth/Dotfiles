@@ -151,6 +151,10 @@ function Expand-Zip {
     Expand-Archive -Path $Path -DestinationPath $DestinationPath -Force
 }
 
+function Start-Admin {
+    gsudo --loadProfile $args
+}
+
 function Quit {
     Exit
 }

@@ -1,7 +1,7 @@
 #Requires -PSEdition Core
 
 # Script variables
-$SCRIPT_NAME = "Wallpaper Bootstrap"
+$SCRIPT_NAME = "Wallpaper Config"
 $SCRIPT_LOG  = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 
 # Script values

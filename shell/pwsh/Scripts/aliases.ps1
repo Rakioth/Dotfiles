@@ -39,8 +39,9 @@ Set-Alias -Name zip   -Value Compress-Zip
 Set-Alias -Name unzip -Value Expand-Zip
 
 # ⚙️ System
-Set-Alias -Name c -Value clear
-Set-Alias -Name q -Value Quit
+Set-Alias -Name sudo -Value Start-Admin
+Set-Alias -Name c    -Value clear
+Set-Alias -Name q    -Value Quit
 
 # 🌱 Git
 Set-Alias -Name gaa -Value Git-Add-All

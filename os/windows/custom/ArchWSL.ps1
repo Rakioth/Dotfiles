@@ -98,8 +98,8 @@ Start-Process -FilePath $packagePath -ArgumentList "run echo ""$archPass"" | sud
 # Dotfiles Environment Variable
 $parsedpackagePath = $packagePath.Replace(' ', '` ')
 $wslDotfilesPath   = Invoke-Expression "$parsedpackagePath runp echo $env:DOTFILES"
-Start-Process -FilePath $packagePath -ArgumentList "run echo ""$archPass"" | sudo -S tee -a /etc/environment <<< ""DOTFILES=$wslDotfilesPath"""           -NoNewWindow -Wait
-Start-Process -FilePath $packagePath -ArgumentList "run echo ""$archPass"" | sudo -S tee -a /etc/profile.d/dotfiles.sh <<< ""DOTFILES=$wslDotfilesPath""" -NoNewWindow -Wait
+Start-Process -FilePath $packagePath -ArgumentList "run echo ""$archPass"" | sudo -S tee -a /etc/environment <<< ""export DOTFILES=$wslDotfilesPath"""           -NoNewWindow -Wait
+Start-Process -FilePath $packagePath -ArgumentList "run echo ""$archPass"" | sudo -S tee -a /etc/profile.d/dotfiles.sh <<< ""export DOTFILES=$wslDotfilesPath""" -NoNewWindow -Wait
 
 # Register Arch
 winget.exe uninstall --exact --silent --purge --force --id Canonical.Ubuntu.2204

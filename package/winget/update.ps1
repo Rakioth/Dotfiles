@@ -1,9 +1,5 @@
 #Requires -PSEdition Core
 
-# Script colors
-$PURPLE = "#ce3ed6"
-$VIOLET = "#c698f2"
-
 # Helper
 function Count-Ideographs {
     param (
@@ -19,6 +15,9 @@ function Count-Ideographs {
 
 # Main
 function Winget-Update {
+    $PURPLE = "#ce3ed6"
+    $VIOLET = "#c698f2"
+
     try {
         [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         $result = winget.exe upgrade | Out-String
@@ -56,12 +55,12 @@ function Winget-Update {
             }
         }
 
-        $chosenPackages = Invoke-Expression "gum filter --no-limit --placeholder=""Search..."" --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="""" --height=10 $parsedList"
+        $chosenPackages = gum filter --no-limit --prompt="❯ " --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10 $parsedList
 
         # Update the chosen packages
         $chosenPackages | ForEach-Object {
-            $packageLabel  = Invoke-Expression "gum style --foreground=$VIOLET $_"
-            $packageOutput = Invoke-Expression "gum spin --spinner moon --title ""Updating $packageLabel..."" --show-output -- winget.exe upgrade --exact --silent --accept-source-agreements --accept-package-agreements --id $_"
+            $packageLabel  = gum style --foreground=$VIOLET $_
+            $packageOutput = gum spin --spinner moon --title "Updating $packageLabel..." --show-output -- winget.exe upgrade --exact --silent --accept-source-agreements --accept-package-agreements --id $_
 
             if ($packageOutput.Contains("Successfully installed")) {
                 Write-Host "✔️ Package updated: $packageLabel"

@@ -18,3 +18,9 @@ function winget {
         }
     }
 }
+
+Register-ArgumentCompleter -CommandName winget -ScriptBlock {
+    param($wordToComplete)
+
+    @("clean", "search ", "update") | Where-Object { $_ -like "$wordToComplete*" } | ForEach-Object { "$_" }
+}

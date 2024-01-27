@@ -10,6 +10,8 @@ SCRIPT_LOG="$HOME/dotfiles.log"
 # Script colors
 PURPLE="#ce3ed6"
 VIOLET="#c698f2"
+GREEN="#6dca7b"
+BLUE="#11a8cd"
 RED='\033[0;31m'
 NORMAL='\033[0m'
 
@@ -17,8 +19,8 @@ NORMAL='\033[0m'
 declare -A custom_packages=(
 	["custom-nvchad"]="$HOME/.config/nvim/lua/core"
 )
-custom_packages_path="$(dirname $0)/custom"
-default_packages_file="$(dirname $0)/Yayfile"
+custom_packages_path="$DOTFILES/os/linux/custom"
+default_packages_file="$DOTFILES/os/linux/Yayfile"
 packages_file=""
 
 # Logger
@@ -28,9 +30,9 @@ function logger() {
 
 # Helper
 function default_help() {
-	cat <<EOF
+	\cat <<EOF
 Usage:
-  import [-f <packages_file>]
+  import [<flag>]
 
 Flags:
   -h, --help       Show context-sensitive help.
@@ -71,12 +73,7 @@ if [ $# -gt 0 ]; then
 			exit 0
 			;;
 		-f | --file)
-			if [ $# -gt 1 ]; then
-				packages_file="$2"
-			else
-				echo -e "${RED}Required argument not provided: packages_file${NORMAL}"
-				exit 1
-			fi
+			packages_file=$(gum file --cursor="❯" --height=10 --file --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN "$(dirname "$default_packages_file")")
 			;;
 		*)
 			default_help
@@ -122,10 +119,8 @@ fi
 
 # Choose the packages to install
 packages_label=$(gum style --foreground=$PURPLE packages)
-echo "🎯 Choose the $packages_label you want to install:"
-
 selected_packages=$(echo "$filtered_not_installed_list" | awk '{print "--selected="$0}')
-chosen_packages=$(gum choose --no-limit --cursor.foreground=$PURPLE --item.foreground=$VIOLET --selected.foreground=$VIOLET $selected_packages $filtered_not_installed_list)
+chosen_packages=$(gum choose --no-limit --cursor="❯ " --cursor.foreground=$PURPLE --item.foreground=$VIOLET --selected.foreground=$VIOLET --header.foreground="" --header="🎯 Choose the $packages_label you want to install:" $selected_packages $filtered_not_installed_list)
 
 if [ -z "$chosen_packages" ]; then
 	exit 0

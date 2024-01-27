@@ -1,9 +1,5 @@
 #Requires -PSEdition Core
 
-# Script colors
-$PURPLE = "#ce3ed6"
-$VIOLET = "#c698f2"
-
 # Helper
 function Count-Ideographs {
     param (
@@ -24,6 +20,9 @@ function Winget-Search {
         [ValidateNotNullOrEmpty()]
         [string]$Query
     )
+
+    $PURPLE = "#ce3ed6"
+    $VIOLET = "#c698f2"
 
     try {
         [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
@@ -58,7 +57,7 @@ function Winget-Search {
             }
         }
 
-        $chosenPackage = Invoke-Expression "gum filter --placeholder=""Search..."" --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="""" --height=10 $parsedList"
+        $chosenPackage = gum filter --prompt="❯ " --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10 $parsedList
 
         if (-not $chosenPackage) {
             return
@@ -69,8 +68,8 @@ function Winget-Search {
         $output           = if ($packageInstalled) { "updated"  } else { "installed"  }
 
         # Install or update the chosen package
-        $packageLabel  = Invoke-Expression "gum style --foreground=$VIOLET $chosenPackage"
-        $packageOutput = Invoke-Expression "gum spin --spinner moon --title ""$action $packageLabel..."" --show-output -- winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $chosenPackage"
+        $packageLabel  = gum style --foreground=$VIOLET $chosenPackage
+        $packageOutput = gum spin --spinner moon --title "$action $packageLabel..." --show-output -- winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $chosenPackage
 
         if (($packageOutput -join "").Contains("No available upgrade found")) {
             Write-Host "✨ Package already $output`: $packageLabel"

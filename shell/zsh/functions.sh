@@ -1,20 +1,3 @@
-source ${DOTFILES}/package/yay/clean.sh
-source ${DOTFILES}/package/yay/search.sh
-
-function yay() {
-	case $1 in
-		clean)
-			yay_clean
-			;;
-		search)
-			yay_search $2
-			;;
-		*)
-			/usr/sbin/yay $@
-			;;
-	esac
-}
-
 function upload_item() {
 	curl -sF "file=@$1" https://0x0.st
 }

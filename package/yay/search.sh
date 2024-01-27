@@ -9,7 +9,7 @@ function yay_search() {
         return 0
     fi
 
-	chosen_package=$(echo "$result" | gum filter --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10)
+	chosen_package=$(echo "$result" | gum filter --prompt="❯ " --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10)
 
 	if [ -z "$chosen_package" ]; then
 		return 0

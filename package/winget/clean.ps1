@@ -1,9 +1,5 @@
 #Requires -PSEdition Core
 
-# Script colors
-$PURPLE = "#ce3ed6"
-$VIOLET = "#c698f2"
-
 # Helper
 function Count-Ideographs {
     param (
@@ -19,6 +15,9 @@ function Count-Ideographs {
 
 # Main
 function Winget-Clean {
+    $PURPLE = "#ce3ed6"
+    $VIOLET = "#c698f2"
+
     try {
         [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
         $result = winget.exe list | Out-String
@@ -50,12 +49,12 @@ function Winget-Clean {
             }
         }
 
-        $chosenPackages = Invoke-Expression "gum filter --no-limit --placeholder=""Search..."" --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="""" --height=10 $parsedList"
+        $chosenPackages = gum filter --no-limit --prompt="❯ " --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10 $parsedList
 
         # Uninstall the chosen packages
         $chosenPackages | ForEach-Object {
-            $packageLabel  = Invoke-Expression "gum style --foreground=$VIOLET $_"
-            $packageOutput = Invoke-Expression "gum spin --spinner moon --title ""Uninstalling $packageLabel..."" --show-output -- winget.exe uninstall --exact --silent --purge --force --id $_"
+            $packageLabel  = gum style --foreground=$VIOLET $_
+            $packageOutput = gum spin --spinner moon --title "Uninstalling $packageLabel..." --show-output -- winget.exe uninstall --exact --silent --purge --force --id $_
 
             if ($packageOutput.Contains("Successfully uninstalled")) {
                 Write-Host "✔️ Package uninstalled: $packageLabel"

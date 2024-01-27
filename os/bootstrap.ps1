@@ -9,6 +9,8 @@ $SCRIPT_LOG     = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 # Script colors
 $PURPLE = "#ce3ed6"
 $VIOLET = "#c698f2"
+$GREEN  = "#6dca7b"
+$BLUE   = "#11a8cd"
 
 # Script values
 $customPackages            = @{
@@ -27,12 +29,12 @@ $customPackages            = @{
     "custom.Paint"               = @(Join-Path -Path $env:PROGRAMFILES -ChildPath "Paint.NET")
     "custom.RockstarGames"       = @(Join-Path -Path $env:PROGRAMFILES -ChildPath "Rockstar Games")
 }
-$customPackagesPath        = Join-Path -Path $PSScriptRoot -ChildPath "custom"
-$defaultPackagesFile       = Join-Path -Path $PSScriptRoot -ChildPath "Wingetfile"
+$customPackagesPath        = Join-Path -Path $env:DOTFILES -ChildPath "os\windows\custom"
+$defaultPackagesFile       = Join-Path -Path $env:DOTFILES -ChildPath "os\windows\Wingetfile"
 $packagesFile              = ""
 $defaultHelp               = @"
 Usage:
-  import [-f <packages_file>]
+  import [<flag>]
 
 Flags:
   -h, --help       Show context-sensitive help.
@@ -102,13 +104,7 @@ if ($args.Count -gt 0) {
             exit 0
         }
         { $_ -eq "-f" -or $_ -eq "--file" } {
-            if ($args.Count -gt 1) {
-                $packagesFile = $args[1]
-            }
-            else {
-                Write-Host "Required argument not provided: packages_file" -ForegroundColor Red
-                exit 1
-            }
+            $packagesFile = gum file --cursor="❯" --height=10 --file --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN $( $defaultPackagesFile | Split-Path -Parent )
         }
         default {
             Write-Host $defaultHelp
@@ -145,15 +141,13 @@ if ($notInstalledPackagesList -eq $null) {
 }
 
 # Choose the packages to install
-$packagesLabel = Invoke-Expression "gum style --foreground=$PURPLE packages"
-Write-Host "🎯 Choose the $packagesLabel you want to install:"
-
+$packagesLabel    = gum style --foreground=$PURPLE packages
 $selectedPackages = $notInstalledPackagesList | ForEach-Object { "--selected=$_" }
-$chosenPackages   = Invoke-Expression "gum choose --no-limit --cursor.foreground=$PURPLE --item.foreground=$VIOLET --selected.foreground=$VIOLET $selectedPackages $notInstalledPackagesList"
+$chosenPackages   = gum choose --no-limit --cursor="❯ " --cursor.foreground=$PURPLE --item.foreground=$VIOLET --selected.foreground=$VIOLET --header.foreground="" --header="🎯 Choose the $packagesLabel you want to install:" $selectedPackages $notInstalledPackagesList
 
 # Install the chosen packages
 $chosenPackages | ForEach-Object {
-    $packageLabel     = Invoke-Expression "gum style --foreground=$VIOLET $_"
+    $packageLabel     = gum style --foreground=$VIOLET $_
     $packageInstaller = "winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $_"
 
     $isPackageAvailable = ((winget.exe search --exact --query $_) -join "").Contains($_)
