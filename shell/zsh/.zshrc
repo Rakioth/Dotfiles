@@ -57,6 +57,9 @@ source ${DOTFILES}/shell/zsh/exports.sh
 # Yay Extensions
 source ${DOTFILES}/package/main.sh
 
+# Dot Command
+source ${DOTFILES}/bin/dot.sh
+
 # Prompt
 eval "$(starship init zsh)"
 

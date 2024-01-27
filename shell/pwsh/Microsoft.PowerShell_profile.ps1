@@ -15,6 +15,9 @@ Set-PsFzfOption -PSReadlineChordProvider "Ctrl+r" -PSReadlineChordReverseHistory
 # Winget Extensions
 . "$env:DOTFILES\package\main.ps1"
 
+# Dot Command
+. "$env:DOTFILES\bin\dot.ps1"
+
 # Prompt
 Invoke-Expression (&starship init powershell)
 
