@@ -163,6 +163,7 @@ $chosenPackages | ForEach-Object {
     }
 
     $packageOutput         = Invoke-Expression "gum spin --spinner globe --title ""Installing $packageLabel..."" --show-output -- $packageInstaller"
+    if ($packageOutput -eq $null) { $packageOutput = "" }
     $checkPackageInstalled = $packageOutput.Contains("Successfully installed") -or (Check-Custom-Package -Package $_)
 
     if (($packageOutput -join "").Contains("No available upgrade found")) {

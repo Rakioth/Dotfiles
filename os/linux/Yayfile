@@ -6,6 +6,7 @@ gcc
 git
 lsd
 make
+neofetch
 neovim
 nodejs
 pnpm
