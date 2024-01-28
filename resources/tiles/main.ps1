@@ -6,130 +6,131 @@ $SCRIPT_NAME = "Tiles Setup"
 $SCRIPT_LOG  = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 
 # Script values
-$registryPath = "HKCU:\Software\Stardock\Start8\Start8.ini"
-$tilesPath    = Join-Path -Path $env:DOTFILES -ChildPath "resources\tiles"
-$programs     = @(
+$registryPath  = "HKCU:\Software\Stardock\Start8\Start8.ini"
+$tilesPath     = Join-Path -Path $env:DOTFILES -ChildPath "resources\tiles"
+$installedApps = Get-StartApps
+$programs      = @(
     [PSCustomObject]@{
-        ProgramPath   = "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\Steam\Steam.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Steam" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Steam.png"
         GroupContents = "GRP2001"
         Order         = "0"
         Value         = "|-1|1|0|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "{6D809377-6AF0-444B-8957-A3773F02200E}\Electronic Arts\EA Desktop\EA Desktop\EALauncher.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "EA" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "EA.png"
         GroupContents = "GRP2001"
         Order         = "1"
         Value         = "|-1|1|2|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\Ubisoft\Ubisoft Game Launcher\UbisoftConnect.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Ubisoft Connect" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Ubisoft Connect.png"
         GroupContents = "GRP2001"
         Order         = "2"
         Value         = "|-1|1|4|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "{7C5A40EF-A0FB-4BFC-874A-C0F2E0B9FA8E}\Battle.net\Battle.net Launcher.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Battle.net" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Battle.net.png"
         GroupContents = "GRP2001"
         Order         = "3"
         Value         = "|-1|1|0|2|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "Microsoft.GamingApp_8wekyb3d8bbwe!Microsoft.Xbox.App"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Xbox" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Xbox.png"
         GroupContents = "GRP2001"
         Order         = "4"
         Value         = "|-1|1|2|2|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "Microsoft.ZuneMusic_8wekyb3d8bbwe!Microsoft.ZuneMusic"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Media Player" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Media Player.png"
         GroupContents = "GRP2001"
         Order         = "5"
         Value         = "|-1|1|4|2|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "{6D809377-6AF0-444B-8957-A3773F02200E}\010 Editor\010Editor.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "010 Editor" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "010 Editor.png"
         GroupContents = "GRP2002"
         Order         = "0"
         Value         = "|-1|1|0|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "Microsoft.VisualStudioCode"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Visual Studio Code" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Visual Studio Code.png"
         GroupContents = "GRP2002"
         Order         = "1"
         Value         = "|-1|1|2|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "VisualStudio.e5d89039"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Visual Studio 2022" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Visual Studio 2022.png"
         GroupContents = "GRP2002"
         Order         = "2"
         Value         = "|-1|1|4|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "com.squirrel.GitHubDesktop.GitHubDesktop"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "GitHub Desktop" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "GitHub Desktop.png"
         GroupContents = "GRP2002"
         Order         = "3"
         Value         = "|-1|1|0|2|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "{6D809377-6AF0-444B-8957-A3773F02200E}\Adobe\Adobe Photoshop 2024\Photoshop.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Adobe Photoshop 2024" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Adobe Photoshop.png"
         GroupContents = "GRP2002"
         Order         = "4"
         Value         = "|-1|1|2|2|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "Clipchamp.Clipchamp_yxz26nhyzhsrt!App"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Clipchamp – Video Editor" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Clipchamp.png"
         GroupContents = "GRP2002"
         Order         = "5"
         Value         = "|-1|1|4|2|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "com.squirrel.Discord.Discord"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Discord" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Discord.png"
         GroupContents = "GRP2003"
         Order         = "0"
         Value         = "|-1|1|0|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "{6D809377-6AF0-444B-8957-A3773F02200E}\KeePassXC\KeePassXC.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "KeePassXC" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "KeePassXC.png"
         GroupContents = "GRP2003"
         Order         = "1"
         Value         = "|-1|1|2|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "{6D809377-6AF0-444B-8957-A3773F02200E}\Oracle\VirtualBox\VirtualBox.exe"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Oracle VM VirtualBox" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Oracle VM VirtualBox.png"
         GroupContents = "GRP2003"
         Order         = "2"
         Value         = "|-1|1|4|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "Microsoft.Office.WINWORD.EXE.15"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Word" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Word.png"
         GroupContents = "GRP2004"
         Order         = "0"
         Value         = "|-1|1|0|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "Microsoft.Office.POWERPNT.EXE.15"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "PowerPoint" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "PowerPoint.png"
         GroupContents = "GRP2004"
         Order         = "1"
         Value         = "|-1|1|2|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = "Microsoft.Office.EXCEL.EXE.15"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Excel" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Excel.png"
         GroupContents = "GRP2004"
         Order         = "2"
@@ -212,6 +213,11 @@ Set-ItemProperty -Path "$registryPath\Start8\Locations10" -Name "2"  -Value "Con
 Set-ItemProperty -Path "$registryPath\Start8\Locations10" -Name "96" -Value "Settings"      -Type String
 
 $programs | ForEach-Object {
+    if (-not $_.ProgramPath) {
+        Logger -Level warn -Message "Program not found" -Structured "path ""$( $_.ProgramPath )"""
+        return
+    }
+
     Set-ItemProperty -Path "$registryPath\GroupContents\$( $_.GroupContents )" -Name $_.Order                               -Value "$( $_.ProgramPath )$( $_.Value )" -Type String
     Set-ItemProperty -Path "$registryPath\Start8\CustomTiles"                  -Name "$($_.ProgramPath.Replace("\", "_") )" -Value "$( $_.TilePath )"                 -Type String
     Set-ItemProperty -Path "$registryPath\Start8\CustomTilesText"              -Name "$($_.ProgramPath.Replace("\", "_") )" -Value "1"                                -Type String

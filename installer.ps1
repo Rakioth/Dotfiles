@@ -98,7 +98,9 @@ Set-Item -Path "env:$dotfilesEnv" -Value $dotfilesPath
 # Clone dotfiles
 $dotfilesLabel = gum style --foreground=$VIOLET $dotfilesFolder
 gum spin --spinner meter --spinner.foreground=$VIOLET --title "Cloning $dotfilesLabel..." -- git clone --recursive "https://github.com/$dotfilesRepository.git" $env:DOTFILES
-Write-Host "$( Get-Emoji -Unicode "1F389" ) $dotfilesLabel cloned"
+gum spin --spinner meter --spinner.foreground=$VIOLET --title "Taking ownership of $dotfilesLabel..." -- takeown /f $env:DOTFILES /r /d y
+$dotfilesLabel = gum style --foreground=$PURPLE $dotfilesFolder
+gum style --border-foreground=$PURPLE --border=rounded --align=center --width=50 --italic "🎉 $dotfilesLabel cloned!"
 
 # Install packages
 pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "os\bootstrap.ps1")
@@ -108,3 +110,10 @@ pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "sy
 
 # Set-up resources
 pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "resources\bootstrap.ps1")
+
+# Windows tweaks
+gum confirm --default=yes --selected.background=$PURPLE --prompt.italic "Apply Windows registry tweaks?"
+if (-not $LastExitCode) {
+    $tweaksLabel = gum style --foreground=$VIOLET "tweaks"
+    gum spin --spinner dot --spinner.foreground=$VIOLET --title "Making $tweaksLabel..." -- pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "scripts\tweaks.ps1")
+}
