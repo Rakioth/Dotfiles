@@ -14,8 +14,7 @@
         + Remove unwanted keyboard layouts
     - **Time & Language** > **Typing** > **Advanced Keyboard Settings**
         + _Click_ &nbsp;➤&nbsp; "Language Bar Options" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Hidden"
-        + _Click_ &nbsp;➤&nbsp; "Input Language Hot Keys" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Change Key Sequence to (
-          None)"
+        + _Click_ &nbsp;➤&nbsp; "Input Language Hot Keys" &nbsp;|&nbsp; _Select_ &nbsp;➤&nbsp; "Change Key Sequence to (None)"
 
 ### 🟣 Post Dotfiles
 
