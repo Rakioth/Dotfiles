@@ -4,7 +4,7 @@ local M = {}
 local highlights = require "custom.highlights"
 
 M.ui = {
-    theme = "dark_horizon",
+    theme = "codely_purple",
     transparency = true,
 
     hl_add = highlights.add,
