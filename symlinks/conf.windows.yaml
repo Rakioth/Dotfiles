@@ -4,9 +4,10 @@
 
 -   link:
         $APPDATA/bat: config/bat
-        $LOCALAPPDATA/Packages/7061touchwp.CustomContextMenu_m9vp3t2f55f5t/LocalState/custom_commands: config/contextmenu
         $APPDATA/lsd: config/lsd
         ~/.gitconfig: config/git/.gitconfig
+        $PROGRAMFILES/Nilesoft Shell/shell.nss: config/nilesoft/shell.nss
+        $PROGRAMFILES/Nilesoft Shell/imports: config/nilesoft/imports
         $PROGRAMFILES/Paint.NET/Effects: config/paint
         ~/Documents/PowerToys/Backup: config/powertoys
         ~/Documents/SweetScape/010 Templates/Custom: config/sweetscape/custom
