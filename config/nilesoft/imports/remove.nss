@@ -139,5 +139,13 @@ remove(
 )
 
 remove(
+	find = 'customize'
+)
+
+remove(
 	find = 'media player'
+)
+
+remove(
+	find = 'convert to adobe pdf'
 )

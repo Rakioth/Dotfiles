@@ -4,6 +4,7 @@
 
 -   link:
         $APPDATA/bat: config/bat
+        $LOCALAPPDATA/FileConverter/Settings.user.xml: config/fileconverter/settings.xml
         $APPDATA/lsd: config/lsd
         ~/.gitconfig: config/git/.gitconfig
         $PROGRAMFILES/Nilesoft Shell/shell.nss: config/nilesoft/shell.nss

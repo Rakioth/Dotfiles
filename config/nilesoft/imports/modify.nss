@@ -10,9 +10,10 @@ modify(
 )
 
 modify(
-	find = 'convert to adobe pdf'
-	menu = 'file manage'
-	icon = icon.new_pdf
+	find  = 'file converter'
+	menu  = 'file manage'
+	title = 'Convert to'
+	icon  = icon.convert_to
 )
 
 modify(
