@@ -55,7 +55,7 @@ remove(
 )
 
 remove(
-	find = 'new'
+	find = '"new"'
 )
 
 remove(
