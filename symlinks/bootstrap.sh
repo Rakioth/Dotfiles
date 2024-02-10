@@ -13,7 +13,7 @@ VIOLET="#c698f2"
 GREEN="#6dca7b"
 BLUE="#11a8cd"
 RED='\033[0;31m'
-NORMAL='\033[0m'
+RESET='\033[0m'
 
 # Script values
 dotbot_path="$DOTFILES/modules/dotbot/bin/dotbot"
@@ -72,7 +72,7 @@ if [ ! -f "$symlinks_file" ]; then
 		logger warn "Default packages file not found" file $default_symlinks_file
 		default_help
 	else
-		echo -e "${RED}File does not exist: $symlinks_file${NORMAL}"
+		echo -e "${RED}File does not exist: $symlinks_file${RESET}"
 	fi
 	exit 1
 fi

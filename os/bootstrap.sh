@@ -13,7 +13,7 @@ VIOLET="#c698f2"
 GREEN="#6dca7b"
 BLUE="#11a8cd"
 RED='\033[0;31m'
-NORMAL='\033[0m'
+RESET='\033[0m'
 
 # Script values
 declare -A custom_packages=(
@@ -93,7 +93,7 @@ if [ ! -f "$packages_file" ]; then
 		logger warn "Default packages file not found" file $default_packages_file
 		default_help
 	else
-		echo -e "${RED}File does not exist: $packages_file${NORMAL}"
+		echo -e "${RED}File does not exist: $packages_file${RESET}"
 	fi
 	exit 1
 fi

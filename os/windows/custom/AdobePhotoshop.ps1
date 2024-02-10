@@ -4,7 +4,7 @@
 # Script variables
 $SCRIPT_NAME   = "AdobePhotoshop Installer"
 $SCRIPT_LOG    = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
-$SCRIPT_SOURCE = "https://pb.wtf/t/396079"
+$SCRIPT_SOURCE = "https://pb.wtf/t/397758"
 
 # Script values
 $qBittorrent       = Join-Path -Path $env:PROGRAMFILES -ChildPath "qBittorrent\qbittorrent.exe"
