@@ -10,10 +10,8 @@ modify(
 )
 
 modify(
-	find  = 'file converter'
-	menu  = 'file manage'
-	title = 'Convert to'
-	icon  = icon.convert_to
+	find = 'file converter'
+	icon = icon.convert_to
 )
 
 modify(

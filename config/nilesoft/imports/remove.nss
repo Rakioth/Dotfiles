@@ -143,6 +143,10 @@ remove(
 )
 
 remove(
+	find = 'autoplay'
+)
+
+remove(
 	find = 'media player'
 )
 

@@ -2,7 +2,7 @@
 <Settings xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" SerializationVersion="4">
     <ApplicationLanguageName>en</ApplicationLanguageName>
     <ExitApplicationWhenConversionsFinished>true</ExitApplicationWhenConversionsFinished>
-    <DurationBetweenEndOfConversionsAndApplicationExit>3</DurationBetweenEndOfConversionsAndApplicationExit>
+    <DurationBetweenEndOfConversionsAndApplicationExit>0</DurationBetweenEndOfConversionsAndApplicationExit>
     <MaximumNumberOfSimultaneousConversions>2</MaximumNumberOfSimultaneousConversions>
     <ConversionPreset Name="MKV" OutputType="Mkv" IsDefaultSettings="true">
         <InputTypes>3gp</InputTypes>
