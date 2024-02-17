@@ -8,7 +8,7 @@ alias("cd",  "cd /D $*")
 
 -- 🚀 Editors
 alias("co",  "code $*")
-alias("id",  '"C:\\Program Files (x86)\\JetBrains\\IntelliJ IDEA 2023.3.2\\bin\\idea64.exe" $*')
+alias("id",  '"C:\\Program Files (x86)\\JetBrains\\IntelliJ IDEA 2023.3.3\\bin\\idea64.exe" $*')
 alias("vim", "nvim $*")
 alias("n",   "notepad $*")
 alias("e",   "explorer $*")

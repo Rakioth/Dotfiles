@@ -14,7 +14,7 @@
 	item(
 		title = 'IntelliJ IDEA'
 		icon
-		cmd   = 'C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2023.3.2\bin\idea64.exe'
+		cmd   = 'C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2023.3.3\bin\idea64.exe'
 		arg   = '"@sel.path"'
 	)
 

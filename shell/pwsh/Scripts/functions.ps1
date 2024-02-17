@@ -17,7 +17,7 @@ function Start-Code {
 
 function Start-IntelliJ {
     $ErrorActionPreference = "SilentlyContinue"
-    Start-Process -FilePath "C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2023.3.2\bin\idea64.exe" -ArgumentList $args -NoNewWindow
+    Start-Process -FilePath "C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2023.3.3\bin\idea64.exe" -ArgumentList $args -NoNewWindow
 }
 
 function List-Items {

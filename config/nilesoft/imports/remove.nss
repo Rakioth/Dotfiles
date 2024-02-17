@@ -151,5 +151,9 @@ remove(
 )
 
 remove(
+	find = 'kaspersky'
+)
+
+remove(
 	find = 'convert to adobe pdf'
 )

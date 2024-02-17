@@ -18,6 +18,11 @@ remove(
 	in   = 'open with'
 )
 
+remove(
+	find = '"notepad"'
+	in   = 'open with'
+)
+
 modify(
 	find = '010 editor'
 	menu = 'open with'
@@ -28,5 +33,12 @@ modify(
 	find  = 'clipchamp'
 	menu  = 'open with'
 	title = 'Clipchamp'
+	pos   = top
+)
+
+modify(
+	find  = 'notepad'
+	menu  = 'open with'
+	title = 'Notepad'
 	pos   = top
 )

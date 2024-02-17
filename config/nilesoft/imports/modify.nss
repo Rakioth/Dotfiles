@@ -44,19 +44,22 @@ modify(
 )
 
 modify(
-	find = 'using this file?'
-	icon = \uE19B
-	pos  = bottom
+	find  = 'file locksmith'
+	title = 'File Locksmith'
+	icon  = \uE19B
+	pos   = bottom
 )
 
 modify(
-	find = 'powerrename'
-	icon = icon.rename
-	pos  = bottom
+	find  = 'powerrename'
+	title = 'PowerRename'
+	icon  = icon.rename
+	pos   = bottom
 )
 
 modify(
-	find = 'resize pictures'
-	icon = icon.auto_arrange_icons
-	pos  = bottom
+	find  = 'image resizer'
+	title = 'Image Resizer'
+	icon  = icon.auto_arrange_icons
+	pos   = bottom
 )
