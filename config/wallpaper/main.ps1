@@ -82,12 +82,18 @@ if (-not (Test-Path -Path $configPath)) {
     exit 1
 }
 
+# Check config properties
+$configFile = Get-Content -Path $configPath | ConvertFrom-Json
+if (-not [string]::IsNullOrEmpty($configFile.raks.wproperties)) {
+    Logger -Level info -Message "Config properties already set" -Structured "path ""$configPath"""
+    exit 0
+}
+
 # Stop the process to avoid errors
 Stop-Process -Name wallpaper32
 Logger -Level debug -Message "Stoping process" -Structured "process wallpaper32"
 
 # Update config file
-$configFile = Get-Content -Path $configPath | ConvertFrom-Json
 $configFile.raks.wproperties = $configProperties
 $configFile | ConvertTo-Json -Depth 100 | Set-Content -Path $configPath
 Logger -Level debug -Message "Config file updated" -Structured "path ""$configPath"""

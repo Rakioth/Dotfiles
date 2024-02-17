@@ -11,11 +11,12 @@
         $PROGRAMFILES/Nilesoft Shell/imports: config/nilesoft/imports
         $PROGRAMFILES/Paint.NET/Effects: config/paint
         ~/Documents/PowerToys/Backup: config/powertoys
+        $PROGRAMFILES/qBittorrent/black.qbtheme: config/qbittorrent/black.qbtheme
         ~/Documents/SweetScape/010 Templates/Custom: config/sweetscape/custom
         $APPDATA/Microsoft/Windows/Start Menu/Programs/Startup/010Editor.vbs: config/sweetscape/script.vbs
         $LOCALAPPDATA/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json: config/terminal/settings.json
         $PROGRAMFILES (x86)/Steam/steamapps/common/wallpaper_engine/projects/myprojects: config/wallpaper
-        ~/extensions/codely.codely-theme-0.0.1/themes/dark.codely-theme-color-theme.json: editors/code/theme.json
+        ~/.vscode/extensions/codely.codely-theme-0.0.1/themes/dark.codely-theme-color-theme.json: editors/code/theme.json
         $APPDATA/JetBrains/IntelliJIdea2023.3/plugins/codelytv-theme/lib/codelytv-theme-2.2.5.jar: editors/intellij/theme.jar
         $LOCALAPPDATA/nvim/lua/custom: editors/nvim
         $LOCALAPPDATA/clink/aliases.lua: shell/cmd/aliases.lua
