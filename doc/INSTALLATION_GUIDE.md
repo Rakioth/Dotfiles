@@ -8,6 +8,10 @@
 ### ⏳ After Install
 
 * Check for **updates**
+* Modify region
+    - **Time & Language** > **Language & Region**
+        + _Country or Region_ &nbsp;➤&nbsp; Spain
+        + _Regional Format_ &nbsp;➤&nbsp; Recommended
 * Sign in with **Microsoft account**
 * Modify keyboard layouts
     - **Time & Language** > **Language & Region** > **Options**
