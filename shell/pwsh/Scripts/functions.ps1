@@ -188,5 +188,25 @@ function Git-Log {
 }
 
 function Git-Clone {
-    git clone "https://github.com/$args.git"
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    $splitPath = $Path.Split("/", 3)
+
+    if ($splitPath.Length -lt 3) {
+        git clone "https://github.com/$Path.git" --depth 1
+        return
+    }
+
+    git clone "https://github.com/$( $splitPath[0] )/$( $splitPath[1] ).git" --depth 1 --no-checkout
+    if ($LastExitCode -ne 0) {
+        return
+    }
+
+    Set-Location -Path $splitPath[1]
+    git sparse-checkout set $splitPath[2]
+    git checkout
+    Set-Location -Path ".."
 }

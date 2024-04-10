@@ -4,6 +4,7 @@ fd
 fzf
 gcc
 git
+git-lfs
 lsd
 make
 neofetch
