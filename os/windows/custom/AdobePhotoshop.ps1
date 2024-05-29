@@ -4,9 +4,10 @@
 # Script variables
 $SCRIPT_NAME   = "AdobePhotoshop Installer"
 $SCRIPT_LOG    = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
-$SCRIPT_SOURCE = "https://pb.wtf/t/397758"
+$SCRIPT_SOURCE = "https://pb.wtf/t/400331"
 
 # Script values
+$systemLanguage    = (Get-SystemPreferredUILanguage).Replace("-", "_")
 $qBittorrent       = Join-Path -Path $env:PROGRAMFILES -ChildPath "qBittorrent\qbittorrent.exe"
 $qBittorrentConfig = Join-Path -Path $env:APPDATA      -ChildPath "qBittorrent\qBittorrent.ini"
 $qBittorrentLink   = Join-Path -Path $env:DOTFILES     -ChildPath "config\qbittorrent\qBittorrent.ini"
@@ -99,7 +100,7 @@ function Install-Package {
     $driveLetter = (Mount-DiskImage $disk | Get-Volume).DriveLetter
     Logger -Level debug -Message "Disk mounted" -Structured "iso ""$disk"""
     $installer    = (Resolve-Path -Path "$driveLetter`:\*Adobe*\*.exe").Path
-    $installerJob = Start-Job -ScriptBlock { Start-Process -FilePath $args[0] -ArgumentList "--silent=1 --lang=en_US" -NoNewWindow -Wait } -ArgumentList $installer
+    $installerJob = Start-Job -ScriptBlock { Start-Process -FilePath $args[0] -ArgumentList "--silent=1 --lang=$systemLanguage" -NoNewWindow -Wait } -ArgumentList $installer
     $installerJob | Wait-Job | Remove-Job
     Dismount-DiskImage $disk
     Logger -Level debug -Message "Disk dismounted" -Structured "iso ""$disk"""

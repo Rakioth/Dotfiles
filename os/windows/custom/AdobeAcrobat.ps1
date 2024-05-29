@@ -4,9 +4,15 @@
 # Script variables
 $SCRIPT_NAME   = "AdobeAcrobat Installer"
 $SCRIPT_LOG    = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
-$SCRIPT_SOURCE = "https://pb.wtf/t/397499"
+$SCRIPT_SOURCE = "https://pb.wtf/t/400153"
 
 # Script values
+# https://helpx.adobe.com/enterprise/using/deploying-acrobat.html
+$languageCodes     = @{
+    "en-US" = 1033
+    "es-ES" = 1034
+}
+$systemLanguage    = if ($languageCodes.ContainsKey((Get-SystemPreferredUILanguage))) { $languageCodes[(Get-SystemPreferredUILanguage)] } else { $languageCodes["en-US"] }
 $qBittorrent       = Join-Path -Path $env:PROGRAMFILES -ChildPath "qBittorrent\qbittorrent.exe"
 $qBittorrentConfig = Join-Path -Path $env:APPDATA      -ChildPath "qBittorrent\qBittorrent.ini"
 $qBittorrentLink   = Join-Path -Path $env:DOTFILES     -ChildPath "config\qbittorrent\qBittorrent.ini"
@@ -100,8 +106,7 @@ function Install-Package {
     Logger -Level debug -Message "Disk mounted" -Structured "iso ""$disk"""
     $installer    = (Resolve-Path -Path "$driveLetter`:\*Adobe*\Setup.exe").Path
     $enabler      = (Resolve-Path -Path "$driveLetter`:\*Adobe*\crack.exe").Path
-    # Language code reference: https://helpx.adobe.com/enterprise/using/deploying-acrobat.html
-    Start-Process -FilePath $installer -ArgumentList "/sl ""1033"" /sAll" -NoNewWindow -Wait
+    Start-Process -FilePath $installer -ArgumentList "/sl ""$systemLanguage"" /sAll" -NoNewWindow -Wait
     Start-Process -FilePath $enabler -NoNewWindow -Wait
     Dismount-DiskImage $disk
     Logger -Level debug -Message "Disk dismounted" -Structured "iso ""$disk"""

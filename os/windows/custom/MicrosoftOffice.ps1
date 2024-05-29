@@ -7,11 +7,12 @@ $SCRIPT_LOG    = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 $SCRIPT_SOURCE = "https://www.microsoft.com/en-us/download/details.aspx?id=49117"
 
 # Script values
-$officeConfig = @"
+$systemLanguage = (Get-SystemPreferredUILanguage).ToLower()
+$officeConfig   = @"
 <Configuration>
   <Add OfficeClientEdition="64" Channel="PerpetualVL2021">
     <Product ID="ProPlus2021Volume">
-      <Language ID="en-us" />
+      <Language ID="$systemLanguage" />
       <ExcludeApp ID="Access" />
       <ExcludeApp ID="Lync" />
       <ExcludeApp ID="OneDrive" />
