@@ -41,16 +41,16 @@ function Install-Dependency {
         [string]$Package
     )
 
-    $isPackageInstalled = ((winget.exe list --exact --query $Package) -join "").Contains($Package)
+    $isPackageInstalled = ((winget.exe list --exact $Package) -join "").Contains($Package)
 
     if ($isPackageInstalled) {
         Logger -Level debug -Message "Dependency already installed" -Structured "dependency $Package"
         return
     }
 
-    $packageOutput = winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $Package
+    winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $Package
 
-    if ($packageOutput.Contains("Successfully installed")) {
+    if ($LastExitCode -eq 0) {
         Logger -Level debug -Message "Dependency installed" -Structured "dependency $Package"
     }
     else {

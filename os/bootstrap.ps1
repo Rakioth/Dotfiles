@@ -1,9 +1,8 @@
 #Requires -PSEdition Core
-#Requires -RunAsAdministrator
 
 # Script variables
 $SCRIPT_NAME    = "Winget Importer"
-$SCRIPT_VERSION = "v1.0.0"
+$SCRIPT_VERSION = "v1.0.1"
 $SCRIPT_LOG     = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 
 # Script colors
@@ -93,7 +92,7 @@ function Get-Custom-Package {
 }
 
 # Arguments
-if ($args.Count -gt 0) {
+if ($args.Length -gt 0) {
     switch ($args[0]) {
         { $_ -eq "-h" -or $_ -eq "--help" } {
             Write-Host $defaultHelp
@@ -104,7 +103,7 @@ if ($args.Count -gt 0) {
             exit 0
         }
         { $_ -eq "-f" -or $_ -eq "--file" } {
-            $packagesFile = gum file --cursor="❯" --height=10 --file --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN $( $defaultPackagesFile | Split-Path -Parent )
+            $packagesFile = gum file --cursor="❯" --height=10 --file --no-show-help --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN $( $defaultPackagesFile | Split-Path -Parent )
         }
         default {
             Write-Host $defaultHelp
@@ -141,12 +140,12 @@ if ($notInstalledPackagesList -eq $null) {
 }
 
 # Choose the packages to install
-$packagesLabel    = gum style --foreground=$PURPLE packages
-$selectedPackages = $notInstalledPackagesList | ForEach-Object { "--selected=$_" }
-$chosenPackages   = gum choose --no-limit --cursor="❯ " --cursor.foreground=$PURPLE --item.foreground=$VIOLET --selected.foreground=$VIOLET --header.foreground="" --header="🎯 Choose the $packagesLabel you want to install:" $selectedPackages $notInstalledPackagesList
+$packagesLabel  = gum style --foreground=$PURPLE packages
+$chosenPackages = gum filter --no-limit --prompt="❯ " --prompt.foreground=$PURPLE --indicator.foreground=$PURPLE --selected-indicator.foreground=$VIOLET --match.foreground=$PURPLE --placeholder="Search..." --text.foreground="240" --cursor-text.foreground=$VIOLET --header="🎯 Select the $packagesLabel to install: " --header.foreground="" --height=10 $notInstalledPackagesList
 
 # Install the chosen packages
 $chosenPackages | ForEach-Object {
+    $isCustomPackage  = $false
     $packageLabel     = gum style --foreground=$VIOLET $_
     $packageInstaller = "winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $_"
 
@@ -154,6 +153,7 @@ $chosenPackages | ForEach-Object {
     $customPackagePath  = Get-Custom-Package -Package $_
 
     if (Test-Path -Path $customPackagePath -PathType Leaf) {
+        $isCustomPackage  = $true
         $packageInstaller = "pwsh -ExecutionPolicy Bypass -File $customPackagePath"
     }
     elseif (-not $isPackageAvailable) {
@@ -162,15 +162,18 @@ $chosenPackages | ForEach-Object {
         return
     }
 
-    $packageOutput         = Invoke-Expression "gum spin --spinner globe --title ""Installing $packageLabel..."" --show-output -- $packageInstaller"
-    if ($packageOutput -eq $null) { $packageOutput = "" }
-    $checkPackageInstalled = $packageOutput.Contains("Successfully installed") -or (Check-Custom-Package -Package $_)
+    $isPackageInstalled = ((winget.exe list --exact $_) -join "").Contains($_)
 
-    if (($packageOutput -join "").Contains("No available upgrade found")) {
+    if ($isPackageInstalled) {
         Logger -Level debug -Message "Package already installed" -Structured "package $_"
         Write-Host "✨ Package already installed: $packageLabel"
+        return
     }
-    elseif ($checkPackageInstalled) {
+
+    $packageOutput         = Invoke-Expression "gum spin --spinner globe --title ""Installing $packageLabel..."" -- $packageInstaller"
+    $checkPackageInstalled = if ($isCustomPackage) { Check-Custom-Package -Package $_ } else { $LastExitCode -eq 0 }
+
+    if ($checkPackageInstalled) {
         Logger -Level debug -Message "Package installed" -Structured "package $_"
         Write-Host "✔️ Package installed: $packageLabel"
     }

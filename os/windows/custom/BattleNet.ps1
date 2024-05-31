@@ -6,6 +6,9 @@ $SCRIPT_NAME   = "BattleNet Installer"
 $SCRIPT_LOG    = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 $SCRIPT_SOURCE = "https://downloader.battle.net/download/getInstaller?os=win&installer=Battle.net-Setup.exe"
 
+# Script values
+$systemLanguage = (Get-SystemPreferredUILanguage).Replace("-", "")
+
 # Logger
 function Logger {
     param(
@@ -49,7 +52,7 @@ function Install-Package {
         [string]$DestinationPath
     )
 
-    Start-Process -FilePath $Path -ArgumentList "--lang=enUS --installpath=""$DestinationPath""" -NoNewWindow -Wait
+    Start-Process -FilePath $Path -ArgumentList "--lang=$systemLanguage --installpath=""$DestinationPath""" -NoNewWindow -Wait
     Remove-Item $Path -Force
     Logger -Level debug -Message "Leftovers removed" -Structured "path ""$Path"""
 }

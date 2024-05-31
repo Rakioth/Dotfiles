@@ -4,7 +4,7 @@ set -o pipefail
 
 # Script variables
 SCRIPT_NAME="Yay Importer"
-SCRIPT_VERSION="v1.0.0"
+SCRIPT_VERSION="v1.0.1"
 SCRIPT_LOG="$HOME/dotfiles.log"
 
 # Script colors
@@ -73,7 +73,7 @@ if [ $# -gt 0 ]; then
 			exit 0
 			;;
 		-f | --file)
-			packages_file=$(gum file --cursor="❯" --height=10 --file --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN "$(dirname "$default_packages_file")")
+			packages_file=$(gum file --cursor="❯" --height=10 --file --no-show-help --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN "$(dirname "$default_packages_file")")
 			;;
 		*)
 			default_help
@@ -119,8 +119,7 @@ fi
 
 # Choose the packages to install
 packages_label=$(gum style --foreground=$PURPLE packages)
-selected_packages=$(echo "$filtered_not_installed_list" | awk '{print "--selected="$0}')
-chosen_packages=$(gum choose --no-limit --cursor="❯ " --cursor.foreground=$PURPLE --item.foreground=$VIOLET --selected.foreground=$VIOLET --header.foreground="" --header="🎯 Choose the $packages_label you want to install:" $selected_packages $filtered_not_installed_list)
+chosen_packages=$(gum filter --no-limit --prompt="❯ " --prompt.foreground=$PURPLE --indicator.foreground=$PURPLE --selected-indicator.foreground=$VIOLET --match.foreground=$PURPLE --placeholder="Search..." --text.foreground="240" --cursor-text.foreground=$VIOLET --header="🎯 Select the $packages_label to install: " --header.foreground="" --height=10 $filtered_not_installed_list)
 
 if [ -z "$chosen_packages" ]; then
 	exit 0
