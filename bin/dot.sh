@@ -8,6 +8,10 @@ dot() {
 			shift
 			bash "$DOTFILES/symlinks/bootstrap.sh" $@
 			;;
+		script)
+			shift
+			bash "$DOTFILES/scripts/bootstrap.sh" $@
+			;;
 		*)
 			\cat <<EOF
 Usage:
@@ -16,6 +20,7 @@ Usage:
 Commands:
   import      Install packages.
   symlink     Apply symlinks.
+  script      Run scripts.
 
 EOF
 			;;
@@ -23,7 +28,7 @@ EOF
 }
 
 dot_completer() {
-	compadd import symlink
+	compadd import symlink script
 }
 
 compdef dot_completer dot
