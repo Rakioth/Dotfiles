@@ -70,12 +70,12 @@ function Tail-Content {
 
 function Touch-Item {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]$Name
+        [string[]]$Names
     )
 
-    $Name | ForEach-Object { New-Item -ItemType File -Name $_ | Out-Null }
+    $Names | ForEach-Object { New-Item -ItemType File -Name $_ | Out-Null }
 }
 
 function Upload-Item {
@@ -85,44 +85,45 @@ function Upload-Item {
         [string]$Path
     )
 
-    $link = curl -sF "file=@$Path" 0x0.st
+    $result      = curl -s -w "%{http_code}" -F "file=@$Path" 0x0.st
+    $resultLines = $result -split "`n"
 
-    if ($link.Contains("<html>")) {
+    if ($resultLines[-1] -ne "200") {
         Write-Error "Upload failed"
         return
     }
 
-    $link | Set-Clipboard
+    $resultLines[0] | Set-Clipboard
 }
 
 function Which-Command {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]$Name
+        [string[]]$Names
     )
 
-    Get-Command -Name $Name -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Definition
+    Get-Command -Name $Names -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Definition
 }
 
 function Grep-Process {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]$Name
+        [string[]]$Names
     )
 
-    Get-Process -Name $( $Name | ForEach-Object { "*$_*" } )
+    Get-Process -Name $( $Names | ForEach-Object { "*$_*" } )
 }
 
 function Kill-Process {
     param (
-        [Parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $true, ValueFromRemainingArguments = $true)]
         [ValidateNotNullOrEmpty()]
-        [string[]]$Name
+        [string[]]$Names
     )
 
-    Stop-Process -Name $Name -ErrorAction SilentlyContinue
+    Stop-Process -Name $Names -ErrorAction SilentlyContinue
 }
 
 function Compress-Zip {

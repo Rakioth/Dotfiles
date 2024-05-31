@@ -4,7 +4,7 @@ set -o pipefail
 
 # Script variables
 SCRIPT_NAME="Symlinks Applier"
-SCRIPT_VERSION="v1.0.0"
+SCRIPT_VERSION="v1.0.1"
 SCRIPT_LOG="$HOME/dotfiles.log"
 
 # Script colors
@@ -52,7 +52,7 @@ if [ $# -gt 0 ]; then
 			exit 0
 			;;
 		-f | --file)
-			symlinks_file=$(gum file --cursor="❯" --height=10 --file --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN "$(dirname "$default_symlinks_file")")
+			symlinks_file=$(gum file --cursor="❯" --height=10 --file --no-show-help --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN "$(dirname "$default_symlinks_file")")
 			;;
 		*)
 			default_help
@@ -79,4 +79,5 @@ fi
 
 # Apply the symlinks
 symlinks_label=$(gum style --foreground=$VIOLET symlinks)
-gum spin --spinner moon --title "Applying $symlinks_label..." --show-output -- python $dotbot_path -d $DOTFILES -c $symlinks_file
+gum spin --spinner="moon" --title="Applying $symlinks_label..." --show-output -- python $dotbot_path -d $DOTFILES -c $symlinks_file
+logger debug "Symlinks applied" file $symlinks_file

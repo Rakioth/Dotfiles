@@ -2,7 +2,7 @@
 
 # Script variables
 $SCRIPT_NAME    = "Symlinks Applier"
-$SCRIPT_VERSION = "v1.0.0"
+$SCRIPT_VERSION = "v1.0.1"
 $SCRIPT_LOG     = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 
 # Script colors
@@ -44,7 +44,7 @@ function Logger {
 }
 
 # Arguments
-if ($args.Count -gt 0) {
+if ($args.Length -gt 0) {
     switch ($args[0]) {
         { $_ -eq "-h" -or $_ -eq "--help" } {
             Write-Host $defaultHelp
@@ -55,7 +55,7 @@ if ($args.Count -gt 0) {
             exit 0
         }
         { $_ -eq "-f" -or $_ -eq "--file" } {
-            $symlinksFile = gum file --cursor="❯" --height=10 --file --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN $( $defaultSymlinksFile | Split-Path -Parent )
+            $symlinksFile = gum file --cursor="❯" --height=10 --file --no-show-help --cursor.foreground=$PURPLE --symlink.foreground=$BLUE --selected.foreground="" --directory.foreground=$VIOLET --file.foreground=$GREEN $( $defaultSymlinksFile | Split-Path -Parent )
         }
         default {
             Write-Host $defaultHelp
@@ -83,4 +83,5 @@ if (-not (Test-Path -Path $symlinksFile -PathType Leaf)) {
 
 # Apply the symlinks
 $symlinksLabel = gum style --foreground=$VIOLET symlinks
-gum spin --spinner moon --title "Applying $symlinksLabel..." --show-output -- python $dotbotPath -d $env:DOTFILES -c $symlinksFile
+gum spin --spinner="moon" --title="Applying $symlinksLabel..." --show-output -- python $dotbotPath -d $env:DOTFILES -c $symlinksFile
+Logger -Level debug -Message "Symlinks applied" -Structured "file ""$symlinksFile"""

@@ -2,8 +2,8 @@
 #Requires -RunAsAdministrator
 
 # Run OO Shutup
-Start-BitsTransfer -Source "https://raw.githubusercontent.com/ChrisTitusTech/winutil/main/ooshutup10_winutil_settings.cfg" -Destination "$env:TEMP\ooshutup10.cfg"
-Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"                                       -Destination "$env:TEMP\OOSU10.exe"
+Start-BitsTransfer -Source "https://raw.githubusercontent.com/ChrisTitusTech/winutil/main/config/ooshutup10_factory.cfg" -Destination "$env:TEMP\ooshutup10.cfg"
+Start-BitsTransfer -Source "https://dl5.oo-software.com/files/ooshutup10/OOSU10.exe"                                     -Destination "$env:TEMP\OOSU10.exe"
 Start-Process -FilePath "$env:TEMP\OOSU10.exe" -ArgumentList "$env:TEMP\ooshutup10.cfg /quiet" -Wait
 
 # Disable Telemetry

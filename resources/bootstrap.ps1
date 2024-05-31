@@ -1,9 +1,8 @@
 #Requires -PSEdition Core
-#Requires -RunAsAdministrator
 
 # Script variables
 $SCRIPT_NAME    = "Resource Loader"
-$SCRIPT_VERSION = "v1.0.0"
+$SCRIPT_VERSION = "v1.0.1"
 $SCRIPT_LOG     = Join-Path -Path $env:USERPROFILE -ChildPath "dotfiles.log"
 
 # Script colors
@@ -40,7 +39,7 @@ function Logger {
 }
 
 # Arguments
-if ($args.Count -gt 0) {
+if ($args.Length -gt 0) {
     switch ($args[0]) {
         { $_ -eq "-h" -or $_ -eq "--help" } {
             Write-Host $defaultHelp
@@ -58,13 +57,13 @@ if ($args.Count -gt 0) {
 }
 
 # Choose the resources to set-up
-$resourcesLabel    = gum style --foreground=$PURPLE resources
-$resources         = $resourcesFiles | ForEach-Object { $_.PSParentPath | Split-Path -Leaf }
-$selectedResources = $resources      | ForEach-Object { "--selected=$_" }
-$chosenResources   = gum choose --no-limit --cursor.foreground=$PURPLE --item.foreground=$VIOLET --selected.foreground=$VIOLET --header.foreground="" --header="🎯 Choose the $resourcesLabel you want to set-up:" $selectedResources $resources
+$resources       = $resourcesFiles | ForEach-Object { $_.PSParentPath | Split-Path -Leaf }
+$resourcesLabel  = gum style --foreground=$PURPLE resources
+$chosenResources = gum filter --no-limit --prompt="❯ " --prompt.foreground=$PURPLE --indicator.foreground=$PURPLE --selected-indicator.foreground=$VIOLET --match.foreground=$PURPLE --placeholder="Search..." --text.foreground="240" --cursor-text.foreground=$VIOLET --header="🎨 Select the $resourcesLabel you want to set-up: " --header.foreground="" --height=10 $resources
 
 # Set-up the chosen resources
 $chosenResources | ForEach-Object {
     $resourceLabel = gum style --foreground=$VIOLET $_
-    gum spin --spinner monkey --title "Setting up $resourceLabel..." -- pwsh -ExecutionPolicy Bypass -File $( Join-Path -Path $resourcesPath -ChildPath "$_\main.ps1" )
+    gum spin --spinner="monkey" --title="Setting up $resourceLabel..." -- pwsh -ExecutionPolicy Bypass -File $( Join-Path -Path $resourcesPath -ChildPath "$_\main.ps1" )
+    Logger -Level debug -Message "Resource set-up" -Structured "resource $_"
 }
