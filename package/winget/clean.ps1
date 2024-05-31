@@ -1,68 +1,37 @@
 #Requires -PSEdition Core
 
-# Helper
-function Count-Ideographs {
+function Winget-Clean  {
     param (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [string]$InputString
+        [Parameter(Mandatory = $false)]
+        [string[]]$Ids
     )
 
-    $pattern = "[\p{IsCJKUnifiedIdeographs}]"
-    $matches = [System.Text.RegularExpressions.Regex]::Matches($InputString, $pattern)
-    return $matches.Count
-}
-
-# Main
-function Winget-Clean {
     $PURPLE = "#ce3ed6"
     $VIOLET = "#c698f2"
 
-    try {
-        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-        $result = winget.exe list | Out-String
-        $lines  = $result.Split([Environment]::NewLine)
-
-        # Find the line that starts with Name, it contains the header
-        $pointer = 0
-        while (-not $lines[$pointer].StartsWith("Name")) {
-            $pointer++
+    if ($Ids.Length -gt 0) {
+        $chosenPackages = $Ids
+    }
+    else {
+        $packages       = Get-WinGetPackage | Where-Object { $_.Source -eq "winget" } | Select-Object -ExpandProperty Id
+        if (-not $packages) {
+            Write-Host "🔍 No packages found"
+            return
         }
 
-        # Line has the header, we can find char where we find Id and Version
-        $idStart      = $lines[$pointer].IndexOf("Id")
-        $versionStart = $lines[$pointer].IndexOf("Version")
-        $sourceStart  = $lines[$pointer].IndexOf("Source")
+        $packagesLabel  = gum style --foreground=$PURPLE packages
+        $chosenPackages = gum filter --no-limit --prompt="❯ " --prompt.foreground=$PURPLE --indicator.foreground=$PURPLE --selected-indicator.foreground=$VIOLET --match.foreground=$PURPLE --placeholder="Search..." --text.foreground="240" --cursor-text.foreground=$VIOLET --header="🗑️ Select the $packagesLabel to uninstall: " --header.foreground="" --height=10 $packages
+    }
 
-        # Now cycle in real package and split accordingly
-        $parsedList = @()
-        for ($i = $pointer + 1; $i -le $lines.Length; $i++) {
-            $line = $lines[$i]
+    $chosenPackages | ForEach-Object {
+        $packageLabel = gum style --foreground=$VIOLET $_
+        gum spin --spinner="moon" --title="Uninstalling $packageLabel..." -- winget.exe uninstall --exact --silent --purge --force --id $_
 
-            if ($line.Length -gt ($idStart + 1) -and -not $line.StartsWith("-")) {
-                $ideographsCount = Count-Ideographs -InputString $line
-                $id              = $line.Substring($idStart - $ideographsCount, $versionStart - $idStart).TrimEnd()
-                $source          = $line.Substring($sourceStart - $ideographsCount, $line.Length - $sourceStart).TrimEnd()
-                if ($source) {
-                    $parsedList += $id
-                }
-            }
+        if ($LastExitCode -eq 0) {
+            Write-Host "✔️ Package uninstalled: $packageLabel"
         }
-
-        $chosenPackages = gum filter --no-limit --prompt="❯ " --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10 $parsedList
-
-        # Uninstall the chosen packages
-        $chosenPackages | ForEach-Object {
-            $packageLabel  = gum style --foreground=$VIOLET $_
-            $packageOutput = gum spin --spinner moon --title "Uninstalling $packageLabel..." --show-output -- winget.exe uninstall --exact --silent --purge --force --id $_
-
-            if ($packageOutput.Contains("Successfully uninstalled")) {
-                Write-Host "✔️ Package uninstalled: $packageLabel"
-            }
-            else {
-                Write-Host "❌ Package could not be uninstalled: $packageLabel"
-            }
+        else {
+            Write-Host "❌ Package could not be uninstalled: $packageLabel"
         }
     }
-    catch { }
 }

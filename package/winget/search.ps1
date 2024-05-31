@@ -1,19 +1,5 @@
 #Requires -PSEdition Core
 
-# Helper
-function Count-Ideographs {
-    param (
-        [Parameter(Mandatory = $true)]
-        [ValidateNotNullOrEmpty()]
-        [string]$InputString
-    )
-
-    $pattern = "[\p{IsCJKUnifiedIdeographs}]"
-    $matches = [System.Text.RegularExpressions.Regex]::Matches($InputString, $pattern)
-    return $matches.Count
-}
-
-# Main
 function Winget-Search {
     param (
         [Parameter(Mandatory = $true)]
@@ -24,62 +10,26 @@ function Winget-Search {
     $PURPLE = "#ce3ed6"
     $VIOLET = "#c698f2"
 
-    try {
-        [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
-        $result = winget.exe search $Query | Out-String
-
-        if ($result.Contains("No package found")) {
-            Write-Host "🔍 No package found"
-            return
-        }
-
-        $lines  = $result.Split([Environment]::NewLine)
-
-        # Find the line that starts with Name, it contains the header
-        $pointer = 0
-        while (-not $lines[$pointer].StartsWith("Name")) {
-            $pointer++
-        }
-
-        # Line has the header, we can find char where we find Id and Version
-        $idStart      = $lines[$pointer].IndexOf("Id")
-        $versionStart = $lines[$pointer].IndexOf("Version")
-
-        # Now cycle in real package and split accordingly
-        $parsedList = @()
-        for ($i = $pointer + 1; $i -le $lines.Length; $i++) {
-            $line = $lines[$i]
-
-            if ($line.Length -gt ($idStart + 1) -and -not $line.StartsWith("-")) {
-                $ideographsCount = Count-Ideographs -InputString $line
-                $id              = $line.Substring($idStart - $ideographsCount, $versionStart - $idStart).TrimEnd()
-                $parsedList     += $id
-            }
-        }
-
-        $chosenPackage = gum filter --prompt="❯ " --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10 $parsedList
-
-        if (-not $chosenPackage) {
-            return
-        }
-
-        $packageInstalled = ((winget.exe list --exact --query $chosenPackage) -join "").Contains($chosenPackage)
-        $action           = if ($packageInstalled) { "Updating" } else { "Installing" }
-        $output           = if ($packageInstalled) { "updated"  } else { "installed"  }
-
-        # Install or update the chosen package
-        $packageLabel  = gum style --foreground=$VIOLET $chosenPackage
-        $packageOutput = gum spin --spinner moon --title "$action $packageLabel..." --show-output -- winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $chosenPackage
-
-        if (($packageOutput -join "").Contains("No available upgrade found")) {
-            Write-Host "✨ Package already $output`: $packageLabel"
-        }
-        elseif ($packageOutput.Contains("Successfully installed")) {
-            Write-Host "✔️ Package $output`: $packageLabel"
-        }
-        else {
-            Write-Host "❌ Package could not be $output`: $packageLabel"
-        }
+    $packages = Find-WinGetPackage -Query $Query -Source "winget" | Select-Object -ExpandProperty Id
+    if (-not $packages) {
+        Write-Host "🔍 No packages found"
+        return
     }
-    catch { }
+
+    $packagesLabel = gum style --foreground=$PURPLE package
+    $chosenPackage = gum filter --select-if-one --prompt="❯ " --prompt.foreground=$PURPLE --indicator.foreground=$PURPLE --match.foreground=$PURPLE --placeholder="Search..." --text.foreground="240" --cursor-text.foreground=$VIOLET --header="🚀 Select the $packagesLabel to install: " --header.foreground="" --height=10 $packages
+
+    if (-not $chosenPackage) {
+        return
+    }
+
+    $packageLabel = gum style --foreground=$VIOLET $chosenPackage
+    gum spin --spinner="moon" --title="Installing $packageLabel..." -- winget.exe install --exact --silent --accept-source-agreements --accept-package-agreements --id $chosenPackage
+
+    if ($LastExitCode -eq 0) {
+        Write-Host "✔️ Package installed: $packageLabel"
+    }
+    else {
+        Write-Host "❌ Package could not be installed: $packageLabel"
+    }
 }

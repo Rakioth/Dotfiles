@@ -2,12 +2,21 @@ function yay_clean() {
 	PURPLE="#ce3ed6"
 	VIOLET="#c698f2"
 
-	result=$(/usr/sbin/yay -Qq)
+	if [ $# -gt 0 ]; then
+		chosen_packages=$@
+	else
+		packages=$(/usr/sbin/yay -Qq)
+		if [ -z "$packages" ]; then
+			echo "🔍 No packages found"
+			return
+		fi
 
-	chosen_packages=$(echo "$result" | gum filter --no-limit --prompt="❯ " --placeholder="Search..." --match.foreground=$PURPLE --prompt.foreground=$PURPLE --text.foreground=$VIOLET --indicator.foreground=$PURPLE --unselected-prefix.foreground=$VIOLET --selected-indicator.foreground=$PURPLE --cursor-text.foreground="" --height=10)
+		packages_label=$(gum style --foreground=$PURPLE packages)
+		chosen_packages=$(gum filter --no-limit --prompt="❯ " --prompt.foreground=$PURPLE --indicator.foreground=$PURPLE --selected-indicator.foreground=$VIOLET --match.foreground=$PURPLE --placeholder="Search..." --text.foreground="240" --cursor-text.foreground=$VIOLET --header="🗑️ Select the $packages_label to uninstall: " --header.foreground="" --height=10 $packages)
+	fi
 
 	if [ -z "$chosen_packages" ]; then
-		return 0
+		return
 	fi
 
 	echo "$chosen_packages" | xargs /usr/sbin/yay -Runs --noconfirm

@@ -4,7 +4,8 @@ source ${DOTFILES}/package/yay/search.sh
 yay() {
 	case $1 in
 		clean)
-			yay_clean
+			shift
+			yay_clean $@
 			;;
 		search)
 			yay_search $2
