@@ -19,13 +19,13 @@ Utilizing [Dotbot](https://github.com/anishathalye/dotbot), a cross-platform too
 Using powershell
 
 ```powershell
-irm raw.githubusercontent.com/Rakioth/Dotfiles/main/installer.ps1 | iex
+irm link.raks.dev/pwsh | iex
 ```
 
 Using bash
 
 ```bash
-curl -fsSL raw.githubusercontent.com/Rakioth/Dotfiles/main/installer.sh | bash
+curl -fsSL link.raks.dev/bash | bash
 ```
 
 ## <img src="https://github.com/Rakioth/Dotfiles/assets/75569411/21cd31b4-955c-44ca-a35f-32b6f74278be" alt="Palm Tree" width="25"/> Folder Structure
