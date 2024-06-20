@@ -16,7 +16,7 @@ function install_dependency() {
 		return
 	fi
 
-	yay -S "$packages" --noconfirm > /dev/null 2>&1
+	yay -S $packages --noconfirm > /dev/null 2>&1
 
 	if which "$command" >/dev/null 2>&1; then
 		echo -e "${emoji} ${ANSI_VIOLET}${name}${ANSI_RESET} installed"

@@ -17,7 +17,7 @@ function Start-Code {
 
 function Start-IntelliJ {
     $ErrorActionPreference = "SilentlyContinue"
-    Start-Process -FilePath "C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2023.3.3\bin\idea64.exe" -ArgumentList $args -NoNewWindow
+    Start-Process -FilePath "C:\Program Files (x86)\JetBrains\IntelliJ IDEA 2024.1.3\bin\idea64.exe" -ArgumentList $args -NoNewWindow
 }
 
 function List-Items {
@@ -89,8 +89,8 @@ function Upload-Item {
     $resultLines = $result -split "`n"
 
     if ($resultLines[-1] -ne "200") {
-        Write-Error "Upload failed"
-        return
+        Write-Host "Upload failed" -ForegroundColor Red
+        return 1
     }
 
     $resultLines[0] | Set-Clipboard
@@ -161,7 +161,7 @@ function Quit {
 }
 
 function Git-Add-All {
-    git add -A
+    git add -A $args
 }
 
 function Git-Commit-All {
@@ -169,19 +169,19 @@ function Git-Commit-All {
 }
 
 function Git-Status {
-    git status -sb
+    git status -sb $args
 }
 
 function Git-Fetch {
-    git fetch --all
+    git fetch --all $args
 }
 
 function Git-Push {
-    git push
+    git push $args
 }
 
 function Git-Pull {
-    git pull --autostash
+    git pull --autostash $args
 }
 
 function Git-Log {
@@ -189,19 +189,14 @@ function Git-Log {
 }
 
 function Git-Clone {
-    param (
-        [Parameter(Mandatory = $true)]
-        [string]$Path
-    )
-
-    $splitPath = $Path.Split("/", 3)
+    $splitPath = $args[0].Split("/", 3)
 
     if ($splitPath.Length -lt 3) {
-        git clone "https://github.com/$Path.git" --depth 1
+        git clone "https://github.com/$( $args[0] ).git" --depth 1 $args[1..$args.Length]
         return
     }
 
-    git clone "https://github.com/$( $splitPath[0] )/$( $splitPath[1] ).git" --depth 1 --no-checkout
+    git clone "https://github.com/$( $splitPath[0] )/$( $splitPath[1] ).git" --depth 1 --no-checkout $args[1..$args.Length]
     if ($LastExitCode -ne 0) {
         return
     }

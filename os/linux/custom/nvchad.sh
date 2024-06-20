@@ -40,7 +40,3 @@ install_dependency make
 install_dependency gcc
 install_dependency ripgrep
 install_dependency neovim
-
-path_installation="$HOME/.config/nvim"
-git clone "https://github.com/$SCRIPT_SOURCE" $path_installation --depth 1
-logger debug "Repository cloned" path $path_installation

@@ -5,7 +5,7 @@
 -   link:
         ~/.config/bat: config/bat
         ~/.config/lsd: config/lsd
-        ~/.config/nvim/lua/custom: editors/nvim
+        ~/.config/nvim: editors/nvim
         ~/.zimrc: shell/zsh/.zimrc
         ~/.zshrc: shell/zsh/.zshrc
 

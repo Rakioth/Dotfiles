@@ -7,7 +7,7 @@ alias ....="cd ../../.."
 
 # 🚀 Editors
 alias co="code"
-alias id="/mnt/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ 2023.3.3/bin/idea64.exe"
+alias id="/mnt/c/Program\ Files\ \(x86\)/JetBrains/IntelliJ\ IDEA\ 2024.1.3/bin/idea64.exe"
 alias vim="nvim"
 
 # 📜 Listings

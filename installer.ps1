@@ -37,7 +37,7 @@ function Install-Dependency {
         [string]$Emoji
     )
 
-    $isPackageInstalled = ((winget.exe list --exact $Package) -join "").Contains($Package)
+    $isPackageInstalled = ((winget.exe list --accept-source-agreements --exact $Package) -join "").Contains($Package)
 
     if ($isPackageInstalled) {
         Write-Host "$( Get-Emoji -Unicode $Emoji ) $ANSI_VIOLET$Name$ANSI_RESET already installed"
@@ -96,6 +96,7 @@ Install-Dependency -Package "Python.Python.3.13"   -Name "Python" -Emoji "1F40D"
 # Refresh PATH
 $paths    = (((Get-ItemPropertyValue -Path "HKCU:\Environment" -Name Path) -split ";") + ((Get-ItemPropertyValue -Path "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Environment" -Name Path) -split ";")) | Select-Object -Unique
 $env:PATH = $paths -join ";"
+Write-Host
 
 # Set dotfiles path
 gum confirm --default=no --selected.background=$PURPLE --prompt.foreground="" --prompt.italic --no-show-help "Change dotfiles location? (default ~/.dotfiles)"

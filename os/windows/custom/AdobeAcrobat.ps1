@@ -41,7 +41,7 @@ function Install-Dependency {
         [string]$Package
     )
 
-    $isPackageInstalled = ((winget.exe list --exact $Package) -join "").Contains($Package)
+    $isPackageInstalled = ((winget.exe list --accept-source-agreements --exact $Package) -join "").Contains($Package)
 
     if ($isPackageInstalled) {
         Logger -Level debug -Message "Dependency already installed" -Structured "dependency $Package"

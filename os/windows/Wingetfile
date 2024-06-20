@@ -12,7 +12,6 @@ Git.Git
 GitHub.GitHubDesktop
 GitHub.GitLFS
 GnuPG.Gpg4win
-GnuWin32.Make
 Google.Chrome
 JetBrains.IntelliJIDEA.Ultimate
 KeePassXCTeam.KeePassXC
@@ -44,7 +43,6 @@ custom.AdobeIllustrator
 custom.AdobePhotoshop
 custom.ArchWSL
 custom.BattleNet
-custom.EverythingPowerToys
 custom.MicrosoftOffice
 custom.MinGW
 custom.NerdFonts
@@ -52,8 +50,10 @@ custom.Noesis
 custom.NvChad
 custom.Paint
 custom.RockstarGames
+ezwinports.make
 gerardog.gsudo
 junegunn.fzf
+lin-ycv.EverythingPowerToys
 lsd-rs.lsd
 qBittorrent.qBittorrent
 sharkdp.bat

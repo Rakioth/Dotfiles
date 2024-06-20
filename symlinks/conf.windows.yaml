@@ -17,8 +17,8 @@
         $LOCALAPPDATA/Packages/Microsoft.WindowsTerminal_8wekyb3d8bbwe/LocalState/settings.json: config/terminal/settings.json
         $PROGRAMFILES (x86)/Steam/steamapps/common/wallpaper_engine/projects/myprojects: config/wallpaper
         ~/.vscode/extensions/codely.codely-theme-0.0.1/themes/dark.codely-theme-color-theme.json: editors/code/theme.json
-        $APPDATA/JetBrains/IntelliJIdea2023.3/plugins/codelytv-theme/lib/codelytv-theme-2.2.5.jar: editors/intellij/theme.jar
-        $LOCALAPPDATA/nvim/lua/custom: editors/nvim
+        $APPDATA/JetBrains/IntelliJIdea2024.1/plugins/codelytv-theme/lib/codelytv-theme-2.2.8.jar: editors/intellij/theme.jar
+        $LOCALAPPDATA/nvim: editors/nvim
         $LOCALAPPDATA/clink/aliases.lua: shell/cmd/aliases.lua
         $LOCALAPPDATA/clink/exports.lua: shell/cmd/exports.lua
         $LOCALAPPDATA/clink/starship.lua: shell/cmd/starship.lua

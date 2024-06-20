@@ -30,7 +30,7 @@ function Install-Dependency {
         [string]$Package
     )
 
-    $isPackageInstalled = ((winget.exe list --exact $Package) -join "").Contains($Package)
+    $isPackageInstalled = ((winget.exe list --accept-source-agreements --exact $Package) -join "").Contains($Package)
 
     if ($isPackageInstalled) {
         Logger -Level debug -Message "Dependency already installed" -Structured "dependency $Package"
@@ -48,24 +48,7 @@ function Install-Dependency {
     }
 }
 
-function Config-Dependency {
-    $binPath       = "C:\Program Files (x86)\GnuWin32\bin"
-    $persistedPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::User) -split ";"
-    if ($persistedPath -notcontains $binPath) {
-        $persistedPath += $binPath
-        [Environment]::SetEnvironmentVariable("Path", $persistedPath -join ";", [EnvironmentVariableTarget]::User)
-    }
-    Logger -Level debug -Message "Binaries added to PATH" -Structured "path ""$binPath"""
-}
-
 Install-Dependency -Package "Git.Git"
-Install-Dependency -Package "GnuWin32.Make"
+Install-Dependency -Package "ezwinports.make"
 Install-Dependency -Package "BurntSushi.ripgrep.MSVC"
 Install-Dependency -Package "Neovim.Neovim"
-
-Config-Dependency
-
-$pathInstallation = Join-Path -Path $env:LOCALAPPDATA -ChildPath "nvim"
-$pathGit          = Join-Path -Path $env:PROGRAMFILES -ChildPath "Git\cmd\git.exe"
-Start-Process $pathGit -ArgumentList "clone ""https://github.com/$SCRIPT_SOURCE"" $pathInstallation --depth 1" -NoNewWindow
-Logger -Level debug -Message "Repository cloned" -Structured "path ""$pathInstallation"""

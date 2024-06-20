@@ -42,3 +42,12 @@ modify(
 	title = 'Notepad'
 	pos   = top
 )
+
+item(
+	menu  = 'open with'
+	title = 'Photoshop'
+	pos   = top
+	icon
+	cmd   = 'C:\Program Files\Adobe\Adobe Photoshop 2024\Photoshop.exe'
+	arg   = '"@sel.path"'
+)

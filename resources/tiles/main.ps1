@@ -88,7 +88,7 @@ $programs      = @(
         Value         = "|-1|1|2|2|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Clipchamp – Video Editor" }).AppID
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Microsoft Clipchamp" }).AppID
         TilePath      = Join-Path -Path $tilesPath -ChildPath "Clipchamp.png"
         GroupContents = "GRP2002"
         Order         = "5"
@@ -109,8 +109,8 @@ $programs      = @(
         Value         = "|-1|1|2|0|-1||"
     }
     [PSCustomObject]@{
-        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Oracle VM VirtualBox" }).AppID
-        TilePath      = Join-Path -Path $tilesPath -ChildPath "Oracle VM VirtualBox.png"
+        ProgramPath   = ($installedApps | Where-Object { $_.Name -eq "Docker Desktop" }).AppID
+        TilePath      = Join-Path -Path $tilesPath -ChildPath "Docker.png"
         GroupContents = "GRP2003"
         Order         = "2"
         Value         = "|-1|1|4|0|-1||"

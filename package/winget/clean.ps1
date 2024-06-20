@@ -25,7 +25,7 @@ function Winget-Clean  {
 
     $chosenPackages | ForEach-Object {
         $packageLabel = gum style --foreground=$VIOLET $_
-        gum spin --spinner="moon" --title="Uninstalling $packageLabel..." -- winget.exe uninstall --exact --silent --purge --force --id $_
+        gum spin --spinner="moon" --title="Uninstalling $packageLabel..." -- winget.exe uninstall --accept-source-agreements --exact --silent --purge --force --id $_
 
         if ($LastExitCode -eq 0) {
             Write-Host "✔️ Package uninstalled: $packageLabel"

@@ -17,7 +17,7 @@ RESET='\033[0m'
 
 # Script values
 declare -A custom_packages=(
-	["custom-nvchad"]="$HOME/.config/nvim/lua/core"
+	["custom-nvchad"]="/usr/sbin/nvim"
 )
 custom_packages_path="$DOTFILES/os/linux/custom"
 default_packages_file="$DOTFILES/os/linux/Yayfile"
@@ -45,14 +45,13 @@ EOF
 
 function check_custom_package() {
 	package=$1
-	is_already_installed=false
 	install_path="${custom_packages[$package]}"
 
-	if [ -n "$install_path" -a -d "$install_path" ]; then
-		is_already_installed=true
+	if [ -e "$install_path" ]; then
+		echo true
+	else
+		echo false
 	fi
-
-	echo $is_already_installed
 }
 
 function get_custom_package() {
@@ -107,7 +106,7 @@ while IFS= read -r package; do
 	is_already_installed=$(check_custom_package "$package")
 
 	if [ "$is_already_installed" == false ]; then
-		filtered_not_installed_list+="$package"$'\n'
+		filtered_not_installed_list+="$package "
 	fi
 done <<< "$not_installed_packages_list"
 

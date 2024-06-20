@@ -38,13 +38,13 @@ style = "atomic_violet"
 "D:" = "Data"
 
 [git_branch]
-format = "on [$symbol$branch]($style) "
-symbol = "🪵 "
-style = "git_branch"
+format = "on [$symbol $branch]($style) "
+symbol = "🪵"
+style = "#d69956"
 
 [git_commit]
 format = "on [$tag]($style) "
-style = "git_tag"
+style = "#da2d2b"
 tag_symbol = "🔖 "
 tag_disabled = false
 
@@ -58,80 +58,66 @@ success_symbol = "[❯](bold yellow)"
 symbol = " "
 
 [package]
-format = "[$symbol($version )]($style)"
-symbol = "📦 "
-style = "package"
+format = "[$symbol ($version)]($style) "
+symbol = "📦"
+style = "#e0b56e"
 display_private = true
 
 [bun]
-format = "[$symbol($version )]($style)"
-symbol = "🍞 "
-style = "package_bun"
+format = "[$symbol ($version)]($style) "
+symbol = "🍞"
+style = "#e0c393"
 
 [gradle]
-format = "[$symbol($version )]($style)"
-symbol = "🐘 "
-style = "package_gradle"
+format = "[$symbol ($version)]($style) "
+symbol = "🐘"
+style = "#bababa"
 
 [nodejs]
-format = "[$symbol($version )]($style)"
-symbol = "🍀 "
-style = "package_node"
+format = "[$symbol ($version)]($style) "
+symbol = "🍀"
+style = "#02b95e"
 
 [dotnet]
-format = "[$symbol($version )]($style)"
-symbol = "🎯 "
-style = "lang_dotnet"
+format = "[$symbol ($version)]($style) "
+symbol = "🎯"
+style = "#3f91dc"
 
 [golang]
-format = "[$symbol($version )]($style)"
-symbol = "🐹 "
-style = "lang_golang"
+format = "[$symbol ($version)]($style) "
+symbol = "🐹"
+style = "#d69956"
 
 [java]
-format = "[$symbol($version )]($style)"
-symbol = "☕ "
-style = "lang_java"
+format = "[$symbol ($version)]($style) "
+symbol = "☕"
+style = "#7d4533"
 
 [kotlin]
-format = "[$symbol($version )]($style)"
-symbol = "🫧 "
-style = "lang_kotlin"
+format = "[$symbol ($version)]($style) "
+symbol = "🫧"
+style = "#c599da"
 
 [lua]
-format = "[$symbol($version )]($style)"
-symbol = "🌙 "
-style = "lang_lua"
+format = "[$symbol ($version)]($style) "
+symbol = "🌙"
+style = "#ddbb39"
 
 [python]
-format = "[$symbol($version )]($style)"
-symbol = "🐍 "
-style = "lang_python"
+format = "[$symbol ($version)]($style) "
+symbol = "🐍"
+style = "#02b95e"
 
 [rust]
-format = "[$symbol($version )]($style)"
-symbol = "🦀 "
-style = "lang_rust"
+format = "[$symbol ($version)]($style) "
+symbol = "🦀"
+style = "#da2d2b"
 
 [swift]
-format = "[$symbol($version )]($style)"
-symbol = "🐦 "
-style = "lang_swift"
+format = "[$symbol ($version)]($style) "
+symbol = "🐦"
+style = "#b20c42"
 
 [palettes.raks]
 atomic_purple = "#ce3ed6"
 atomic_violet = "#c698f2"
-git_branch = "#d69956"
-git_tag = "#da2d2b"
-package = "#e0b56e"
-package_bun = "#e0c393"
-package_gradle = "#bababa"
-package_node = "#02b95e"
-lang_dotnet = "#3f91dc"
-lang_golang = "#d69956"
-lang_java = "#7d4533"
-lang_kotlin = "#c599da"
-lang_lua = "#ddbb39"
-lang_python = "#02b95e"
-lang_rust = "#da2d2b"
-lang_swift = "#b20c42"

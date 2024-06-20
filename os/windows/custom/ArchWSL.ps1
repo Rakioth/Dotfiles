@@ -74,7 +74,6 @@ if (-not ((Get-ComputerInfo).HyperVisorPresent)) {
 if (-not (Get-Command "wslconfig")) {
     Start-Process -FilePath wsl -ArgumentList "--install" -NoNewWindow -Wait
     Logger -Level warn -Message "Windows Subsystem for Linux enabled" -Structured "restart required"
-    Restart-Computer
     exit 1
 }
 
@@ -102,6 +101,6 @@ Start-Process -FilePath $packagePath -ArgumentList "run echo ""$archPass"" | sud
 Start-Process -FilePath $packagePath -ArgumentList "run echo ""$archPass"" | sudo -S tee -a /etc/profile.d/dotfiles.sh <<< ""export DOTFILES=$wslDotfilesPath""" -NoNewWindow -Wait
 
 # Register Arch
-winget.exe uninstall --exact --silent --purge --force --id Canonical.Ubuntu.2204
+winget.exe uninstall --accept-source-agreements --exact --silent --purge --force --id Canonical.Ubuntu.2204
 Start-Process -FilePath wsl -ArgumentList "--unregister Ubuntu" -NoNewWindow -Wait
 Start-Process -FilePath wsl -ArgumentList "--set-default Arch"  -NoNewWindow -Wait
