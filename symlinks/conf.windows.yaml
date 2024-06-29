@@ -4,6 +4,7 @@
 
 -   link:
         $APPDATA/bat: config/bat
+        $APPDATA/gnupg/gpg-agent.conf: config/gnupg/gpg-agent.conf
         $LOCALAPPDATA/FileConverter/Settings.user.xml: config/fileconverter/settings.xml
         $APPDATA/lsd: config/lsd
         ~/.gitconfig: config/git/.gitconfig
