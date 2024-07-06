@@ -113,3 +113,6 @@ Config-Dependency
 
 $packagePath = Download-Package -Source $SCRIPT_SOURCE -FilePattern "magnet"
 Install-Package -Path $packagePath
+
+$executablePath = (Resolve-Path -Path (Join-Path -Path $env:PROGRAMFILES -ChildPath "Adobe\*Adobe Illustrator*\Support Files\Contents\Windows\Illustrator.exe")).Path
+New-NetFirewallRule -DisplayName "Block Adobe Illustrator" -Direction Outbound -Program $executablePath -Action Block -Profile Domain, Private, Public

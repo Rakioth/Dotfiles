@@ -113,3 +113,6 @@ Config-Dependency
 
 $packagePath = Download-Package -Source $SCRIPT_SOURCE -FilePattern "magnet"
 Install-Package -Path $packagePath
+
+$executablePath = (Resolve-Path -Path (Join-Path -Path $env:PROGRAMFILES -ChildPath "Adobe\*Adobe After Effects*\Support Files\AfterFX.exe")).Path
+New-NetFirewallRule -DisplayName "Block Adobe After Effects" -Direction Outbound -Program $executablePath -Action Block -Profile Domain, Private, Public
