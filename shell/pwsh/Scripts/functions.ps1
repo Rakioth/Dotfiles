@@ -12,7 +12,7 @@ function Set-Location-Three-Times {
 
 function Start-Code {
     $ErrorActionPreference = "SilentlyContinue"
-    Start-Process -FilePath code -ArgumentList $args -NoNewWindow
+    Start-Process -FilePath code -ArgumentList $args -WindowStyle Hidden
 }
 
 function Start-IntelliJ {
