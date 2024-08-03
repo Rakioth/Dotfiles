@@ -2,10 +2,6 @@ local function alias(name, value)
     os.execute("doskey " .. name .. "=" .. value)
 end
 
--- 🧭 Navigation
-alias("pwd", "cd")
-alias("cd",  "cd /D $*")
-
 -- 🚀 Editors
 alias("co",  "code $*")
 alias("id",  '"C:\\Program Files (x86)\\JetBrains\\IntelliJ IDEA 2024.1.3\\bin\\idea64.exe" $*')
@@ -47,6 +43,7 @@ alias("q", "exit")
 -- 🌱 Git
 alias("gaa", "git add -A $*")
 alias("gca", 'git add -A $t git commit -m "$*"')
+alias("gcp", 'git commit -m "$*" $t git push')
 alias("gs",  "git status -sb $*")
 alias("gf",  "git fetch --all $*")
 alias("gph", "git push $*")

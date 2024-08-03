@@ -23,6 +23,7 @@
         $LOCALAPPDATA/clink/aliases.lua: shell/cmd/aliases.lua
         $LOCALAPPDATA/clink/exports.lua: shell/cmd/exports.lua
         $LOCALAPPDATA/clink/starship.lua: shell/cmd/starship.lua
+        $LOCALAPPDATA/clink/zoxide.lua: shell/cmd/zoxide.lua
         $LOCALAPPDATA/clink/clink_settings: shell/cmd/clink_settings
         ~/Documents/PowerShell: shell/pwsh
 

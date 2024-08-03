@@ -40,12 +40,16 @@ Set-Alias -Name unzip -Value Expand-Zip
 
 # ⚙️ System
 Set-Alias -Name sudo -Value Start-Admin
+Set-Alias -Name bin  -Value Clear-Bin
 Set-Alias -Name c    -Value clear
 Set-Alias -Name q    -Value Quit
 
 # 🌱 Git
+Set-Alias -Name ga  -Value Git-Fuzzy-Add
+Set-Alias -Name gr  -Value Git-Fuzzy-Remove
 Set-Alias -Name gaa -Value Git-Add-All
 Set-Alias -Name gca -Value Git-Commit-All
+Set-Alias -Name gcp -Value Git-Commit-Push
 Set-Alias -Name gs  -Value Git-Status
 Set-Alias -Name gf  -Value Git-Fetch
 Set-Alias -Name gph -Value Git-Push

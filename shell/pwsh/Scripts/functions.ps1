@@ -156,8 +156,20 @@ function Start-Admin {
     gsudo --loadProfile $args
 }
 
+function Clear-Bin {
+    Clear-RecycleBin -Force
+}
+
 function Quit {
     Exit
+}
+
+function Git-Fuzzy-Add {
+    git add (git ls-files --modified --others --exclude-standard | fzf --multi --ansi --preview="bat --color=always --style=numbers --line-range=:500 {}")
+}
+
+function Git-Fuzzy-Remove {
+    git reset HEAD (git diff --cached --name-only --relative | fzf --multi --ansi --preview="bat --color=always --style=numbers --line-range=:500 {}")
 }
 
 function Git-Add-All {
@@ -166,6 +178,10 @@ function Git-Add-All {
 
 function Git-Commit-All {
     git add -A && git commit -m "$args"
+}
+
+function Git-Commit-Push {
+    git commit -m "$args" && git push
 }
 
 function Git-Status {

@@ -2,8 +2,20 @@ function upload_item() {
 	curl -sF "file=@$1" 0x0.st
 }
 
+function git_fuzzy_add() {
+	git add $(git ls-files --modified --others --exclude-standard | fzf --multi --ansi --preview="bat --color=always --style=numbers --line-range=:500 {}")
+}
+
+function git_fuzzy_remove() {
+	git reset HEAD $(git diff --cached --name-only --relative | fzf --multi --ansi --preview="bat --color=always --style=numbers --line-range=:500 {}")
+}
+
 function git_commit_all() {
 	git add -A && git commit -m "$*"
+}
+
+function git_commit_push() {
+	git commit -m "$*" && git push
 }
 
 function git_clone() {

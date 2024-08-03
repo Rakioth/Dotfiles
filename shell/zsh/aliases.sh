@@ -25,8 +25,11 @@ alias c="clear"
 alias q="exit"
 
 # 🌱 Git
+alias ga="git_fuzzy_add"
+alias gr="git_fuzzy_remove"
 alias gaa="git add -A"
 alias gca="git_commit_all"
+alias gcp="git_commit_push"
 alias gs="git status -sb"
 alias gf="git fetch --all"
 alias gph="git push"
