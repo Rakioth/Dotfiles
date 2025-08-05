@@ -103,10 +103,10 @@ $env:PATH = $paths -join ";"
 Write-Host
 
 # Set dotfiles path
-gum confirm --default=no --selected.background=$hex_purple --prompt.foreground="" --prompt.italic --no-show-help "Change dotfiles location? (default ~/.dotfiles)"
+gum confirm --default=false --selected.background=$hex_purple --prompt.foreground="" --prompt.italic --no-show-help "Change dotfiles location? (default ~/.dotfiles)"
 if ($LastExitCode -eq 0) {
     do {
-        $dotfilesLocation = gum file --cursor="❯" --height=10 --directory --no-show-help --cursor.foreground=$hex_purple --symlink.foreground=$hex_blue --selected.foreground="" --directory.foreground=$hex_violet --file.foreground=$hex_green $env:USERPROFILE
+        $dotfilesLocation = gum file --cursor="❯" --height=10 --directory=true --file=false --no-show-help --cursor.foreground=$hex_purple --symlink.foreground=$hex_blue --selected.foreground="" --directory.foreground=$hex_violet --file.foreground=$hex_green $env:USERPROFILE
     } while (-not (Test-Path -Path $dotfilesLocation -PathType Container))
 
     $dotfilesPath = Join-Path -Path $dotfilesLocation -ChildPath $dotfilesFolder
@@ -118,10 +118,12 @@ Set-Item -Path "env:$dotfilesEnv" -Value $dotfilesPath
 
 # Clone dotfiles
 $dotfilesLabel = gum style --foreground=$hex_violet $dotfilesFolder
-gum spin --spinner meter --spinner.foreground=$hex_violet --title "Cloning $dotfilesLabel..." -- git clone --recursive "https://github.com/$dotfilesRepository.git" $env:DOTFILES
-gum spin --spinner meter --spinner.foreground=$hex_violet --title "Taking ownership of $dotfilesLabel..." -- takeown /f $env:DOTFILES /r /d y
-$dotfilesLabel = gum style --foreground=$hex_purple $dotfilesFolder
-gum style --border-foreground=$hex_purple --border=rounded --align=center --width=50 --italic "🎉 $dotfilesLabel cloned!"
+gum spin --spinner meter --spinner.foreground=$hex_purple --title "Cloning $dotfilesLabel..." -- git clone --recursive $dotfilesRepository $env:DOTFILES
+gum spin --spinner meter --spinner.foreground=$hex_purple --title "Taking ownership of $dotfilesLabel..." -- takeown /f $env:DOTFILES /r /d y
+Write-Host @"
+🎉 $dotfilesLabel cloned!
+
+"@
 
 # Install packages
 pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "os\bootstrap.ps1")
