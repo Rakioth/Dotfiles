@@ -83,5 +83,5 @@ if (-not (Test-Path -Path $symlinksFile -PathType Leaf)) {
 
 # Apply the symlinks
 $symlinksLabel = gum style --foreground=$VIOLET symlinks
-gum spin --spinner="moon" --title="Applying $symlinksLabel..." --show-output -- python $dotbotPath -d $env:DOTFILES -c $symlinksFile
+gum spin --spinner="moon" --title="Applying $symlinksLabel..." --show-output --show-error -- python $dotbotPath -d $env:DOTFILES -c $symlinksFile
 Logger -Level debug -Message "Symlinks applied" -Structured "file ""$symlinksFile"""

@@ -1,34 +1,42 @@
-#Requires -PSEdition Core
+. "$env:DOTFILES\core\_main.ps1"
 
-function dot {
-    switch ($args[0]) {
-        "import" {
-            pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "os\bootstrap.ps1") $args[1..$args.Length]
-        }
-        "symlink" {
-            pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "symlinks\bootstrap.ps1") $args[1..$args.Length]
-        }
-        "resource" {
-            pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "resources\bootstrap.ps1") $args[1..$args.Length]
-        }
-        "script" {
-            pwsh -ExecutionPolicy Bypass -File (Join-Path -Path $env:DOTFILES -ChildPath "scripts\bootstrap.ps1") $args[1..$args.Length]
-        }
-        default {
-            Write-Host @"
+if ($args.Count -eq 0) {
+    $opa = Gum-Filter -Options (Dot-ListContexts)
+    Write-Host -NoNewline $opa
+} elseif ($args.Count -eq 1) {
+    if ($args[0] -in @("-h", "--help")) {
+        Write-Host @"
 Usage:
-  dot [<command>]
-
-Commands:
-  import      Install packages.
-  symlink     Apply symlinks.
-  resource    Set-up resources.
-  script      Run scripts.
+  dot
+  dot <context>
+  dot <context> <script> [<args>...]
 
 "@
-        }
+        exit 0
     }
+
+    $context = $args[0]
+    $scripts = Dot-ListContextScripts -Context $context
+    if (-not $scripts) {
+        Output-Error -Message "No scripts found for context '$context'."
+        exit 1
+    }
+
+    Gum-Filter -Options $scripts
+} else {
+    $context = $args[0]
+    $script = $args[1]
+    $remainingArgs = $args[2..($args.Count - 1)]
+
+    $scriptPath = "$env:DOTFILES\$context\$script\main.ps1"
+    if (-not (Test-Path -Path $scriptPath)) {
+        Output-Error -Message "Script '$script' not found in context '$context'."
+        exit 1
+    }
+
+    pwsh -ExecutionPolicy Bypass -File $scriptPath $remainingArgs
 }
+
 
 Register-ArgumentCompleter -CommandName dot -ScriptBlock {
     param($wordToComplete)
