@@ -1,0 +1,8 @@
+- link:
+    ~/.config/bat/:
+      path: config/bat/*
+
+- shell:
+  -
+    command: bat cache --build
+    description: Update binary cache

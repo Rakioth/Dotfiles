@@ -1,0 +1,5 @@
+- link:
+    ~/.zimrc:
+      path: shell/zsh/.zimrc
+    ~/.zshrc:
+      path: shell/zsh/.zshrc

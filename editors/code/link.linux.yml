@@ -1,0 +1,14 @@
+- link:
+    ~/.vscode/extensions/theme:
+      path: editors/code/theme
+    ~/.config/Code/User/snippets:
+      path: editors/code/snippets
+    ~/.config/Code/User/keybindings.json:
+      path: editors/code/keybindings.json
+    ~/.config/Code/User/settings.json:
+      path: editors/code/settings.json
+
+- shell:
+  -
+    command: xargs -a editors/code/.vsrc -I % code --install-extension % && rm -f ~/.vscode/extensions/extensions.json
+    description: Refresh extensions

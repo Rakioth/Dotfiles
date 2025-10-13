@@ -1,0 +1,149 @@
+{
+    "$help": "https://aka.ms/terminal-documentation",
+    "$schema": "https://aka.ms/terminal-profiles-schema",
+    "actions":
+    [
+        {
+            "command": "toggleFocusMode",
+            "id": "User.toggleFocusMode"
+        },
+        {
+            "command":
+            {
+                "action": "sendInput",
+                "input": "\u001b[32;5u"
+            },
+            "id": "User.CtrlSpaceWorkaround"
+        }
+    ],
+    "centerOnLaunch": true,
+    "copyFormatting": "none",
+    "copyOnSelect": false,
+    "defaultProfile": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+    "keybindings":
+    [
+        {
+            "id": "User.toggleFocusMode",
+            "keys": "f2"
+        },
+        {
+            "id": "User.CtrlSpaceWorkaround",
+            "keys": "ctrl+space"
+        },
+        {
+            "id": "Terminal.CopyToClipboard",
+            "keys": "ctrl+c"
+        },
+        {
+            "id": "Terminal.DuplicatePaneAuto",
+            "keys": "alt+shift+d"
+        },
+        {
+            "id": "Terminal.FindText",
+            "keys": "ctrl+shift+f"
+        },
+        {
+            "id": "Terminal.PasteFromClipboard",
+            "keys": "ctrl+v"
+        }
+    ],
+    "launchMode": "focus",
+    "newTabMenu":
+    [
+        {
+            "type": "remainingProfiles"
+        }
+    ],
+    "profiles":
+    {
+        "defaults":
+        {
+            "bellStyle": "none",
+            "closeOnExit": "always",
+            "colorScheme": "Void Glass",
+            "font":
+            {
+                "face": "CaskaydiaCove Nerd Font Mono"
+            },
+            "opacity": 85,
+            "scrollbarState": "hidden",
+            "suppressApplicationTitle": true
+        },
+        "list":
+        [
+            {
+                "commandline": "%ProgramFiles%\\PowerShell\\7\\pwsh.exe -NoLogo",
+                "guid": "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+                "hidden": false,
+                "name": "PowerShell",
+                "source": "Windows.Terminal.PowershellCore"
+            },
+            {
+                "commandline": "%SystemRoot%\\System32\\cmd.exe /k",
+                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                "hidden": false,
+                "name": "Command Prompt"
+            },
+            {
+                "commandline": "%SystemRoot%\\System32\\wsl.exe --distribution archlinux",
+                "guid": "{22a4dacd-b53f-54af-89a7-e5af3bb0e8af}",
+                "hidden": false,
+                "icon": "%DOTFILES%\\config\\terminal\\shortcut.ico",
+                "name": "ArchLinux",
+                "startingDirectory": "~"
+            }
+        ]
+    },
+    "schemes":
+    [
+        {
+            "background": "#1E1E1E",
+            "black": "#000000",
+            "blue": "#2472C8",
+            "brightBlack": "#666666",
+            "brightBlue": "#95B7F7",
+            "brightCyan": "#29B8DB",
+            "brightGreen": "#B2B437",
+            "brightPurple": "#D670D6",
+            "brightRed": "#F14C4C",
+            "brightWhite": "#E5E5E5",
+            "brightYellow": "#6DCA7B",
+            "cursorColor": "#E35278",
+            "cyan": "#11A8CD",
+            "foreground": "#D5CED9",
+            "green": "#B8BB26",
+            "name": "Void",
+            "purple": "#BC3FBC",
+            "red": "#FB5245",
+            "selectionBackground": "#442B43",
+            "white": "#D5CED9",
+            "yellow": "#82D173"
+        },
+        {
+            "background": "#000000",
+            "black": "#000000",
+            "blue": "#2472C8",
+            "brightBlack": "#666666",
+            "brightBlue": "#95B7F7",
+            "brightCyan": "#29B8DB",
+            "brightGreen": "#B2B437",
+            "brightPurple": "#D670D6",
+            "brightRed": "#F14C4C",
+            "brightWhite": "#E5E5E5",
+            "brightYellow": "#6DCA7B",
+            "cursorColor": "#E35278",
+            "cyan": "#11A8CD",
+            "foreground": "#D5CED9",
+            "green": "#B8BB26",
+            "name": "Void Glass",
+            "purple": "#BC3FBC",
+            "red": "#FB5245",
+            "selectionBackground": "#442B43",
+            "white": "#D5CED9",
+            "yellow": "#82D173"
+        }
+    ],
+    "themes": [],
+    "useAcrylicInTabRow": true,
+    "windowingBehavior": "useExisting"
+}

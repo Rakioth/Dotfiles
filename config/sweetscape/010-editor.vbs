@@ -1,0 +1,1 @@
+CreateObject("WScript.Shell").Run("powershell.exe -NoProfile -NonInteractive -WindowStyle Hidden -Command ""Remove-Item -Path 'HKCU:\SOFTWARE\SweetScape\010 Editor\CLASSES' -Recurse -ErrorAction SilentlyContinue"""), 0

@@ -1,0 +1,8 @@
+- link:
+    $LOCALAPPDATA/nvim/:
+      path: editors/nvim/*
+
+- shell:
+  -
+    command: rmdir /s /q "%LOCALAPPDATA%\nvim-data"
+    description: Remove data directory

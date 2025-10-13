@@ -1,0 +1,3 @@
+- link:
+    ~/.config/starship.toml:
+      path: config/starship/starship.toml

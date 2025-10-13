@@ -1,0 +1,5 @@
+- link:
+    $APPDATA/gnupg/gpg-agent.conf:
+      path: config/gnupg/gpg-agent.conf
+    $APPDATA/Microsoft/Windows/Start Menu/Programs/Startup/gpg-connect.vbs:
+      path: config/gnupg/gpg-connect.vbs

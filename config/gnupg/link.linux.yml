@@ -1,0 +1,3 @@
+- link:
+    ~/.gnupg/gpg-agent.conf:
+      path: config/gnupg/gpg-agent.conf

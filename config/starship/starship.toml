@@ -1,0 +1,126 @@
+"$schema" = "https://starship.rs/config-schema.json"
+
+format = """
+$username\
+$directory\
+$git_branch\
+$git_commit\
+$git_status\
+$fill\
+$package\
+$bun\
+$gradle\
+$nodejs\
+$dotnet\
+$golang\
+$java\
+$kotlin\
+$lua\
+$python\
+$rust\
+$swift\
+$line_break\
+$character"""
+
+add_newline = false
+
+palette = "void"
+
+[username]
+format = "[@$user]($style) in "
+style_root = "primary"
+style_user = "primary"
+show_always = true
+
+[directory]
+format = "[$path]($style) "
+style = "secondary"
+
+[directory.substitutions]
+"C:" = "Local"
+"D:" = "Data"
+
+[git_branch]
+format = "on [$symbol $branch]($style) "
+symbol = "🪵"
+style = "#d69956"
+
+[git_commit]
+format = "on [$tag]($style) "
+style = "#da2d2b"
+tag_symbol = "🔖 "
+tag_disabled = false
+
+[git_status]
+style = "primary"
+
+[character]
+success_symbol = "[❯](bold yellow)"
+
+[fill]
+symbol = " "
+
+[package]
+format = "[$symbol ($version)]($style) "
+symbol = "📦"
+style = "#e0b56e"
+display_private = true
+
+[bun]
+format = "[$symbol ($version)]($style) "
+symbol = "🍞"
+style = "#e0c393"
+
+[gradle]
+format = "[$symbol ($version)]($style) "
+symbol = "🐘"
+style = "#bababa"
+
+[nodejs]
+format = "[$symbol ($version)]($style) "
+symbol = "🍀"
+style = "#02b95e"
+
+[dotnet]
+format = "[$symbol ($version)]($style) "
+symbol = "🎯"
+style = "#3f91dc"
+
+[golang]
+format = "[$symbol ($version)]($style) "
+symbol = "🐹"
+style = "#d69956"
+
+[java]
+format = "[$symbol ($version)]($style) "
+symbol = "☕"
+style = "#7d4533"
+
+[kotlin]
+format = "[$symbol ($version)]($style) "
+symbol = "🫧"
+style = "#c599da"
+
+[lua]
+format = "[$symbol ($version)]($style) "
+symbol = "🌙"
+style = "#ddbb39"
+
+[python]
+format = "[$symbol ($version)]($style) "
+symbol = "🐍"
+style = "#02b95e"
+
+[rust]
+format = "[$symbol ($version)]($style) "
+symbol = "🦀"
+style = "#da2d2b"
+
+[swift]
+format = "[$symbol ($version)]($style) "
+symbol = "🐦"
+style = "#b20c42"
+
+[palettes.void]
+primary = "#ce3ed6"
+secondary = "#c698f2"

@@ -1,0 +1,3 @@
+- link:
+    $APPDATA/lsd/:
+      path: config/lsd/*

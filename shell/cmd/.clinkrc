@@ -1,0 +1,27 @@
+autosuggest.hint       = False
+clink.autoupdate       = off
+clink.logo             = none
+prompt.spacing         = compact
+suggestionlist.default = True
+
+color.arg                      = cyan
+color.argmatcher               = bright yellow
+color.cmd                      = bright yellow
+color.cmdredir                 = bright black
+color.cmdsep                   = bright black
+color.comment_row              = green
+color.common_match_prefix      = white
+color.description              = white
+color.doskey                   = bright yellow
+color.executable               = bright yellow
+color.filtered                 = bright white
+color.flag                     = bright black
+color.input                    = white
+color.interact                 = bright cyan
+color.selected_completion      = bright cyan
+color.selection                = reverse
+color.suggestion               = bright black
+color.suggestionlist_highlight = cyan
+color.suggestionlist_markup    = bright yellow
+color.unexpected               = bright red
+color.unrecognized             = bright yellow

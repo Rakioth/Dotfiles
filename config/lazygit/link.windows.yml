@@ -1,0 +1,3 @@
+- link:
+    $LOCALAPPDATA/lazygit/:
+      path: config/lazygit/*

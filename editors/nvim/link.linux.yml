@@ -1,0 +1,8 @@
+- link:
+    ~/.config/nvim/:
+      path: editors/nvim/*
+
+- shell:
+  -
+    command: rm -rf ~/.local/state/nvim ~/.local/share/nvim
+    description: Remove data directory

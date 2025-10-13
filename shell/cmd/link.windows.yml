@@ -1,0 +1,7 @@
+- link:
+    $LOCALAPPDATA/clink/init.lua:
+      path: shell/cmd/init.lua
+    $LOCALAPPDATA/clink/clink_settings:
+      path: shell/cmd/.clinkrc
+    $LOCALAPPDATA/clink/.inputrc:
+      path: shell/cmd/.inputrc

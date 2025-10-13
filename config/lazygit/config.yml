@@ -1,0 +1,46 @@
+gui:
+  mouseEvents: false
+  theme:
+    activeBorderColor:
+      - "#ce3ed6"
+    inactiveBorderColor:
+      - "#c698f2"
+    searchingActiveBorderColor:
+      - cyan
+      - bold
+    optionsTextColor:
+      - "#5f6167"
+    selectedLineBgColor:
+      - blue
+    inactiveViewSelectedLineBgColor:
+      - bold
+    cherryPickedCommitFgColor:
+      - blue
+    cherryPickedCommitBgColor:
+      - cyan
+    markedBaseCommitFgColor:
+      - blue
+    markedBaseCommitBgColor:
+      - yellow
+    unstagedChangesColor:
+      - red
+    defaultFgColor:
+      - default
+  showListFooter: false
+  showBottomLine: false
+  showPanelJumps: false
+  nerdFontsVersion: "3"
+  spinner:
+    frames:
+      - '✢'
+      - '✲'
+      - '✶'
+      - '✻'
+      - '✽'
+      - '✻'
+      - '✶'
+      - '✲'
+    rate: 100
+os:
+  editPreset: "nvim-remote"
+disableStartupPopups: true

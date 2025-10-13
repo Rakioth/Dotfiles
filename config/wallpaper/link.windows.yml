@@ -1,0 +1,8 @@
+- link:
+    $ProgramFiles (x86)/Steam/steamapps/common/wallpaper_engine/projects/myprojects/:
+      path: config/wallpaper/*
+
+- shell:
+  -
+    command: pwsh -NoProfile -ExecutionPolicy Bypass -File config/wallpaper/exec.ps1
+    description: Wallpaper presets

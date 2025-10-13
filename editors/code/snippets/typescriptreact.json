@@ -1,0 +1,33 @@
+{
+  "rcui": {
+    "prefix": "rcui",
+    "body": [
+      "\"use client\"",
+      "",
+      "import type * as React from \"react\"",
+      "import { cn } from \"@/lib/utils\"",
+      "",
+      "function ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({ className, ...props }: React.ComponentProps<\"${1:div}\">) {",
+      "  return <${1:div} className={cn(\"\", className)} {...props} />",
+      "}",
+      "",
+      "export { ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/} }",
+      ""
+    ]
+  },
+  "rcex": {
+    "prefix": "rcex",
+    "body": [
+      "\"use client\"",
+      "",
+      "import * as React from \"react\"",
+      "",
+      "interface ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}Props {}",
+      "",
+      "export function ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}({}: ${TM_FILENAME_BASE/(.*)/${1:/pascalcase}/}Props) {",
+      "  return <$1></$1>",
+      "}",
+      ""
+    ]
+  }
+}

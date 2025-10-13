@@ -1,0 +1,2 @@
+"\C-r": "luafunc:fzf_file"
+"\M-h": "luafunc:fzf_history"

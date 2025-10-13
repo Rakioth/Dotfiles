@@ -1,0 +1,7 @@
+zmodule Aloxaf/fzf-tab
+zmodule zimfw/completion
+zmodule zimfw/environment
+zmodule zimfw/input
+zmodule zsh-users/zsh-autosuggestions
+zmodule zsh-users/zsh-completions
+zmodule zsh-users/zsh-syntax-highlighting

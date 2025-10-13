@@ -1,0 +1,9 @@
+- defaults:
+    link:
+      create: true
+      force: true
+      glob: true
+      exclude: [ "**/link.*.yml", "**/exec.*" ]
+    shell:
+      stdout: true
+      stderr: true

@@ -1,0 +1,32 @@
+{
+	"name": "theme",
+	"version": "0.0.0",
+	"displayName": "Void Theme",
+	"description": "🇨​​🇴​​🇩​​🇪​ ​🇸​​🇱​​🇦​​🇾​​🇪​​🇷​ 🥀",
+	"publisher": "Raks Labs",
+	"icon": "icon.png",
+	"engines": {
+		"vscode": "^1.51.0"
+	},
+	"contributes": {
+		"themes": [
+			{
+				"label": "Void",
+				"uiTheme": "vs-dark",
+				"path": "./void.json"
+			},
+			{
+				"label": "Void Glass",
+				"uiTheme": "vs-dark",
+				"path": "./void-glass.json"
+			}
+		]
+	},
+	"__metadata": {
+		"isApplicationScoped": false,
+		"installedTimestamp": 1755187815452,
+		"pinned": true,
+		"source": "vsix",
+		"size": 159614
+	}
+}

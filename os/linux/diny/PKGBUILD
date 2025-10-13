@@ -1,0 +1,17 @@
+pkgname=diny
+pkgver=$(curl -s https://api.github.com/repos/dinoDanic/${pkgname}/releases/latest | grep -Po '"tag_name": "v\K[^"]+')
+pkgrel=1
+pkgdesc='diny is a tiny dinosaur that writes your git commit messages for you.'
+arch=('x86_64')
+url="https://github.com/dinoDanic/${pkgname}"
+license=('MIT')
+provides=("$pkgname")
+conflicts=("$pkgname")
+
+source=("${url}/releases/download/v${pkgver}/${pkgname}_Linux_x86_64.tar.gz")
+sha256sums=('SKIP')
+
+package() {
+	install -Dm755 "${srcdir}/${pkgname}" "${pkgdir}/usr/bin/${pkgname}"
+	install -Dm644 "${srcdir}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

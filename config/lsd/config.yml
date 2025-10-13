@@ -1,0 +1,6 @@
+color:
+  when: auto
+  theme: custom
+date: '+%b %d %H:%M'
+permission: rwx
+symlink-arrow: 󰁕

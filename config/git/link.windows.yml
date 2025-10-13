@@ -1,0 +1,5 @@
+- link:
+    ~/shared.gitconfig:
+      path: config/git/shared.gitconfig
+    ~/.gitconfig:
+      path: config/git/windows.gitconfig

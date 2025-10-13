@@ -1,0 +1,14 @@
+- link:
+    ~/.vscode/extensions/theme:
+      path: editors/code/theme
+    $APPDATA/Code/User/snippets:
+      path: editors/code/snippets
+    $APPDATA/Code/User/keybindings.json:
+      path: editors/code/keybindings.json
+    $APPDATA/Code/User/settings.json:
+      path: editors/code/settings.json
+
+- shell:
+  -
+    command: (for /f %e in (editors\code\.vsrc) do code --install-extension %e) & del "%USERPROFILE%\.vscode\extensions\extensions.json"
+    description: Refresh extensions

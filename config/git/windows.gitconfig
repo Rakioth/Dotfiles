@@ -1,0 +1,5 @@
+[include]
+	path = shared.gitconfig
+
+[gpg]
+	program = C:/Program Files (x86)/GnuPG/bin/gpg.exe

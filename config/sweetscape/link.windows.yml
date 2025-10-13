@@ -1,0 +1,3 @@
+- link:
+    $APPDATA/Microsoft/Windows/Start Menu/Programs/Startup/010-editor.vbs:
+      path: config/sweetscape/010-editor.vbs
